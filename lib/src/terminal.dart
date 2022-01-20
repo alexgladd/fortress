@@ -89,6 +89,10 @@ abstract class RenderableTerminal<T extends Renderer> extends Terminal {
     super.drawChar(x, y, char);
     _state.setChar(x, y, char);
   }
+
+  /// Converts the given position on the rendered display in pixels to a column/row position on this
+  /// [RenderableTerminal].
+  Vec2 pixelsToPosition(Vec2 pixels);
 }
 
 class TerminalState {

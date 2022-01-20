@@ -10,6 +10,9 @@ import 'vector.dart';
 class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
   final html.CanvasElement _canvas;
 
+  /// The [html.CanvasElement] being used by this [CanvasTerminal]
+  html.CanvasElement get canvas => _canvas;
+
   factory CanvasTerminal.withCanvas(
       html.CanvasElement canvas, CanvasRenderer renderer, int pixelWidth, int pixelHeight,
       [int? scale]) {
@@ -19,8 +22,8 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
 
     canvas.width = cols * renderer.charWidth;
     canvas.height = rows * renderer.charHeight;
-    canvas.style.width = '${pixelWidth}px';
-    canvas.style.height = '${pixelHeight}px';
+    canvas.style.width = '${canvas.width! / scale}px';
+    canvas.style.height = '${canvas.height! / scale}px';
 
     return CanvasTerminal._(canvas, renderer, cols, rows);
   }
@@ -30,6 +33,10 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
     scale ??= html.window.devicePixelRatio.toInt();
     CanvasRenderer renderer;
     var canvas = html.CanvasElement();
+
+    // do our best to get pixel-perfect rendering
+    canvas.style.imageRendering = 'pixelated';
+    canvas.style.fontSmoothing = 'none';
 
     switch (rendererType) {
       case CanvasRendererType.font:
@@ -46,4 +53,11 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
 
   CanvasTerminal._(this._canvas, CanvasRenderer renderer, int columns, int rows)
       : super(columns, rows, renderer);
+
+  @override
+  Vec2 pixelsToPosition(Vec2 pixels) {
+    var col = pixels.x * renderer.scale ~/ renderer.charWidth;
+    var row = pixels.y * renderer.scale ~/ renderer.charHeight;
+    return Vec2(col, row);
+  }
 }

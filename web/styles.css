@@ -1,4 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+@font-face {
+  font-family: 'DOS VGA 437';
+  src: url('packages/fortress/PerfectDOSVGA437.ttf');
+}
 
 * {
   box-sizing: border-box;
@@ -9,7 +12,7 @@ html, body {
   padding: 0;
   width: 100vw;
   height: 100vh;
-  font-family: 'VT323', monospace;
+  font-family: 'DOS VGA 437', monospace;
   background-color: darkgray;
 }
 

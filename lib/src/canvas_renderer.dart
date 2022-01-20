@@ -23,7 +23,12 @@ abstract class CanvasRenderer extends Renderer {
   /// The height in pixels of a single rendered character (before scaling)
   int get charHeight;
 
-  CanvasRenderer(this._scale, this._ctx);
+  CanvasRenderer(this._scale, this._ctx) {
+    // help us get pixel-perfect rendering
+    _ctx.imageSmoothingEnabled = false;
+    // make things more consistent with how we think of things on the screen
+    _ctx.translate(0.5, 0.5);
+  }
 }
 
 class FontRenderer extends CanvasRenderer {
@@ -39,7 +44,7 @@ class FontRenderer extends CanvasRenderer {
     text ??= 'a';
     context.textBaseline = 'top';
     context.font = font;
-    var metrics = context.measureText('a');
+    var metrics = context.measureText(String.fromCharCode(0x2588));
 
     // get the width
     int left = metrics.actualBoundingBoxLeft?.round() ?? 0;
@@ -73,14 +78,16 @@ class FontRenderer extends CanvasRenderer {
 
   @override
   void renderChar(int x, int y, Char char) {
-    // first render the background
-    ctx.fillStyle = char.background.cssColor;
-    ctx.fillRect(x * charWidth, y * charHeight, charWidth, charHeight);
-
-    // then render the character
+    // setup
     ctx.textBaseline = 'top';
     ctx.font = font;
+
+    // first render the background as a full block
+    ctx.fillStyle = char.background.cssColor;
+    ctx.fillText(String.fromCharCode(0x2588), x * charWidth, y * charHeight);
+
+    // then render the character
     ctx.fillStyle = char.foreground.cssColor;
-    ctx.fillText(String.fromCharCode(char.charCode), x * charWidth, y * charHeight);
+    ctx.fillText(String.fromCharCode(char.charCode), x * charWidth, y * charHeight, charWidth);
   }
 }
