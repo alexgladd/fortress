@@ -48,7 +48,7 @@ abstract class Terminal {
 
     for (var i = 0; i < text.length; i++) {
       if (x + i >= width) break;
-      drawChar(x, y, Char.create(text.codeUnits[i], foreground, background));
+      drawChar(x + i, y, Char.create(text.codeUnits[i], foreground, background));
     }
   }
 

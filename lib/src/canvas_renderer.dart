@@ -5,6 +5,11 @@ import 'char.dart';
 import 'renderer.dart';
 import 'vector.dart';
 
+enum CanvasRendererType {
+  font,
+  glyph,
+}
+
 abstract class CanvasRenderer extends Renderer {
   final int _scale;
   final html.CanvasRenderingContext2D _ctx;
