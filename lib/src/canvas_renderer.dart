@@ -78,8 +78,4 @@ class FontRenderer extends CanvasRenderer {
     ctx.fillStyle = char.foreground.cssColor;
     ctx.fillText(String.fromCharCode(char.charCode), x * charWidth, y * charHeight);
   }
-
-  // Vec2 _measureText(String text) {
-  //   return measureText(ctx, font, text);
-  // }
 }

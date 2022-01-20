@@ -6,24 +6,34 @@ import 'package:fortress/src/canvas_renderer.dart';
 import 'package:fortress/src/char.dart';
 import 'package:fortress/src/color.dart';
 
-void main() {
+void main() async {
+  const fontFamily = 'DOS VGA 437';
   var scale = html.window.devicePixelRatio.toInt();
   var gameDiv = html.querySelector('#game')!;
   var canvas = html.CanvasElement();
 
-  var renderer = FontRenderer(canvas.context2D, scale);
+  /// Shout-out to https://github.com/CP437/PerfectDOSVGA437
+  var font = html.FontFace(fontFamily, 'url(packages/fortress/PerfectDOSVGA437.ttf)');
+  await font.load();
 
-  var screenCols = math.max<int>(gameDiv.clientWidth ~/ renderer.charWidth, 40);
-  var screenRows = math.max<int>(gameDiv.clientHeight ~/ renderer.charHeight, 20);
+  var renderer =
+      FontRenderer(canvas.context2D, scale, 'normal ${8 * 2 * scale}px "$fontFamily", monospace');
+
+  print('GAME width ${gameDiv.clientWidth}, height ${gameDiv.clientHeight}');
+
+  var screenCols = math.max<int>(gameDiv.clientWidth ~/ renderer.charWidth, 20) * scale;
+  var screenRows = math.max<int>(gameDiv.clientHeight ~/ renderer.charHeight, 10) * scale;
+
+  print('TERM cols $screenCols, rows $screenRows');
 
   var cWidth = renderer.charWidth * screenCols;
   var cHeight = renderer.charHeight * screenRows;
 
-  canvas.width = cWidth * scale;
-  canvas.height = cHeight * scale;
+  canvas.width = cWidth;
+  canvas.height = cHeight;
 
-  canvas.style.width = '${cWidth}px';
-  canvas.style.height = '${cHeight}px';
+  canvas.style.width = '${cWidth / scale}px';
+  canvas.style.height = '${cHeight / scale}px';
 
   gameDiv.append(canvas);
 
@@ -45,4 +55,6 @@ void main() {
   renderer.renderChar(12, 10, Char.create(0x2588));
   renderer.renderChar(12, 11, Char.create(0x2588));
   renderer.renderChar(12, 12, Char.create(0x2588));
+
+  renderer.renderChar(32, 0, Char.create(0x263A, Color.gold));
 }
