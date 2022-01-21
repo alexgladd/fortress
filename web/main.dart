@@ -32,8 +32,11 @@ void main() async {
   terminal.drawText(0, 1, 'abcdefghijklmnopqrstuvwxyz');
   terminal.drawText(0, 2, '01234567890');
   terminal.drawText(0, 3, '!@#\$%^&*()_+');
-
+  terminal.drawCharCode(0, 4, 0x1, Color.yellow);
   terminal.drawChar(0, 5, Char.create('A', Color.gold));
+  terminal.drawCharCode(0, 6, 0xB0, Color.brown);
+  terminal.drawCharCode(1, 6, 0xB1, Color.brown);
+  terminal.drawCharCode(2, 6, 0xB2, Color.brown);
 
   Vec2? lastPointer;
   terminal.canvas.onMouseMove.listen((event) {
