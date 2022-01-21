@@ -17,13 +17,16 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
       html.CanvasElement canvas, CanvasRenderer renderer, int pixelWidth, int pixelHeight,
       [int? scale]) {
     scale ??= html.window.devicePixelRatio.toInt();
-    var cols = pixelWidth * scale ~/ renderer.charWidth;
-    var rows = pixelHeight * scale ~/ renderer.charHeight;
+    var cols = pixelWidth ~/ renderer.charWidth;
+    var rows = pixelHeight ~/ renderer.charHeight;
 
-    canvas.width = cols * renderer.charWidth;
-    canvas.height = rows * renderer.charHeight;
-    canvas.style.width = '${canvas.width! / scale}px';
-    canvas.style.height = '${canvas.height! / scale}px';
+    var cWidth = cols * renderer.charWidth;
+    var cHeight = rows * renderer.charHeight;
+
+    canvas.width = cWidth * scale;
+    canvas.height = cHeight * scale;
+    canvas.style.width = '${cWidth}px';
+    canvas.style.height = '${cHeight}px';
 
     return CanvasTerminal._(canvas, renderer, cols, rows);
   }
@@ -44,7 +47,8 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
         break;
 
       case CanvasRendererType.glyph:
-        throw UnimplementedError('Glyph renderer is not implemented yet');
+        renderer = GlyphRenderer.dosVga437(canvas.context2D, scale);
+        break;
     }
 
     parent.append(canvas);
@@ -55,9 +59,15 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
       : super(columns, rows, renderer);
 
   @override
+  void render() {
+    if (!renderer.ready) return;
+    super.render();
+  }
+
+  @override
   Vec2 pixelsToPosition(Vec2 pixels) {
-    var col = pixels.x * renderer.scale ~/ renderer.charWidth;
-    var row = pixels.y * renderer.scale ~/ renderer.charHeight;
+    var col = pixels.x ~/ renderer.charWidth;
+    var row = pixels.y ~/ renderer.charHeight;
     return Vec2(col, row);
   }
 }

@@ -20,9 +20,11 @@ void main() async {
 
   print('GAME width ${gameDiv.clientWidth}, height ${gameDiv.clientHeight}');
 
-  var terminal = CanvasTerminal.withParent(gameDiv, CanvasRendererType.font,
-      scale: html.window.devicePixelRatio.toInt(),
-      font: 'normal ${8 * 2 * scale}px "$fontFamily", monospace');
+  // var terminal = CanvasTerminal.withParent(gameDiv, CanvasRendererType.font,
+  //     scale: scale,
+  //     font: 'normal ${8 * 2 * scale}px "$fontFamily", monospace');
+
+  var terminal = CanvasTerminal.withParent(gameDiv, CanvasRendererType.glyph, scale: scale);
 
   print('TERM cols ${terminal.width}, rows ${terminal.height}');
 
@@ -32,8 +34,6 @@ void main() async {
   terminal.drawText(0, 3, '!@#\$%^&*()_+');
 
   terminal.drawChar(0, 5, Char.create('A', Color.gold));
-
-  terminal.render();
 
   Vec2? lastPointer;
   terminal.canvas.onMouseMove.listen((event) {
@@ -47,8 +47,7 @@ void main() async {
 
     lastPointer = pos;
 
-    terminal.drawChar(pos.x, pos.y, Char.create(0x2588, Color.lightGreen));
-    terminal.render();
+    terminal.drawChar(pos.x, pos.y, Char.create(0xDB /*0x2588*/, Color.lightGreen));
   });
 
   terminal.canvas.onClick.listen((event) {
@@ -57,7 +56,13 @@ void main() async {
     print('PIXELS x ${pixels.x}, y ${pixels.y}');
     var pos = terminal.pixelsToPosition(pixels);
 
-    terminal.drawChar(pos.x, pos.y, Char.create(0x2588, Color.brown));
-    terminal.render();
+    terminal.drawChar(pos.x, pos.y, Char.create(0xDB /*0x2588*/, Color.brown));
   });
+
+  void tick(num dt) {
+    terminal.render();
+    html.window.requestAnimationFrame(tick);
+  }
+
+  html.window.requestAnimationFrame(tick);
 }
