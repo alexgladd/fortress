@@ -1,9 +1,13 @@
 import 'dart:html' as html;
+import 'dart:math' as math;
+
+import 'package:fortress/src/char_code.dart';
 
 import 'canvas_renderer.dart';
 import 'canvas_terminal.dart';
 import 'char.dart';
 import 'color.dart';
+import 'unicode_map.dart';
 import 'vector.dart';
 
 /// Renders characters to a [CanvasTerminal] using bitmap glyphs. The renderer must be supplied with
@@ -18,6 +22,8 @@ class GlyphRenderer extends CanvasRenderer {
 
   final Vec2 _charSize;
   final html.ImageElement _glyphs;
+  final Map<int, int> _charToGlyphIndex;
+  final int _maxGlyphIndex;
   final Map<Color, html.CanvasElement> _glyphColorCache = {};
 
   bool _glyphsLoaded = false;
@@ -37,11 +43,14 @@ class GlyphRenderer extends CanvasRenderer {
     var glyphsImg = html.ImageElement(src: dosVga437GlyphsSrc);
     var charSize = Vec2(dosVga437CharWidth, dosVga437CharHeight);
 
-    return GlyphRenderer._(glyphsImg, charSize, context, scale);
+    return GlyphRenderer(glyphsImg, defaultUnicodeMap, charSize, context, scale);
   }
 
-  GlyphRenderer._(this._glyphs, this._charSize, html.CanvasRenderingContext2D context, int scale)
-      : super(scale, context) {
+  GlyphRenderer(this._glyphs, this._charToGlyphIndex, this._charSize,
+      html.CanvasRenderingContext2D context, int scale)
+      : _maxGlyphIndex = _charToGlyphIndex.values.reduce(math.max),
+        super(scale, context) {
+    // make sure the glyphs load
     _glyphs.onLoad.listen((_) {
       _glyphsLoaded = true;
     });
@@ -61,11 +70,19 @@ class GlyphRenderer extends CanvasRenderer {
         x * charWidth * scale, y * charHeight * scale, charWidth * scale, charHeight * scale);
 
     // skip rendering empty characters
-    if (char.charCode == 0 || char.charCode == 0x20 || char.charCode == 0xA0) return;
+    if (char.charCode == CharCode.nullChar ||
+        char.charCode == CharCode.space ||
+        char.charCode == CharCode.nbsp) return;
 
     // index into the glyph array
-    var gx = (char.charCode % 32) * charWidth;
-    var gy = (char.charCode ~/ 32) * charHeight;
+    var glyphIndex = _charToGlyphIndex[char.charCode] ?? char.charCode;
+    var gx = (glyphIndex % 32) * charWidth;
+    var gy = (glyphIndex ~/ 32) * charHeight;
+
+    // skip rendering out-of-bounds characters
+    if (glyphIndex > _maxGlyphIndex) return;
+
+    // print('GLYPH RNDR code ${char.charCode}, idx $glyphIndex, gx $gx, gy $gy');
 
     // render the glyph
     var colorGlyphs = _getColorGlyphs(char.foreground);

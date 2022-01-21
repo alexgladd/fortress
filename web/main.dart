@@ -3,6 +3,7 @@ import 'dart:html' as html;
 import 'package:fortress/src/canvas_renderer.dart';
 import 'package:fortress/src/canvas_terminal.dart';
 import 'package:fortress/src/char.dart';
+import 'package:fortress/src/char_code.dart';
 import 'package:fortress/src/color.dart';
 import 'package:fortress/src/vector.dart';
 
@@ -31,11 +32,11 @@ void main() async {
   terminal.drawText(0, 1, 'abcdefghijklmnopqrstuvwxyz');
   terminal.drawText(0, 2, '01234567890');
   terminal.drawText(0, 3, '!@#\$%^&*()_+');
-  terminal.drawCharCode(0, 4, 0x1, Color.yellow);
-  terminal.drawChar(0, 5, Char.create('A', Color.gold));
-  terminal.drawCharCode(0, 6, 0xB0, Color.brown);
-  terminal.drawCharCode(1, 6, 0xB1, Color.brown);
-  terminal.drawCharCode(2, 6, 0xB2, Color.brown);
+  terminal.drawChar(0, 4, Char.create('A', Color.gold));
+  terminal.drawCharCode(0, 5, CharCode.whiteSmilingFace, Color.yellow);
+  terminal.drawCharCode(0, 6, CharCode.lightShade, Color.brown);
+  terminal.drawCharCode(1, 6, CharCode.mediumShade, Color.brown);
+  terminal.drawCharCode(2, 6, CharCode.darkShade, Color.brown);
 
   Vec2? lastPointer;
   terminal.canvas.onMouseMove.listen((event) {
@@ -49,16 +50,16 @@ void main() async {
 
     lastPointer = pos;
 
-    terminal.drawChar(pos.x, pos.y, Char.create(0xDB /*0x2588*/, Color.lightGreen));
+    terminal.drawChar(pos.x, pos.y, Char.create(CharCode.fullBlock, Color.lightGreen));
   });
 
   terminal.canvas.onClick.listen((event) {
     // we must offset the mouse position here because of how the canvas renders pixels
     var pixels = Vec2((event.offset.x - 0.5).toInt(), (event.offset.y - 0.5).toInt());
-    print('PIXELS x ${pixels.x}, y ${pixels.y}');
+    print('CLICK x ${pixels.x}, y ${pixels.y}');
     var pos = terminal.pixelsToPosition(pixels);
 
-    terminal.drawChar(pos.x, pos.y, Char.create(0xDB /*0x2588*/, Color.brown));
+    terminal.drawChar(pos.x, pos.y, Char.create(CharCode.fullBlock, Color.brown));
   });
 
   void tick(num dt) {
