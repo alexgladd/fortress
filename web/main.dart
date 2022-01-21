@@ -21,8 +21,7 @@ void main() async {
   print('GAME width ${gameDiv.clientWidth}, height ${gameDiv.clientHeight}');
 
   // var terminal = CanvasTerminal.withParent(gameDiv, CanvasRendererType.font,
-  //     scale: scale,
-  //     font: 'normal ${8 * 2 * scale}px "$fontFamily", monospace');
+  //     scale: 1, font: 'normal ${8 * scale}px "$fontFamily", monospace');
 
   var terminal = CanvasTerminal.withParent(gameDiv, CanvasRendererType.glyph, scale: scale);
 

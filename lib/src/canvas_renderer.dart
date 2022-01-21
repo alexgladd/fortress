@@ -1,6 +1,7 @@
 import 'dart:html' as html;
 import 'dart:math' as math;
 
+import 'canvas_terminal.dart';
 import 'char.dart';
 import 'color.dart';
 import 'renderer.dart';
@@ -36,7 +37,8 @@ abstract class CanvasRenderer extends Renderer {
 }
 
 /// Renders characters to a [CanvasTerminal] using bitmap glyphs. The renderer must be supplied with
-/// a mapping between supported characters and the glyphs.
+/// a mapping between supported characters and the glyphs. This renderer works best when supplied
+/// with an appropriate pixel density scale.
 class GlyphRenderer extends CanvasRenderer {
   /// Default set of glyphs covering the code page 437 content.
   /// Shout out to https://github.com/munificent/malison
@@ -128,8 +130,8 @@ class GlyphRenderer extends CanvasRenderer {
 }
 
 /// Renders characters to a [CanvasTerminal] using normal fonts and text drawing. Can draw any
-/// character supported by the supplied font.
-/// TODO: this is broken now because of scale changes for the glyph renderer!
+/// character supported by the supplied font. This renderer works best if you keep the scale at 1
+/// and instead adjust the pixel size of the supplied font string based on the device pixel density.
 class FontRenderer extends CanvasRenderer {
   /// Default font string for standard scale
   static const cssFont = 'normal 12 "Menlo", "Courier", monospace';
