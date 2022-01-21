@@ -1,6 +1,8 @@
 import 'dart:html' as html;
 
 import 'canvas_renderer.dart';
+import 'font_renderer.dart';
+import 'glyph_renderer.dart';
 import 'terminal.dart';
 import 'vector.dart';
 
