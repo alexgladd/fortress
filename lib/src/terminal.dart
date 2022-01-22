@@ -1,5 +1,6 @@
 import 'array.dart';
 import 'char.dart';
+import 'char_code.dart';
 import 'color.dart';
 import 'renderer.dart';
 import 'vector.dart';
@@ -27,7 +28,7 @@ abstract class Terminal {
   /// Must be implemented by subclasses for the terminal to be useful.
   /// Always call this base method in implementations to do automatic bounds checking.
   void drawChar(int x, int y, Char char) {
-    _boundsCheck(x, y);
+    boundsCheck(x, y);
   }
 
   /// Draws a character at column [x], row [y] of this [Terminal] using its integer [charCode]
@@ -52,10 +53,67 @@ abstract class Terminal {
     }
   }
 
+  /// Clears and fills the given rectangle with the given (or default) background [Color].
+  void fill(int x, int y, int width, int height, [Color? color]) {
+    color ??= background;
+
+    // fail fast
+    boundsCheck(x, y);
+    boundsCheck(x + width - 1, y + width - 1);
+
+    var char = Char.create(CharCode.space, foreground, color);
+
+    for (var fy = y; fy < y + height; y++) {
+      for (var fx = x; fx < x + width; x++) {
+        drawChar(fx, fy, char);
+      }
+    }
+  }
+
+  /// Get a child [Terminal] within this one
+  Terminal child(int x, int y, int width, int height) {
+    boundsCheck(x, y);
+    boundsCheck(x + width - 1, y + width - 1);
+    return ChildTerminal(Vec2(x, y), Vec2(width, height), this);
+  }
+
   /// Ensures that the given position [x], [y] is within the bounds of this [Terminal]
-  void _boundsCheck(int x, int y) {
+  void boundsCheck(int x, int y) {
     if (x < 0 || x >= width) throw RangeError.range(x, 0, width - 1);
     if (y < 0 || y >= height) throw RangeError.range(y, 0, height - 1);
+  }
+}
+
+/// A [Terminal] representing a subset of a parent [Terminal]. Will always be fully-enclosed by the
+/// parent terminal. Useful for drawing UI elements without needing to keep track of offsets.
+class ChildTerminal extends Terminal {
+  final Vec2 _position;
+  final Vec2 _size;
+  final Terminal _root;
+
+  @override
+  int get width => _size.x;
+
+  @override
+  int get height => _size.y;
+
+  @override
+  Vec2 get size => _size;
+
+  ChildTerminal(this._position, this._size, this._root);
+
+  @override
+  void drawChar(int x, int y, Char char) {
+    boundsCheck(x, y);
+    _root.drawChar(_position.x + x, _position.y + y, char);
+  }
+
+  /// Flatten out child terminals to always draw onto the same root
+  @override
+  Terminal child(int x, int y, int width, int height) {
+    boundsCheck(x, y);
+    boundsCheck(x + width - 1, y + height - 1);
+    return ChildTerminal(_position + Vec2(x, y), _size, _root);
   }
 }
 
