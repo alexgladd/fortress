@@ -32,6 +32,63 @@ class UserInterface<T extends InputBase> {
   RenderableTerminal? _terminal;
   bool _dirty = true;
   bool _running = false;
+
+  /// Update the UI state, including all [Layer]s currently binded to the UI, regardless of whether
+  /// they're currently visible or not. The provided value, [dt], is the elapsed time in
+  /// milliseconds since the last call to [update]. You can use this value to provide consistent
+  /// animations or game flow regardless of the underlying framerate.
+  void update(num dt) {}
+
+  /// Renders the current game state to the current terminal, if one is currently bound to this UI.
+  /// If manually calling [render], you can request that the UI render regardless of the current
+  /// dirty state by setting [ignoreDirty] to true.
+  void render([bool ignoreDirty = false]) {}
+
+  /// Require the UI to render during the next [render] call.
+  void dirty() {
+    _dirty = true;
+  }
 }
 
-abstract class Layer<T extends InputBase> {}
+/// Each [Layer] in the [UserInterface] can manage different aspects of the overall game. For
+/// instance, one layer for the game map, one layer for an information side panel, another layer
+/// for each different pop-up, etc. Layers can be opaque or transparent to control how far down the
+/// [UserInterface]'s stack of Layers the game gets rendered.
+///
+/// Each [Layer] has its own [update] and [render] methods that the bound [UserInterface] will
+/// call automatically. [Layer]s can also manage their own input handling.
+abstract class Layer<T extends InputBase> {
+  UserInterface<T>? _ui;
+
+  /// The [UserInterface] that this [Layer] is bound to.
+  /// Throws an exception if the layer is not currently bound.
+  UserInterface<T> get ui {
+    if (_ui != null) return _ui!;
+    throw StateError('Attempted to access Layer.ui while Layer is unbound');
+  }
+
+  /// Returns true if the layer is currently bound to a [UserInterface].
+  bool get isBound => _ui != null;
+
+  /// Should true if this layer is transparent, allowing the layer below it to render. Returns
+  /// false if this layer is opaque.
+  bool get isTransparent;
+
+  /// Update the state of this [Layer]. The provided value, [dt], is the elapsed time in
+  /// milliseconds since the last call to [update].
+  void update(num dt);
+
+  /// Render the [Layer] using the given [Terminal].
+  void render(Terminal terminal);
+
+  /// Called by the UI when the [Layer] above this one has been popped, making this layer the
+  /// top-most in the bound [UserInterface]. If a result value was passed to [UserInterface.pop], it
+  /// is provided here as [result].
+  void onTopLayer(Layer<T> popped, Object? result) {}
+
+  /// Inform the bound [UserInterface] that this [Layer] needs to be rendered during the next
+  /// [UserInterface.render] call.
+  void dirty() {
+    if (isBound) ui.dirty();
+  }
+}
