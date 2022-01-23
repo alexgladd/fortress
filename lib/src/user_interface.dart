@@ -43,6 +43,8 @@ class UserInterface<T extends InputBase> {
   /// Set to true to have the [UserInterface] begin handling keyboard input events and delegating
   /// them to its layers based on the current [keyBinds]. Set to false to cancel all keyboard event
   /// handling within this UI.
+  ///
+  /// Note that only the top [Layer] on the stack will recieve keyboard input events.
   set handlingKeyInput(bool value) {
     if (value == _handlingKeyInput) return;
     _handlingKeyInput = value;
@@ -58,6 +60,8 @@ class UserInterface<T extends InputBase> {
       _keyUpSubscription = null;
     }
   }
+
+  // TODO: mouse input handling
 
   /// Assign a new [RenderableTerminal] to this UI.
   set terminal(RenderableTerminal terminal) {
