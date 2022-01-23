@@ -3,9 +3,13 @@
 // each layer can handle user input independently
 // eventually make a special layer called Scene which can be used for core game rendering
 
+import 'dart:async';
+import 'dart:html' as html;
+
 import 'input.dart';
 import 'key_bindings.dart';
 import 'terminal.dart';
+import 'vector.dart';
 
 /// Logical modal user interface that maintains a stack of UI [Layer]s and writes them to a
 /// [Terminal]. The UI manages the main game loop and renders as efficiently as possible based on
@@ -13,6 +17,15 @@ import 'terminal.dart';
 ///
 /// The UI also provides for input handling, which [Layer]s can opt into if needed.
 class UserInterface<T extends InputBase> {
+  final _layers = <Layer<T>>[];
+
+  StreamSubscription<html.KeyboardEvent>? _keyDownSubscription;
+  StreamSubscription<html.KeyboardEvent>? _keyUpSubscription;
+  RenderableTerminal? _terminal;
+  bool _dirty = true;
+  bool _running = false;
+  bool _handlingKeyInput = false;
+
   /// Keyboard input bindings that this UI consumes and handles
   final keyBinds = KeyBindings<T>();
 
@@ -24,29 +37,144 @@ class UserInterface<T extends InputBase> {
   set running(bool value) {
     _running = value;
 
-    if (_running) {} // TODO: start game loop
+    if (_running) html.window.requestAnimationFrame(_onTick);
   }
 
-  final _layers = <Layer<T>>[];
+  /// Set to true to have the [UserInterface] begin handling keyboard input events and delegating
+  /// them to its layers based on the current [keyBinds]. Set to false to cancel all keyboard event
+  /// handling within this UI.
+  set handlingKeyInput(bool value) {
+    if (value == _handlingKeyInput) return;
+    _handlingKeyInput = value;
 
-  RenderableTerminal? _terminal;
-  bool _dirty = true;
-  bool _running = false;
+    if (value) {
+      _keyDownSubscription = html.document.body!.onKeyDown.listen(_onKeyDown);
+      _keyUpSubscription = html.document.body!.onKeyUp.listen(_onKeyUp);
+    } else {
+      _keyDownSubscription?.cancel();
+      _keyDownSubscription = null;
 
-  /// Update the UI state, including all [Layer]s currently binded to the UI, regardless of whether
+      _keyUpSubscription?.cancel();
+      _keyUpSubscription = null;
+    }
+  }
+
+  /// Assign a new [RenderableTerminal] to this UI.
+  set terminal(RenderableTerminal terminal) {
+    var resized = _terminal == null || _terminal!.size != terminal.size;
+
+    _terminal = terminal;
+
+    if (resized) {
+      for (var layer in _layers) {
+        layer.onResize(terminal.size);
+      }
+    }
+
+    dirty();
+  }
+
+  UserInterface([this._terminal]);
+
+  /// Push a new [Layer] onto the top of the stack.
+  void push(Layer<T> layer) {
+    layer._bindUi(this);
+    _layers.add(layer);
+    dirty();
+  }
+
+  /// Pop the top-most [Layer] off of the stack and activate the one below it (if there is one),
+  /// passing the optional [result] value.
+  void pop([Object? result]) {
+    if (_layers.isEmpty) return;
+
+    var layer = _layers.removeLast();
+    layer._unbindUi();
+
+    // activate the new top layer if there is one
+    if (_layers.isNotEmpty) _layers.last.onActive(layer, result);
+
+    dirty();
+  }
+
+  /// Swap the top-most [Layer] on the stack for the given [layer].
+  ///
+  /// This is equivalent to a [pop] followed by a [push].
+  void swap(Layer<T> layer) {
+    if (_layers.isNotEmpty) {
+      var top = _layers.removeLast();
+      top._unbindUi();
+    }
+
+    layer._bindUi(this);
+    _layers.add(layer);
+    dirty();
+  }
+
+  /// Update all of the [Layer]s currently bound to the UI, regardless of whether
   /// they're currently visible or not. The provided value, [dt], is the elapsed time in
   /// milliseconds since the last call to [update]. You can use this value to provide consistent
   /// animations or game flow regardless of the underlying framerate.
-  void update(num dt) {}
+  void update(num dt) {
+    for (var i = 0; i < _layers.length; i++) {
+      _layers[i].update(dt);
+    }
+  }
 
   /// Renders the current game state to the current terminal, if one is currently bound to this UI.
   /// If manually calling [render], you can request that the UI render regardless of the current
   /// dirty state by setting [ignoreDirty] to true.
-  void render([bool ignoreDirty = false]) {}
+  void render([bool ignoreDirty = false]) {
+    if (!ignoreDirty && !_dirty) return;
+
+    // grab a ref to the current terminal so we can use it for this entire render step even if it
+    // changes
+    var term = _terminal;
+
+    // nothing to render if there is no bound terminal
+    if (term == null) return;
+
+    term.clear();
+
+    // find the first opaque layer
+    var i = _layers.length;
+    while (i >= 0) {
+      if (!_layers[i].isTransparent) break;
+      i--;
+    }
+
+    if (i < 0) i = 0;
+
+    // render the top opaque layer and all above it
+    for (; i < _layers.length; i++) {
+      _layers[i].render(term);
+    }
+
+    term.render();
+    _dirty = false;
+  }
 
   /// Require the UI to render during the next [render] call.
   void dirty() {
     _dirty = true;
+  }
+
+  /// The primary game loop, driven by the browser's [html.Window.requestAnimationFrame].
+  void _onTick(num dt) {
+    update(dt);
+    render();
+
+    if (running) html.window.requestAnimationFrame(_onTick);
+  }
+
+  /// Internal key down event handler
+  void _onKeyDown(html.KeyboardEvent event) {
+    // TODO implement
+  }
+
+  /// Internal key up event handler
+  void _onKeyUp(html.KeyboardEvent event) {
+    // TODO implement
   }
 }
 
@@ -74,6 +202,10 @@ abstract class Layer<T extends InputBase> {
   /// false if this layer is opaque.
   bool get isTransparent;
 
+  /// Should return true if this layer wants to handle input when it is the active (top-most) layer.
+  /// Returns false if any bound [UserInterface] should not pass any input to the layer.
+  bool get isHandlingInput;
+
   /// Update the state of this [Layer]. The provided value, [dt], is the elapsed time in
   /// milliseconds since the last call to [update].
   void update(num dt);
@@ -84,11 +216,56 @@ abstract class Layer<T extends InputBase> {
   /// Called by the UI when the [Layer] above this one has been popped, making this layer the
   /// top-most in the bound [UserInterface]. If a result value was passed to [UserInterface.pop], it
   /// is provided here as [result].
-  void onTopLayer(Layer<T> popped, Object? result) {}
+  void onActive(Layer<T> popped, Object? result) {}
+
+  /// Called whenever this [Layer] is bound to a new [UserInterface] or the [Terminal] assigned to
+  /// the bound UI changes.
+  void onResize(Vec2 size) {}
 
   /// Inform the bound [UserInterface] that this [Layer] needs to be rendered during the next
   /// [UserInterface.render] call.
   void dirty() {
     if (isBound) ui.dirty();
+  }
+
+  /// If one is bound, the [UserInterface] will pass all bound input events to this [Layer] if it is
+  /// the active (top-most) layer. If this method returns false (the default ), the respective
+  /// lower-level input handler will be called.
+  ///
+  /// See [UserInterface.keyBinds]
+  ///
+  /// See ...
+  bool handleInput(T input) => false;
+
+  /// If this [Layer] is active (top-most) and accepting inputs, any keyboard key down events not
+  /// handled by the higher-level [Layer.handleInput] handler will be passed here by the bound
+  /// [UserInterface].
+  ///
+  /// The given [key] is the value of the key that's down, taking into consideration all of the
+  /// modifiers that are also active ([shift], [altOpt], [ctrl], and [meta]). The given [code] is
+  /// the value of the physical keyboard key that's down, ignoring keyboard layout and modifiers.
+  bool keyDown(String key, String code,
+          {required bool shift, required bool altOpt, required bool ctrl, required bool meta}) =>
+      false;
+
+  /// If this [Layer] is active (top-most) and accepting inputs, all keyboard key up events will be
+  /// passed here by the bound [UserInterface].
+  ///
+  /// The given [key] is the value of the key that's down, taking into consideration all of the
+  /// modifiers that are also active ([shift], [altOpt], [ctrl], and [meta]). The given [code] is
+  /// the value of the physical keyboard key that's down, ignoring keyboard layout and modifiers.
+  bool keyUp(String key, String code,
+          {required bool shift, required bool altOpt, required bool ctrl, required bool meta}) =>
+      false;
+
+  // Bind this layer to the given UI
+  void _bindUi(UserInterface<T> ui) {
+    _ui = ui;
+    if (ui._terminal != null) ui._terminal!.size;
+  }
+
+  // Unbind this layer from its current UI
+  void _unbindUi() {
+    if (_ui != null) _ui = null;
   }
 }

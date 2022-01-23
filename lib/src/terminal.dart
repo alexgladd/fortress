@@ -70,6 +70,9 @@ abstract class Terminal {
     }
   }
 
+  /// Clears the entire terminal with empty characters using the current [background] [Color].
+  void clear() => fill(0, 0, width, height);
+
   /// Get a child [Terminal] within this one
   Terminal child(int x, int y, int width, int height) {
     boundsCheck(x, y);
