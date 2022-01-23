@@ -26,7 +26,9 @@ class UserInterface<T extends InputBase> {
   bool _running = false;
   bool _handlingKeyInput = false;
 
-  /// Keyboard input bindings that this UI consumes and handles
+  /// Keyboard input bindings that this UI consumes and handles.
+  ///
+  /// Note that bound inputs are triggered on key down events.
   final keyBinds = KeyBindings<T>();
 
   /// Whether the UI's game loop is running and rendering frames. Initially off.
@@ -171,14 +173,43 @@ class UserInterface<T extends InputBase> {
     if (running) html.window.requestAnimationFrame(_onTick);
   }
 
-  /// Internal key down event handler
+  /// Internal key down event handler; use key down events to trigger bound inputs
   void _onKeyDown(html.KeyboardEvent event) {
-    // TODO implement
+    // not sure if this ever even happens?
+    if (event.code == null) return;
+
+    var input = keyBinds.find(event.code!,
+        shift: event.shiftKey, ctrl: event.ctrlKey, altOpt: event.altKey, meta: event.metaKey);
+
+    // always consume the event for bound inputs
+    if (input != null) event.preventDefault();
+
+    // nothing else to do if there are no layers
+    if (_layers.isEmpty) return;
+
+    var layer = _layers.last;
+
+    if (input != null && layer.onInput(input)) return;
+
+    if (layer.onKeyDown(event.key!, event.code!,
+        shift: event.shiftKey, ctrl: event.ctrlKey, altOpt: event.altKey, meta: event.metaKey)) {
+      event.preventDefault();
+    }
   }
 
   /// Internal key up event handler
   void _onKeyUp(html.KeyboardEvent event) {
-    // TODO implement
+    // nothing to do if there are no layers
+    if (_layers.isEmpty) return;
+    // not sure if this ever even happens?
+    if (event.code == null) return;
+
+    var layer = _layers.last;
+
+    if (layer.onKeyUp(event.key!, event.code!,
+        shift: event.shiftKey, ctrl: event.ctrlKey, altOpt: event.altKey, meta: event.metaKey)) {
+      event.preventDefault();
+    }
   }
 }
 
@@ -226,12 +257,6 @@ abstract class Layer<T extends InputBase> {
   /// the bound UI changes.
   void onResize(Vec2 size) {}
 
-  /// Inform the bound [UserInterface] that this [Layer] needs to be rendered during the next
-  /// [UserInterface.render] call.
-  void dirty() {
-    if (isBound) ui.dirty();
-  }
-
   /// If one is bound, the [UserInterface] will pass all bound input events to this [Layer] if it is
   /// the active (top-most) layer. If this method returns false (the default ), the respective
   /// lower-level input handler will be called.
@@ -239,16 +264,18 @@ abstract class Layer<T extends InputBase> {
   /// See [UserInterface.keyBinds]
   ///
   /// See ...
-  bool handleInput(T input) => false;
+  bool onInput(T input) => false;
 
   /// If this [Layer] is active (top-most) and accepting inputs, any keyboard key down events not
-  /// handled by the higher-level [Layer.handleInput] handler will be passed here by the bound
+  /// handled by the higher-level [Layer.onInput] handler will be passed here by the bound
   /// [UserInterface].
   ///
   /// The given [key] is the value of the key that's down, taking into consideration all of the
   /// modifiers that are also active ([shift], [altOpt], [ctrl], and [meta]). The given [code] is
   /// the value of the physical keyboard key that's down, ignoring keyboard layout and modifiers.
-  bool keyDown(String key, String code,
+  ///
+  /// Return true to indicate that this layer consumed the key down event.
+  bool onKeyDown(String key, String code,
           {required bool shift, required bool altOpt, required bool ctrl, required bool meta}) =>
       false;
 
@@ -258,9 +285,17 @@ abstract class Layer<T extends InputBase> {
   /// The given [key] is the value of the key that's down, taking into consideration all of the
   /// modifiers that are also active ([shift], [altOpt], [ctrl], and [meta]). The given [code] is
   /// the value of the physical keyboard key that's down, ignoring keyboard layout and modifiers.
-  bool keyUp(String key, String code,
+  ///
+  /// Return true to indicate that this layer consumed the key up event.
+  bool onKeyUp(String key, String code,
           {required bool shift, required bool altOpt, required bool ctrl, required bool meta}) =>
       false;
+
+  /// Inform the bound [UserInterface] that this [Layer] needs to be rendered during the next
+  /// [UserInterface.render] call.
+  void dirty() {
+    if (isBound) ui.dirty();
+  }
 
   // Bind this layer to the given UI
   void _bindUi(UserInterface<T> ui) {
