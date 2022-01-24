@@ -1,4 +1,4 @@
-import 'char_code.dart';
+import 'util/char_code.dart';
 
 /// Mapping of Unicode codepoints to the built-in codepage 437 glyph index.
 ///

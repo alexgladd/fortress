@@ -1,6 +1,6 @@
-import 'array.dart';
+import 'util/array.dart';
 import 'char.dart';
-import 'char_code.dart';
+import 'util/char_code.dart';
 import 'color.dart';
 import 'renderer.dart';
 import 'util/vector.dart';

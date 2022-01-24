@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'canvas_renderer.dart';
 import 'canvas_terminal.dart';
 import 'char.dart';
-import 'char_code.dart';
+import 'util/char_code.dart';
 import 'color.dart';
 import 'unicode_map.dart';
 import 'util/vector.dart';

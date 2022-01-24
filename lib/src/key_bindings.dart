@@ -1,6 +1,6 @@
 import 'dart:html' as html;
 
-import 'input.dart';
+import 'util/input.dart';
 import 'key_code.dart';
 
 /// Set of key bindings that map a particular keyboard input (including modifiers) to some logical

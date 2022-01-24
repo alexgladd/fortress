@@ -6,7 +6,7 @@
 import 'dart:async';
 import 'dart:html' as html;
 
-import 'input.dart';
+import 'util/input.dart';
 import 'key_bindings.dart';
 import 'terminal.dart';
 import 'util/vector.dart';
