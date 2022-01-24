@@ -1,11 +1,10 @@
 import 'dart:html' as html;
 import 'dart:math' as math;
 
-import 'package:fortress/src/char_code.dart';
-
 import 'canvas_renderer.dart';
 import 'canvas_terminal.dart';
 import 'char.dart';
+import 'char_code.dart';
 import 'color.dart';
 import 'unicode_map.dart';
 import 'vector.dart';
@@ -21,11 +20,12 @@ class GlyphRenderer extends CanvasRenderer {
   static const dosVga437CharHeight = 16;
 
   final Vec2 _charSize;
-  final html.ImageElement _glyphs;
   final Map<int, int> _charToGlyphIndex;
   final int _maxGlyphIndex;
+  final html.ImageElement _glyphs = html.ImageElement();
   final Map<Color, html.CanvasElement> _glyphColorCache = {};
 
+  Future<html.Event>? _glyphsOnLoad;
   bool _glyphsLoaded = false;
 
   @override
@@ -35,27 +35,39 @@ class GlyphRenderer extends CanvasRenderer {
   int get charHeight => _charSize.y;
 
   @override
-  bool get ready => _glyphsLoaded;
+  Future<void> get loaded async {
+    // if the glyphs are already loaded we can complete immediately
+    if (_glyphsLoaded) return Future<void>.value();
+
+    await _glyphsOnLoad!;
+
+    _glyphsLoaded = true;
+    return;
+  }
 
   /// Create a [GlyphRenderer] using the default built-in Code Page 437 glyph set
   factory GlyphRenderer.dosVga437(html.CanvasRenderingContext2D context, [int? scale]) {
     scale ??= html.window.devicePixelRatio.toInt();
-    var glyphsImg = html.ImageElement(src: dosVga437GlyphsSrc);
     var charSize = Vec2(dosVga437CharWidth, dosVga437CharHeight);
 
-    return GlyphRenderer(glyphsImg, defaultUnicodeMap, charSize, context, scale);
+    return GlyphRenderer(dosVga437GlyphsSrc, defaultUnicodeMap, charSize, context, scale);
   }
 
-  GlyphRenderer(this._glyphs, this._charToGlyphIndex, this._charSize,
+  /// Create a new [GlyphRenderer] using the given [glyphSrc] path or URL to the glyph sheet, a
+  /// [Map] of character codes to glyph indices in the glyph sheet, and the size of a single glyph
+  /// in pixels. Also provide a canvas 2D rendering [context] and a [scale] value for better
+  /// rendering on high-density displays (e.g., Apple Retina screens).
+  GlyphRenderer(String glyphSrc, this._charToGlyphIndex, this._charSize,
       html.CanvasRenderingContext2D context, int scale)
       : _maxGlyphIndex = _charToGlyphIndex.values.reduce(math.max),
         super(scale, context) {
-    // make sure the glyphs load
-    _glyphs.onLoad.listen((_) {
-      _glyphsLoaded = true;
-    });
+    // setup glyphs image loading handling
+    _glyphsOnLoad = _glyphs.onLoad.first;
+    _glyphs.onError.first
+        .then((e) => throw StateError('Failed to load glyphs from ${_glyphs.src}'));
 
-    _glyphs.onError.listen((_) => throw StateError('Failed to load glyphs from ${_glyphs.src}'));
+    // start loading the image
+    _glyphs.src = glyphSrc;
 
     print('CHAR width ${_charSize.x}, height ${_charSize.y}');
   }

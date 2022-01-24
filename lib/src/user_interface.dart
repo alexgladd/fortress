@@ -143,7 +143,7 @@ class UserInterface<T extends InputBase> {
     term.clear();
 
     // find the first opaque layer
-    var i = _layers.length;
+    var i = _layers.length - 1;
     while (i >= 0) {
       if (!_layers[i].isTransparent) break;
       i--;
@@ -189,8 +189,12 @@ class UserInterface<T extends InputBase> {
 
     var layer = _layers.last;
 
+    // check if the layer is handling input
+    if (!layer.isHandlingInput) return;
+    // check if the layer consumed the high-level input
     if (input != null && layer.onInput(input)) return;
 
+    // finally, fire the low-level handler and consume the event if needed
     if (layer.onKeyDown(event.key!, event.code!,
         shift: event.shiftKey, ctrl: event.ctrlKey, altOpt: event.altKey, meta: event.metaKey)) {
       event.preventDefault();
@@ -300,7 +304,7 @@ abstract class Layer<T extends InputBase> {
   // Bind this layer to the given UI
   void _bindUi(UserInterface<T> ui) {
     _ui = ui;
-    if (ui._terminal != null) ui._terminal!.size;
+    if (ui._terminal != null) onResize(ui._terminal!.size);
   }
 
   // Unbind this layer from its current UI

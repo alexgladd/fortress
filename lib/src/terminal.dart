@@ -25,11 +25,8 @@ abstract class Terminal {
   /// Most basic draw method for the terminal; draws the given [Char] at column [x], row [y] of this
   /// [Terminal].
   ///
-  /// Must be implemented by subclasses for the terminal to be useful.
-  /// Always call this base method in implementations to do automatic bounds checking.
-  void drawChar(int x, int y, Char char) {
-    boundsCheck(x, y);
-  }
+  /// Must be implemented by subclasses.
+  void drawChar(int x, int y, Char char);
 
   /// Draws a character at column [x], row [y] of this [Terminal] using its integer [charCode]
   /// using the given [foreground] and [background] [Color]s (or default colors).
@@ -54,17 +51,17 @@ abstract class Terminal {
   }
 
   /// Clears and fills the given rectangle with the given (or default) background [Color].
-  void fill(int x, int y, int width, int height, [Color? color]) {
+  void fill(final int x, int y, int width, int height, [Color? color]) {
     color ??= background;
 
     // fail fast
     boundsCheck(x, y);
-    boundsCheck(x + width - 1, y + width - 1);
+    boundsCheck(x + width - 1, y + height - 1);
 
     var char = Char.create(CharCode.space, foreground, color);
 
-    for (var fy = y; fy < y + height; y++) {
-      for (var fx = x; fx < x + width; x++) {
+    for (var fy = y; fy < y + height; fy++) {
+      for (var fx = x; fx < x + width; fx++) {
         drawChar(fx, fy, char);
       }
     }
@@ -76,7 +73,7 @@ abstract class Terminal {
   /// Get a child [Terminal] within this one
   Terminal child(int x, int y, int width, int height) {
     boundsCheck(x, y);
-    boundsCheck(x + width - 1, y + width - 1);
+    boundsCheck(x + width - 1, y + height - 1);
     return ChildTerminal(Vec2(x, y), Vec2(width, height), this);
   }
 
@@ -147,7 +144,7 @@ abstract class RenderableTerminal<T extends Renderer> extends Terminal {
 
   @override
   void drawChar(int x, int y, Char char) {
-    super.drawChar(x, y, char);
+    boundsCheck(x, y);
     _state.setChar(x, y, char);
   }
 
@@ -164,7 +161,7 @@ class TerminalState {
   final Array2<Char?> _changedState;
 
   TerminalState(int width, int height)
-      : _state = Array2(width, height, Char.clear),
+      : _state = Array2(width, height, Char.nill),
         _changedState = Array2(width, height, Char.clear);
 
   int get width => _state.width;

@@ -14,6 +14,11 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
   /// The [html.CanvasElement] being used by this [CanvasTerminal]
   html.CanvasElement get canvas => _canvas;
 
+  /// Returns a [Future] that resolves whenever the underlying [CanvasRenderer] is fully loaded and
+  /// the terminal is actually ready to render. Calling [render] on this terminal before waiting for
+  /// this future to resolve may result in undefined behavior.
+  Future<void> get loaded => renderer.loaded;
+
   /// Builds a [CanvasTerminal] using the given [html.CanvasElement] and a pre-configured
   /// [CanvasRenderer]. Will update the canvas to fit into the supplied pixel dimensions using the
   /// given or current [scale].
@@ -68,7 +73,6 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
 
   @override
   void render() {
-    if (!renderer.ready) return;
     super.render();
   }
 

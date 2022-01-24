@@ -49,8 +49,9 @@ class FontRenderer extends CanvasRenderer {
   @override
   int get charWidth => charSize.x;
 
+  // TODO: maybe revisit this when handling custom font loads
   @override
-  bool get ready => true;
+  Future<void> get loaded => Future<void>.value();
 
   FontRenderer(html.CanvasRenderingContext2D context, [int scale = 1, String? font])
       : font = font ?? (scale < 2 ? cssFont : cssFont2x),

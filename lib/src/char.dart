@@ -1,10 +1,14 @@
+import 'char_code.dart';
 import 'color.dart';
 import 'terminal.dart';
 
 /// Immutable character intended to be written to a [Terminal]
 class Char {
   /// The empty character (represented by a space) using the default background color [Color.black]
-  static const clear = Char(0x0020);
+  static const clear = Char(CharCode.space);
+
+  /// The null character; useful as an initial state
+  static const nill = Char(CharCode.nullChar);
 
   final int charCode;
   final Color foreground;

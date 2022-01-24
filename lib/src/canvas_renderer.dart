@@ -21,8 +21,10 @@ abstract class CanvasRenderer extends Renderer {
   /// The height in pixels of a single rendered character (before scaling)
   int get charHeight;
 
-  /// Whether the renderer is ready to render
-  bool get ready;
+  /// Returns a [Future] that resolves whenever the underlying assets used by the renderer are fully
+  /// loaded and the renderer is actually ready to render. Calling [renderChar] before waiting for
+  /// this future to resolve may result in undefined behavior.
+  Future<void> get loaded;
 
   CanvasRenderer(this._scale, this._ctx) {
     // help us get pixel-perfect rendering

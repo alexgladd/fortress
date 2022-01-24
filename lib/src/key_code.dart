@@ -1,8 +1,8 @@
-import 'dart:html' as html;
+import 'dart:html';
 
 /// Set of recognized key codes from browser KeyboardEvents
 ///
-/// See [html.KeyboardEvent.code]
+/// See [KeyboardEvent.code]
 class KeyCode {
   // function keys
   static const f1 = 'F1';
