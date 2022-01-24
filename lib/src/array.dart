@@ -2,7 +2,7 @@
 
 import 'dart:collection';
 
-import 'vector.dart';
+import 'util/vector.dart';
 
 /// A 2D fixed-size array of elements of type [T]
 ///

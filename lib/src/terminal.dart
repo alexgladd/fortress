@@ -3,7 +3,7 @@ import 'char.dart';
 import 'char_code.dart';
 import 'color.dart';
 import 'renderer.dart';
-import 'vector.dart';
+import 'util/vector.dart';
 
 /// A virtual terminal screen that can have character data written onto it
 abstract class Terminal {

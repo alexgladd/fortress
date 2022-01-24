@@ -7,7 +7,7 @@ import 'char.dart';
 import 'char_code.dart';
 import 'color.dart';
 import 'unicode_map.dart';
-import 'vector.dart';
+import 'util/vector.dart';
 
 /// Renders characters to a [CanvasTerminal] using bitmap glyphs. The renderer must be supplied with
 /// a mapping between supported characters and the glyphs. This renderer works best when supplied

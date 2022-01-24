@@ -9,7 +9,8 @@ import 'package:fortress/src/input.dart';
 import 'package:fortress/src/key_code.dart';
 import 'package:fortress/src/terminal.dart';
 import 'package:fortress/src/user_interface.dart';
-import 'package:fortress/src/vector.dart';
+import 'package:fortress/src/util/direction.dart';
+import 'package:fortress/src/util/vector.dart';
 
 class DemoInput extends InputBase {
   static const north = DemoInput('north');
@@ -53,13 +54,13 @@ class DemoLayer extends Layer<DemoInput> {
     var moved = true;
 
     if (input == DemoInput.north) {
-      heroPos += Vec2(0, -1);
+      heroPos += Direction.n;
     } else if (input == DemoInput.south) {
-      heroPos += Vec2(0, 1);
+      heroPos += Direction.s;
     } else if (input == DemoInput.east) {
-      heroPos += Vec2(1, 0);
+      heroPos += Direction.e;
     } else if (input == DemoInput.west) {
-      heroPos += Vec2(-1, 0);
+      heroPos += Direction.w;
     } else {
       moved = false;
     }
