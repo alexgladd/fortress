@@ -1,16 +1,16 @@
 import 'dart:html' as html;
 
+import 'package:fortress/src/util/char_code.dart';
+import 'package:fortress/src/util/direction.dart';
+import 'package:fortress/src/util/input.dart';
+import 'package:fortress/src/util/vector.dart';
 import 'package:fortress/src/web/canvas_renderer.dart';
 import 'package:fortress/src/web/canvas_terminal.dart';
 import 'package:fortress/src/web/char.dart';
-import 'package:fortress/src/util/char_code.dart';
 import 'package:fortress/src/web/color.dart';
-import 'package:fortress/src/util/input.dart';
 import 'package:fortress/src/web/key_code.dart';
 import 'package:fortress/src/web/terminal.dart';
 import 'package:fortress/src/web/user_interface.dart';
-import 'package:fortress/src/util/direction.dart';
-import 'package:fortress/src/util/vector.dart';
 
 class DemoInput extends InputBase {
   static const north = DemoInput('north');
