@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'canvas_renderer.dart';
 import 'canvas_terminal.dart';
 import 'char.dart';
-import 'util/vector.dart';
+import '../util/vector.dart';
 
 /// Renders characters to a [CanvasTerminal] using normal fonts and text drawing. Can draw any
 /// character supported by the supplied font. This renderer works best if you keep the scale at 1

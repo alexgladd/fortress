@@ -1,4 +1,4 @@
-import 'util/char_code.dart';
+import '../util/char_code.dart';
 import 'color.dart';
 import 'terminal.dart';
 

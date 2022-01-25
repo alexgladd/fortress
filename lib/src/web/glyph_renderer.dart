@@ -4,10 +4,10 @@ import 'dart:math' as math;
 import 'canvas_renderer.dart';
 import 'canvas_terminal.dart';
 import 'char.dart';
-import 'util/char_code.dart';
 import 'color.dart';
 import 'unicode_map.dart';
-import 'util/vector.dart';
+import '../util/char_code.dart';
+import '../util/vector.dart';
 
 /// Renders characters to a [CanvasTerminal] using bitmap glyphs. The renderer must be supplied with
 /// a mapping between supported characters and the glyphs. This renderer works best when supplied

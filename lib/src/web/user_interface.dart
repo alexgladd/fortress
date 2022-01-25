@@ -6,10 +6,10 @@
 import 'dart:async';
 import 'dart:html' as html;
 
-import 'util/input.dart';
 import 'key_bindings.dart';
 import 'terminal.dart';
-import 'util/vector.dart';
+import '../util/input.dart';
+import '../util/vector.dart';
 
 /// Logical modal user interface that maintains a stack of UI [Layer]s and writes them to a
 /// [Terminal]. The UI manages the main game loop and renders as efficiently as possible based on

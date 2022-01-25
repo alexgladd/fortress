@@ -4,7 +4,7 @@ import 'canvas_renderer.dart';
 import 'font_renderer.dart';
 import 'glyph_renderer.dart';
 import 'terminal.dart';
-import 'util/vector.dart';
+import '../util/vector.dart';
 
 /// A [RenderableTerminal] that uses an HTML5 [html.CanvasElement] to render the underlying
 /// [Terminal] using an implementation of [CanvasRenderer].
