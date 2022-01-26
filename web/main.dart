@@ -3,6 +3,9 @@ import 'dart:html' as html;
 import 'package:fortress/web.dart';
 import 'package:fortress/util.dart';
 
+import 'demo/input.dart';
+import 'demo/main_menu.dart';
+
 class DemoInput extends InputBase {
   static const north = DemoInput('north');
   static const east = DemoInput('east');
@@ -95,13 +98,15 @@ void main() async {
 
   print('TERM cols ${terminal.width}, rows ${terminal.height}');
 
-  var ui = UserInterface<DemoInput>(terminal);
+  // var ui = UserInterface<DemoInput>(terminal);
+  var ui = UserInterface<Input>(terminal);
   ui.handlingKeyInput = true;
-  ui.keyBinds.bind(DemoInput.north, KeyCode.arrowUp);
-  ui.keyBinds.bind(DemoInput.east, KeyCode.arrowRight);
-  ui.keyBinds.bind(DemoInput.south, KeyCode.arrowDown);
-  ui.keyBinds.bind(DemoInput.west, KeyCode.arrowLeft);
-  ui.push(DemoLayer());
+  // ui.keyBinds.bind(DemoInput.north, KeyCode.arrowUp);
+  // ui.keyBinds.bind(DemoInput.east, KeyCode.arrowRight);
+  // ui.keyBinds.bind(DemoInput.south, KeyCode.arrowDown);
+  // ui.keyBinds.bind(DemoInput.west, KeyCode.arrowLeft);
+  // ui.push(DemoLayer());
+  ui.push(MainMenu());
   ui.running = true;
 
   // terminal.drawText(0, 0, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');

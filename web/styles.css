@@ -14,6 +14,7 @@ html, body {
   height: 100vh;
   font-family: 'DOS VGA 437', monospace;
   background-color: darkgray;
+  -webkit-font-smoothing: none;
 }
 
 #container {
