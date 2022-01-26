@@ -60,6 +60,9 @@ abstract class VectorBase {
     // https://en.wikipedia.org/wiki/Pairing_function
     return (a + b) * (a + b + 1) ~/ 2 + b;
   }
+
+  @override
+  String toString() => 'vec2($x, $y)';
 }
 
 /// Standard 2D vector

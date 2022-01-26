@@ -57,6 +57,7 @@ class DemoLayer extends Layer<DemoInput> {
     }
 
     if (moved) {
+      heroPos = ui.renderRect.clamp(heroPos);
       dirty();
       return true;
     } else {
@@ -67,13 +68,7 @@ class DemoLayer extends Layer<DemoInput> {
   @override
   void onResize(Vec2 size) {
     print('DEMO LAYER RESIZE');
-    var newX = heroPos.x;
-    var newY = heroPos.y;
-
-    if (heroPos.x >= size.x) newX = size.x - 1;
-    if (heroPos.y >= size.y) newY = size.y - 1;
-
-    if (newX != heroPos.x || newY != heroPos.y) heroPos = Vec2(newX, newY);
+    heroPos = Rect.atOrigin(size.x, size.y).clamp(heroPos);
   }
 }
 

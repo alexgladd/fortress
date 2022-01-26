@@ -9,6 +9,7 @@ import 'dart:html' as html;
 import 'key_bindings.dart';
 import 'terminal.dart';
 import '../util/input.dart';
+import '../util/rect.dart';
 import '../util/vector.dart';
 
 /// Logical modal user interface that maintains a stack of UI [Layer]s and writes them to a
@@ -33,6 +34,12 @@ class UserInterface<T extends InputBase> {
 
   /// Whether the UI's game loop is running and rendering frames. Initially off.
   bool get running => _running;
+
+  /// The [Rect] representing the size of the underlying terminal that this UI is rendering to.
+  Rect get renderRect {
+    if (_terminal == null) return Rect.nill;
+    return Rect(Vec2.zero, _terminal!.size);
+  }
 
   /// Set to true to start the game loop for the UI and all of its [Layer]s. Leave this set to false
   /// if you want to manually manage updating and rendering the UI yourself.
