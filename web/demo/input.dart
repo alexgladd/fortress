@@ -10,5 +10,7 @@ class Input extends InputBase {
   static const w = Input('southwest');
   static const nw = Input('northwest');
 
+  static const ok = Input('ok');
+
   const Input(String name) : super(name);
 }

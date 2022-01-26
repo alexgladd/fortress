@@ -1,4 +1,5 @@
 import 'dart:html' as html;
+import 'dart:math' as math;
 
 import 'canvas_renderer.dart';
 import 'font_renderer.dart';
@@ -20,14 +21,19 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
   Future<void> get loaded => renderer.loaded;
 
   /// Builds a [CanvasTerminal] using the given [html.CanvasElement] and a pre-configured
-  /// [CanvasRenderer]. Will update the canvas to fit into the supplied pixel dimensions using the
-  /// given or current [scale].
+  /// [CanvasRenderer]. Will update the canvas to fit into the supplied pixel dimensions (or the
+  /// given [minSize] columns and rows) using the given or current [scale].
   factory CanvasTerminal.withCanvas(
       html.CanvasElement canvas, CanvasRenderer renderer, int pixelWidth, int pixelHeight,
-      [int? scale]) {
+      [int? scale, Vec2? minSize]) {
     scale ??= html.window.devicePixelRatio.toInt();
     var cols = pixelWidth ~/ renderer.charWidth;
     var rows = pixelHeight ~/ renderer.charHeight;
+
+    if (minSize != null) {
+      cols = math.max<int>(cols, minSize.x);
+      rows = math.max<int>(rows, minSize.y);
+    }
 
     var cWidth = cols * renderer.charWidth;
     var cHeight = rows * renderer.charHeight;
@@ -45,10 +51,10 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
   }
 
   /// Builds a [CanvasTerminal] using a new [html.CanvasElement] so that it fills the dimensions of
-  /// the given [html.Element]. Creates a default [CanvasRenderer] of the requested type for the
-  /// [CanvasTerminal].
+  /// the given [html.Element] (or is at least the given [minSize] in columns and rows). Creates a
+  /// default [CanvasRenderer] of the requested type for the [CanvasTerminal].
   factory CanvasTerminal.withParent(html.Element parent, CanvasRendererType rendererType,
-      {int? scale, String? font}) {
+      {int? scale, String? font, Vec2? minSize}) {
     scale ??= html.window.devicePixelRatio.toInt();
     CanvasRenderer renderer;
     var canvas = html.CanvasElement();
@@ -65,7 +71,7 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
 
     parent.append(canvas);
     return CanvasTerminal.withCanvas(
-        canvas, renderer, parent.clientWidth, parent.clientHeight, scale);
+        canvas, renderer, parent.clientWidth, parent.clientHeight, scale, minSize);
   }
 
   CanvasTerminal._(this._canvas, CanvasRenderer renderer, int columns, int rows)

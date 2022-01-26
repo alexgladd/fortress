@@ -113,7 +113,7 @@ class ChildTerminal extends Terminal {
   Terminal child(int x, int y, int width, int height) {
     boundsCheck(x, y);
     boundsCheck(x + width - 1, y + height - 1);
-    return ChildTerminal(_position + Vec2(x, y), _size, _root);
+    return ChildTerminal(_position + Vec2(x, y), Vec2(width, height), _root);
   }
 }
 
