@@ -5,38 +5,27 @@ import 'package:fortress/web.dart';
 import 'demo/input.dart';
 import 'demo/main_menu.dart';
 
+final renderType = CanvasRendererType.glyph;
+late final UserInterface<Input> _ui;
+
 void main() async {
-  const fontFamily = 'DOS VGA 437';
-  var scale = html.window.devicePixelRatio.toInt();
-  var gameDiv = html.querySelector('#game')!;
-
-  // TODO: move this into the font renderer
-  // Shout-out to https://github.com/CP437/PerfectDOSVGA437
-  var font = html.FontFace(fontFamily, 'url(packages/fortress/PerfectDOSVGA437.ttf)');
-  // this ensures that the font is loaded before we start rendering things
-  await font.load();
-  html.document.fonts!.add(font);
-
-  print('GAME width ${gameDiv.clientWidth}, height ${gameDiv.clientHeight}');
-
-  // var terminal = CanvasTerminal.withParent(gameDiv, CanvasRendererType.font,
-  //     scale: 1, font: 'normal ${8 * scale}px "$fontFamily", monospace', minSize: MainMenu.minSize);
-
-  var terminal = CanvasTerminal.withParent(gameDiv, CanvasRendererType.glyph,
-      scale: scale, minSize: MainMenu.minSize);
+  var terminal = _makeTerminal();
 
   // ensure all renderer assets are loaded
   await terminal.loaded;
 
   print('TERM cols ${terminal.width}, rows ${terminal.height}');
 
-  var ui = UserInterface<Input>(terminal);
-  ui.handlingKeyInput = true;
-  ui.keyBinds.bind(Input.n, KeyCode.arrowUp);
-  ui.keyBinds.bind(Input.s, KeyCode.arrowDown);
-  ui.keyBinds.bind(Input.ok, KeyCode.enter);
-  ui.push(MainMenu());
-  ui.running = true;
+  _ui = UserInterface<Input>(terminal);
+
+  html.window.onResize.listen(_onResize);
+
+  _ui.handlingKeyInput = true;
+  _ui.keyBinds.bind(Input.n, KeyCode.arrowUp);
+  _ui.keyBinds.bind(Input.s, KeyCode.arrowDown);
+  _ui.keyBinds.bind(Input.ok, KeyCode.enter);
+  _ui.push(MainMenu());
+  _ui.running = true;
 
   // Vec2? lastPointer;
   // terminal.canvas.onMouseMove.listen((event) {
@@ -61,4 +50,43 @@ void main() async {
 
   //   terminal.drawChar(pos.x, pos.y, Char.create(CharCode.fullBlock, Color.brown));
   // });
+}
+
+void _onResize(_) async {
+  var terminal = _makeTerminal();
+  await terminal.loaded;
+  _ui.terminal = terminal;
+}
+
+CanvasTerminal _makeTerminal() {
+  var scale = html.window.devicePixelRatio.toInt();
+  var gameDiv = html.querySelector('#game')!;
+
+  print('GAME width ${gameDiv.clientWidth}, height ${gameDiv.clientHeight}');
+
+  switch (renderType) {
+    case CanvasRendererType.font:
+      return _makeFontTerminal(gameDiv, scale);
+
+    case CanvasRendererType.glyph:
+      return _makeGlyphTerminal(gameDiv, scale);
+  }
+}
+
+CanvasTerminal _makeGlyphTerminal(html.Element gameDiv, int scale) {
+  return CanvasTerminal.withParent(gameDiv, CanvasRendererType.glyph,
+      scale: scale, minSize: MainMenu.minSize);
+}
+
+CanvasTerminal _makeFontTerminal(html.Element gameDiv, int scale) {
+  const fontFamily = 'DOS VGA 437';
+
+  // TODO: move this into the font renderer so that we can wait for loading
+  // Shout-out to https://github.com/CP437/PerfectDOSVGA437
+  var font = html.FontFace(fontFamily, 'url(packages/fortress/PerfectDOSVGA437.ttf)');
+  // this ensures that the font is loaded before we start rendering things
+  font.load().then((value) => html.document.fonts!.add(value));
+
+  return CanvasTerminal.withParent(gameDiv, CanvasRendererType.font,
+      scale: 1, font: 'normal ${8 * scale}px "$fontFamily", monospace', minSize: MainMenu.minSize);
 }

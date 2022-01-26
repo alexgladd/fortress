@@ -50,9 +50,11 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
     return CanvasTerminal._(canvas, renderer, cols, rows);
   }
 
-  /// Builds a [CanvasTerminal] using a new [html.CanvasElement] so that it fills the dimensions of
-  /// the given [html.Element] (or is at least the given [minSize] in columns and rows). Creates a
-  /// default [CanvasRenderer] of the requested type for the [CanvasTerminal].
+  /// Builds a [CanvasTerminal] by creating a new [html.CanvasElement] so that it fills the
+  /// dimensions of the given [html.Element] (or is at least the given [minSize] in columns and
+  /// rows). Creates a default [CanvasRenderer] of the requested type for the [CanvasTerminal].
+  ///
+  /// Note: will remove any existing canvas elements within the given [parent].
   factory CanvasTerminal.withParent(html.Element parent, CanvasRendererType rendererType,
       {int? scale, String? font, Vec2? minSize}) {
     scale ??= html.window.devicePixelRatio.toInt();
@@ -69,18 +71,16 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
         break;
     }
 
+    // remove any existing canvases and add the new one
+    parent.children.removeWhere((element) => element is html.CanvasElement);
     parent.append(canvas);
+
     return CanvasTerminal.withCanvas(
         canvas, renderer, parent.clientWidth, parent.clientHeight, scale, minSize);
   }
 
   CanvasTerminal._(this._canvas, CanvasRenderer renderer, int columns, int rows)
       : super(columns, rows, renderer);
-
-  @override
-  void render() {
-    super.render();
-  }
 
   @override
   Vec2 pixelsToPosition(Vec2 pixels) {
