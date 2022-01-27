@@ -22,4 +22,4 @@ was my opportunity to learn more about Dart while exploring more of my gamedev h
 
 For now, see example usage in [web/main.dart](web/main.dart) and [web/demo](web/demo/).
 
-To see the demo in action, visit TODO
+To see the demo in action, visit https://alexgladd.github.io/fortress/
