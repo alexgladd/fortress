@@ -3,6 +3,10 @@
 > Fortress is a zero-dependency library of useful game development utilities written in Dart for web
 > and Flutter apps.
 
+<p align="center" width="100%">
+  <img width="50%" alt="Fortress logo" src="web/fortress.png">
+</p>
+
 Fortress is specifically for retro-style, grid-based games like roguelikes and Dwarf Fortress
 clones, but could work for anything tile-based with retro/ASCII pixel graphics.
 
