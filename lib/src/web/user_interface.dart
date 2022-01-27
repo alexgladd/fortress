@@ -252,12 +252,12 @@ abstract class Layer<T extends InputBase> {
   /// Returns false if any bound [UserInterface] should not pass any input to the layer.
   bool get isHandlingInput;
 
-  /// Update the state of this [Layer]. The provided value, [dt], is the elapsed time in
-  /// milliseconds since the last call to [update].
-  void update(num dt);
-
   /// Render the [Layer] using the given [Terminal].
   void render(Terminal terminal);
+
+  /// Update the state of this [Layer]. The provided value, [dt], is the elapsed time in
+  /// milliseconds since the last call to [update].
+  void update(num dt) {}
 
   /// Called by the UI when the [Layer] above this one has been popped, making this layer the
   /// top-most in the bound [UserInterface]. If a result value was passed to [UserInterface.pop], it

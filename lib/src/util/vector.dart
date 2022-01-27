@@ -23,6 +23,26 @@ abstract class VectorBase {
   /// Cartesian length of the vector
   num get length => math.sqrt(lengthSquared);
 
+  /// Clamps the given vector so that it falls within the boundaries formed by a rectangle between
+  /// the origin (0, 0) and this vector.
+  Vec2 clamp(VectorBase other) {
+    int newX, newY;
+
+    if (x < 0) {
+      newX = other.x.clamp(x, 0).toInt();
+    } else {
+      newX = other.x.clamp(0, x).toInt();
+    }
+
+    if (y < 0) {
+      newY = other.y.clamp(y, 0);
+    } else {
+      newY = other.y.clamp(0, y);
+    }
+
+    return Vec2(newX, newY);
+  }
+
   Vec2 operator +(Object other) {
     if (other is VectorBase) {
       return Vec2(x + other.x, y + other.y);

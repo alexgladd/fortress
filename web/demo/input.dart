@@ -11,6 +11,7 @@ class Input extends InputBase {
   static const nw = Input('northwest');
 
   static const ok = Input('ok');
+  static const cancel = Input('cancel');
 
   const Input(String name) : super(name);
 }

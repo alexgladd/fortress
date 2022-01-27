@@ -3,7 +3,9 @@ import 'dart:math' as math;
 import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
 
+import 'demo_game.dart';
 import 'input.dart';
+import 'placeholder.dart';
 
 const _titleChars = [
   r'  ██████                                                   ██████',
@@ -56,6 +58,8 @@ const _charColors = {
 
 const _menuItems = ['Minigame', 'Map generation', 'UI Panels', 'UI Modals', 'Help'];
 
+const _help = '[↑↓]: Move   [enter]: Select';
+
 class MainMenu extends Layer<Input> {
   static int _getMaxWidth(List<String> items) {
     int maxWidth = 0;
@@ -70,7 +74,7 @@ class MainMenu extends Layer<Input> {
   static int get menuWidth => _getMaxWidth(_menuItems);
   static int get menuHeight => _menuItems.length;
   static int get width => math.max<int>(titleWidth, menuWidth);
-  static int get height => titleHeight + menuHeight;
+  static int get height => titleHeight + menuHeight + 2;
   static Vec2 get minSize => Vec2(width, height);
 
   int _selectedMenuItem = 0;
@@ -110,10 +114,12 @@ class MainMenu extends Layer<Input> {
       if (selected) menuTerm.drawText(0, i, '► ', Color.orange);
       menuTerm.drawText(2, i, _menuItems[i], txtColor);
     }
-  }
 
-  @override
-  void update(num dt) {}
+    // render help
+    var helpTerm =
+        terminal.child((terminal.width - _help.length) ~/ 2, terminal.height - 1, _help.length, 1);
+    helpTerm.drawText(0, 0, _help, Color.gray);
+  }
 
   @override
   bool onInput(Input input) {
@@ -127,6 +133,10 @@ class MainMenu extends Layer<Input> {
         _selectedMenuItem += 1;
         break;
 
+      case Input.ok:
+        _loadDemo(_selectedMenuItem);
+        break;
+
       default:
         handled = false;
     }
@@ -135,5 +145,13 @@ class MainMenu extends Layer<Input> {
 
     if (handled) dirty();
     return handled;
+  }
+
+  void _loadDemo(int demoIdx) {
+    if (demoIdx == 0) {
+      ui.push(Minigame());
+    } else {
+      ui.push(Placeholder());
+    }
   }
 }
