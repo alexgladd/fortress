@@ -4,6 +4,7 @@ import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
 
 import 'demo_game.dart';
+import 'demo_panels.dart';
 import 'input.dart';
 import 'placeholder.dart';
 
@@ -150,6 +151,8 @@ class MainMenu extends Layer<Input> {
   void _loadDemo(int demoIdx) {
     if (demoIdx == 0) {
       ui.push(Minigame());
+    } else if (demoIdx == 2) {
+      ui.push(Panels());
     } else {
       ui.push(Placeholder());
     }

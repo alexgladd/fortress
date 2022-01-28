@@ -4,6 +4,11 @@ import 'vector.dart';
 
 /// Immutable 2D rectangle with integer position and size. Note that a [Rect] can be constructed
 /// with negative size values; this will be handled properly.
+///
+/// For many operations, the rectangle is treated as a group of columns and rows. For example,
+/// consider the [Rect] defined by [top]=1, [right]=4, [bottom]=5, [left]=1. This rectangle
+/// consists of 3 columns (right - left) and 4 rows (bottom - top). For grid-based game logic, this
+/// is almost always the behavior we want.
 class Rect {
   /// The null rectangle: position (0, 0) size (0, 0)
   static const nill = Rect(Vec2.zero, Vec2.zero);
@@ -120,6 +125,86 @@ class Rect {
     if (vertical == -1) return horizontal;
     if (horizontal == -1) return vertical;
     return horizontal + vertical;
+  }
+
+  /// Create a new [Rect] by shrinking all four sides of this rectangle inwards by the given
+  /// [amount]. Calling with a negative [amount] will return an expanded [Rect].
+  ///
+  /// Note that this will not shrink the rectangle beyond size zero.
+  Rect shrink(int amount) {
+    if (amount == 0) return this;
+    if (amount < 0) return expand(amount.abs());
+
+    int t, b, l, r;
+
+    if (size.x < amount * 2) {
+      l = r = position.x;
+    } else {
+      l = left + amount;
+      r = right - amount;
+    }
+
+    if (size.y < amount * 2) {
+      t = b = position.y;
+    } else {
+      t = top + amount;
+      b = bottom - amount;
+    }
+
+    return Rect.sides(t, r, b, l);
+  }
+
+  /// Create a new [Rect] by expanding all four sides of this rectangle outwards by the given
+  /// [amount]. Calling with a negative [amount] will return a shrunken [Rect] (see [shrink]).
+  Rect expand(int amount) {
+    if (amount == 0) return this;
+    if (amount < 0) return shrink(amount.abs());
+    return Rect.sides(top - amount, right + amount, bottom + amount, left - amount);
+  }
+
+  /// Get a list of all points enclosed by this [Rect].
+  ///
+  /// For this operation, the rectangle is treated as a group of columns and rows, so the points on
+  /// the [right] columns and [bottom] row are not included.
+  List<Vec2> getPoints() {
+    var points = <Vec2>[];
+
+    for (var y = top; y < bottom; y++) {
+      for (var x = left; x < right; x++) {
+        points.add(Vec2(x, y));
+      }
+    }
+
+    return points;
+  }
+
+  List<Vec2> getBorder() {
+    var border = <Vec2>[];
+
+    if (this == Rect.nill || size.x == 0 || size.y == 0) return border;
+    // TODO: address rects that are single rows or columns
+
+    // top
+    for (var x = left; x < right - 1; x++) {
+      border.add(Vec2(x, top));
+    }
+
+    // right
+    for (var y = top; y < bottom - 1; y++) {
+      border.add(Vec2(right - 1, y));
+    }
+
+    // bottom
+    for (var x = right - 1; x >= left; x--) {
+      border.add(Vec2(x, bottom - 1));
+    }
+
+    // left
+    for (var y = bottom - 1; y >= top; y--) {
+      border.add(Vec2(left, y));
+    }
+
+    return border;
   }
 
   /// Returns true if [other] is another [Rect] that creates the same rectangle in 2D coordinate

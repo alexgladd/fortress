@@ -3,6 +3,7 @@ import 'color.dart';
 import 'renderer.dart';
 import '../util/array.dart';
 import '../util/char_code.dart';
+import '../util/rect.dart';
 import '../util/vector.dart';
 
 /// A virtual terminal screen that can have character data written onto it
@@ -15,6 +16,9 @@ abstract class Terminal {
 
   /// The size of the terminal as a vector
   Vec2 get size;
+
+  /// The bounds of this terminal as a [Rect]
+  Rect get bounds => Rect(Vec2(0, 0), Vec2(width, height));
 
   /// The default foreground color when none is specified
   Color foreground = Color.white;
@@ -75,6 +79,11 @@ abstract class Terminal {
     boundsCheck(x, y);
     boundsCheck(x + width - 1, y + height - 1);
     return ChildTerminal(Vec2(x, y), Vec2(width, height), this);
+  }
+
+  /// Get a child [Terminal] within this one, defined by the given [rect].
+  Terminal childRect(Rect rect) {
+    return child(rect.x, rect.y, rect.width, rect.height);
   }
 
   /// Ensures that the given position [x], [y] is within the bounds of this [Terminal]
