@@ -1,4 +1,3 @@
-import 'package:fortress/src/web/ui/panel.dart';
 import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
 
