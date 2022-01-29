@@ -5,17 +5,23 @@ import '../user_interface.dart';
 import '../../util/char_code.dart';
 import '../../util/rect.dart';
 
+/// Base panel class, with no border and optional padding and background
 abstract class Panel {
   final int _padding;
 
   Rect _bounds;
   Rect _contentBounds;
 
+  /// Optional background color; draws no background if left null
   Color? background;
 
+  /// Panel bounds
   Rect get bounds => _bounds;
+
+  /// Bounds [Rect] for the area available for content inside this panel
   Rect get contentBounds => _contentBounds;
 
+  /// Update the panel bounds; automatically updates the [contentBounds]
   set bounds(Rect newBounds) {
     _bounds = newBounds;
     _contentBounds = _bounds.shrink(_padding);
@@ -44,6 +50,7 @@ abstract class Panel {
   void renderContent(Terminal terminal);
 }
 
+/// Panel border types
 enum PanelBorder {
   none,
   single,
@@ -52,7 +59,7 @@ enum PanelBorder {
   solid,
 }
 
-enum BorderChars {
+enum _BorderChars {
   top,
   bottom,
   left,
@@ -68,9 +75,11 @@ const _doubleBorderChars = ['═', '═', '║', '║', '╔', '╗', '╚', '�
 const _frameBorderChars = ['═', '─', '│', '│', '╒', '╕', '└', '┘'];
 const _solidBorderChars = ['▀', '▄', '▌', '▐', '█', '█', '█', '█'];
 
+/// [Panel] with a rendered border, which can be of several types (see [PanelBorder]).
 abstract class BorderPanel extends Panel {
   final PanelBorder _border;
 
+  /// Optional border color; defaults to [Terminal.foreground]
   Color? borderColor;
 
   BorderPanel(Rect bounds,
@@ -92,28 +101,28 @@ abstract class BorderPanel extends Panel {
     // draw the border
     // top & bottom
     for (var x = bounds.left + 1; x < bounds.right - 1; x++) {
-      terminal.drawChar(x, bounds.top, _getBorderChar(BorderChars.top, fColor, bColor));
-      terminal.drawChar(x, bounds.bottom - 1, _getBorderChar(BorderChars.bottom, fColor, bColor));
+      terminal.drawChar(x, bounds.top, _getBorderChar(_BorderChars.top, fColor, bColor));
+      terminal.drawChar(x, bounds.bottom - 1, _getBorderChar(_BorderChars.bottom, fColor, bColor));
     }
 
     // left & right
     for (var y = bounds.top + 1; y < bounds.bottom - 1; y++) {
-      terminal.drawChar(bounds.left, y, _getBorderChar(BorderChars.left, fColor, bColor));
-      terminal.drawChar(bounds.right - 1, y, _getBorderChar(BorderChars.right, fColor, bColor));
+      terminal.drawChar(bounds.left, y, _getBorderChar(_BorderChars.left, fColor, bColor));
+      terminal.drawChar(bounds.right - 1, y, _getBorderChar(_BorderChars.right, fColor, bColor));
     }
 
     // corners
     terminal.drawChar(
-        bounds.topLeft.x, bounds.topLeft.y, _getBorderChar(BorderChars.topLeft, fColor, bColor));
+        bounds.topLeft.x, bounds.topLeft.y, _getBorderChar(_BorderChars.topLeft, fColor, bColor));
     terminal.drawChar(bounds.topRight.x - 1, bounds.topRight.y,
-        _getBorderChar(BorderChars.topRight, fColor, bColor));
+        _getBorderChar(_BorderChars.topRight, fColor, bColor));
     terminal.drawChar(bounds.bottomRight.x - 1, bounds.bottomRight.y - 1,
-        _getBorderChar(BorderChars.bottomRight, fColor, bColor));
+        _getBorderChar(_BorderChars.bottomRight, fColor, bColor));
     terminal.drawChar(bounds.bottomLeft.x, bounds.bottomLeft.y - 1,
-        _getBorderChar(BorderChars.bottomLeft, fColor, bColor));
+        _getBorderChar(_BorderChars.bottomLeft, fColor, bColor));
   }
 
-  Char _getBorderChar(BorderChars bc, Color foreground, Color background) {
+  Char _getBorderChar(_BorderChars bc, Color foreground, Color background) {
     switch (_border) {
       case PanelBorder.none:
         return Char.create(CharCode.space, foreground, background);
@@ -129,9 +138,12 @@ abstract class BorderPanel extends Panel {
   }
 }
 
+/// Special type of [Panel] using a [PanelBorder.frame] border that renders a title near the
+/// top-right corner.
 abstract class Frame extends BorderPanel {
   final String _title;
 
+  /// Optional title color; defaults to [Terminal.foreground]
   Color? titleColor;
 
   Frame(Rect bounds, this._title,
