@@ -1,7 +1,30 @@
+import 'dart:math' as math;
+
 import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
 
 import 'input.dart';
+
+final _rand = math.Random(DateTime.now().millisecondsSinceEpoch);
+
+const _panelColors = [
+  Color.white,
+  Color.gray,
+  Color.aqua,
+  Color.lightPurple,
+  Color.lightRed,
+  Color.gold,
+  Color.orange,
+  Color.yellow,
+  Color.blue,
+  Color.lightGreen,
+  Color.lightBrown,
+];
+
+Color get _randomColor {
+  var idx = _rand.nextInt(_panelColors.length);
+  return _panelColors[idx];
+}
 
 class DemoPanel extends BorderPanel {
   final PanelBorder _type;
@@ -62,19 +85,19 @@ class Panels extends Layer<Input> {
     var midX = pTerm.size.x ~/ 2;
     var midY = pTerm.size.y ~/ 2;
 
-    var singlePanel = DemoPanel(Rect.sides(0, midX, midY, 0), PanelBorder.single, Color.aqua);
-    var doublePanel = DemoPanel(
-        Rect.sides(0, pTerm.size.x, midY, midX + 1), PanelBorder.double, Color.lightPurple);
+    var singlePanel = DemoPanel(Rect.sides(0, midX, midY, 0), PanelBorder.single, _randomColor);
+    var doublePanel =
+        DemoPanel(Rect.sides(0, pTerm.size.x, midY, midX + 1), PanelBorder.double, _randomColor);
     var solidPanel =
-        DemoPanel(Rect.sides(midY + 1, midX, pTerm.size.y, 0), PanelBorder.solid, Color.gold);
-    var frame = DemoFrame(Rect.sides(midY + 1, pTerm.size.x, pTerm.size.y, midX + 1), Color.orange);
+        DemoPanel(Rect.sides(midY + 1, midX, pTerm.size.y, 0), PanelBorder.solid, _randomColor);
+    var frame = DemoFrame(Rect.sides(midY + 1, pTerm.size.x, pTerm.size.y, midX + 1), _randomColor);
 
     singlePanel.render(pTerm);
     doublePanel.render(pTerm);
     solidPanel.render(pTerm);
     frame.render(pTerm);
 
-    var help = 'Press [esc] to go back';
+    var help = 'Press [enter] to randomize colors. Press [esc] to go back.';
     terminal.drawText((terminal.width - help.length) ~/ 2, 0, help, Color.gray);
   }
 
@@ -84,6 +107,10 @@ class Panels extends Layer<Input> {
     switch (input) {
       case Input.cancel:
         ui.pop();
+        break;
+
+      case Input.ok:
+        dirty();
         break;
 
       default:
