@@ -1,0 +1,36 @@
+# Github Pages deployment workflow
+
+name: GH Pages Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: gh-pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Dart Setup
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+        run: |
+          dart pub global activate webdev
+          dart pub get
+      
+      - name: Build
+        run: webdev build --output web:build
+      
+      - name: Deploy Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: build
