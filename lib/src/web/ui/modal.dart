@@ -36,6 +36,41 @@ class Modal<T extends InputBase> extends BaseModal<T> {
   /// The handler to call for Cancel (esc key) actions
   void Function() onCancel = _doNothing;
 
+  /// The handler to call for Yes (y key) actions
+  void Function() onYes = _doNothing;
+
+  /// The handler to call for No (n key) actions
+  void Function() onNo = _doNothing;
+
+  /// General builder factory for [Modal]s. You need to set the handler functions appropriately
+  /// based on what you want to use the modal for.
+  factory Modal.builder(String panelText, String actionText,
+      {PanelBorder borderType = PanelBorder.single,
+      int padding = 1,
+      Color? panelTextColor,
+      Color? actionTextColor,
+      Color? backgroundColor,
+      Color? borderColor}) {
+    // for each of these, the padding size and 1 for the border on each side
+    var minWidth = math.max<int>(panelText.length, actionText.length) + ((1 + padding) * 2);
+    var minHeight = 3 + ((1 + padding) * 2);
+
+    // create the panel at the origin, we'll use a child terminal to make sure it gets centered
+    var panel = BorderPanel(Rect.atOrigin(minWidth, minHeight),
+        border: borderType,
+        borderColor: borderColor,
+        background: backgroundColor,
+        padding: padding);
+
+    // add a renderer to draw the panel and action texts
+    panel.contentRenderer = (terminal) {
+      terminal.drawTextCenter(0, panelText, panelTextColor);
+      terminal.drawTextCenter(2, actionText, actionTextColor);
+    };
+
+    return Modal<T>(panel);
+  }
+
   /// Creates a simple modal with "OK" (enter key) and optionally "Cancel" (esc key) actions. The
   /// modal panel will be rendered in the center of the [Terminal] that is used to [render] the
   /// modal's [Layer].
@@ -49,19 +84,13 @@ class Modal<T extends InputBase> extends BaseModal<T> {
       Object? okResult,
       Object? cancelResult}) {
     var actionText = showCancel ? _okCancelText : _okText;
-    // add 4 here for border + padding on each side
-    var minWidth = math.max(panelText.length, actionText.length) + 4;
-    // one like for panel text, one empty line, one line for action text, plus 4 for border/padding
-    var minHeight = 4 + 3;
-    var panel = BorderPanel(Rect.atOrigin(minWidth, minHeight),
-        border: borderType, borderColor: borderColor, background: backgroundColor, padding: 1);
 
-    panel.contentRenderer = (terminal) {
-      terminal.drawTextCenter(0, panelText, panelTextColor);
-      terminal.drawTextCenter(2, actionText, actionTextColor);
-    };
-
-    var modal = Modal<T>(panel);
+    var modal = Modal<T>.builder(panelText, actionText,
+        borderType: borderType,
+        panelTextColor: panelTextColor,
+        actionTextColor: actionTextColor,
+        backgroundColor: backgroundColor,
+        borderColor: borderColor);
 
     modal.onOk = () {
       modal.ui.pop(okResult);
@@ -72,6 +101,34 @@ class Modal<T extends InputBase> extends BaseModal<T> {
         modal.ui.pop(cancelResult);
       };
     }
+
+    return modal;
+  }
+
+  /// Creates a simple modal with "Yes" (y key) and "No" (n key) actions. The modal panel will be
+  /// rendered in the center of the [Terminal] that is used to [render] the modal's [Layer].
+  factory Modal.yesNo(String panelText,
+      {PanelBorder borderType = PanelBorder.single,
+      Color? panelTextColor,
+      Color? actionTextColor,
+      Color? backgroundColor,
+      Color? borderColor,
+      Object? yesResult,
+      Object? noResult}) {
+    var modal = Modal<T>.builder(panelText, _yesNoText,
+        borderType: borderType,
+        panelTextColor: panelTextColor,
+        actionTextColor: actionTextColor,
+        backgroundColor: backgroundColor,
+        borderColor: borderColor);
+
+    modal.onYes = () {
+      modal.ui.pop(yesResult);
+    };
+
+    modal.onNo = () {
+      modal.ui.pop(noResult);
+    };
 
     return modal;
   }
@@ -100,6 +157,12 @@ class Modal<T extends InputBase> extends BaseModal<T> {
         break;
       case KeyCode.escape:
         onCancel();
+        break;
+      case KeyCode.keyY:
+        onYes();
+        break;
+      case KeyCode.keyN:
+        onNo();
         break;
       default:
         handled = false;
