@@ -7,6 +7,20 @@
   box-sizing: border-box;
 }
 
+a, a:visited {
+  color: darkred;
+  text-decoration: none;
+}
+
+a:hover, a:active {
+  outline: none;
+  text-decoration: underline;
+}
+
+a:focus {
+  outline: darkred solid 2px;
+}
+
 html, body {
   margin: 0;
   padding: 0;
