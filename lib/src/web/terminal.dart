@@ -54,6 +54,22 @@ abstract class Terminal {
     }
   }
 
+  /// Draws the string of characters in [text] on row [y] such that the text is centered
+  /// horizontally in this [Terminal]. If the length of [text] is longer than this terminal's
+  /// [width], the text will be positioned at column 0.
+  void drawTextCenter(int y, String text, [Color? foreground, Color? background]) {
+    int x;
+
+    if (text.length >= width) {
+      // can't center; just left-justify and fill the line
+      x = 0;
+    } else {
+      x = (width - text.length) ~/ 2;
+    }
+
+    drawText(x, y, text, foreground, background);
+  }
+
   /// Clears and fills the given rectangle with the given (or default) background [Color].
   void fill(final int x, int y, int width, int height, [Color? color]) {
     color ??= background;

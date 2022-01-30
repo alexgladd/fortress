@@ -11,4 +11,5 @@ export 'src/web/renderer.dart';
 export 'src/web/terminal.dart';
 export 'src/web/unicode_map.dart';
 export 'src/web/user_interface.dart';
+export 'src/web/ui/modal.dart';
 export 'src/web/ui/panel.dart';

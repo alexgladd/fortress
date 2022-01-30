@@ -99,6 +99,36 @@ class Rect {
     return Vec2(x, y);
   }
 
+  /// Returns true if [other] is a [Vec2] or a [Rect] and is contained within this rectangle. For
+  /// this operation the rectangle is treated as a group of columns and rows.
+  ///
+  /// See [containsVec] and [containsRect].
+  bool contains(Object? other) {
+    if (other is Vec2) return containsVec(other);
+    if (other is Rect) return containsRect(other);
+    return false;
+  }
+
+  /// Returns true if [other] is contained within this rectangle, including being equivalent to this
+  /// rectangle. That is, [other]'s [top], [right], [bottom], and [left] must be equal to or inside
+  /// this rectangle.
+  bool containsRect(Rect other) {
+    if (other.top >= top && other.right <= right && other.bottom <= bottom && other.left >= left) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /// Returns true if [vector] is anywhere within the columns and rows enclosed by this rectangle.
+  bool containsVec(VectorBase vector) {
+    if (vector.x >= left && vector.x < right && vector.y >= top && vector.y < bottom) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   /// Returns the distance between this [Rect] and [other]. This is minimum
   /// length that a corridor would have to be to go from one Rect to the other.
   /// If the two Rects are adjacent, returns zero. If they overlap, returns -1.
@@ -160,6 +190,13 @@ class Rect {
     if (amount == 0) return this;
     if (amount < 0) return shrink(amount.abs());
     return Rect.sides(top - amount, right + amount, bottom + amount, left - amount);
+  }
+
+  /// Create a new [Rect] with the given [width] and [height] that is centered on this rectangle.
+  Rect centerRect(int width, int height) {
+    var x = position.x + ((this.width - width) ~/ 2);
+    var y = position.y + ((this.height - height) ~/ 2);
+    return Rect(Vec2(x, y), Vec2(width, height));
   }
 
   /// Get a list of all points enclosed by this [Rect].

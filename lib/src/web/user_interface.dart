@@ -272,9 +272,7 @@ abstract class Layer<T extends InputBase> {
   /// the active (top-most) layer. If this method returns false (the default ), the respective
   /// lower-level input handler will be called.
   ///
-  /// See [UserInterface.keyBinds]
-  ///
-  /// See ...
+  /// See [UserInterface.keyBinds] and [InputBase].
   bool onInput(T input) => false;
 
   /// If this [Layer] is active (top-most) and accepting inputs, any keyboard key down events not

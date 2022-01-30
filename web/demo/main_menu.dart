@@ -153,6 +153,12 @@ class MainMenu extends Layer<Input> {
       ui.push(Minigame());
     } else if (demoIdx == 2) {
       ui.push(Panels());
+    } else if (demoIdx == 3) {
+      ui.push(Modal.ok('This is a Modal panel thats really cool!!!',
+          showCancel: true,
+          borderType: PanelBorder.solid,
+          borderColor: Color.gold,
+          actionTextColor: Color.gray));
     } else {
       ui.push(Placeholder());
     }

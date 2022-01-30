@@ -6,20 +6,32 @@ import '../../util/char_code.dart';
 import '../../util/rect.dart';
 
 /// Base panel class, with no border and optional padding and background
-abstract class Panel {
+class Panel {
   final int _padding;
 
   Rect _bounds;
   Rect _contentBounds;
 
-  /// Optional background color; draws no background if left null
+  /// Optional background color; uses the [Terminal]'s background color by default
   Color? background;
+
+  /// Set a [void Function(Terminal)] implementation to render content within the panel. The
+  /// provided [Terminal] is already set up such that it represents the full extent of the available
+  /// content area of this [Panel]. You can use this to draw panels without subclassing and
+  /// overriding [renderContent].
+  void Function(Terminal)? contentRenderer;
 
   /// Panel bounds
   Rect get bounds => _bounds;
 
   /// Bounds [Rect] for the area available for content inside this panel
   Rect get contentBounds => _contentBounds;
+
+  /// The width of the panel
+  int get width => bounds.width;
+
+  // The height of the panel
+  int get height => bounds.height;
 
   /// Update the panel bounds; automatically updates the [contentBounds]
   set bounds(Rect newBounds) {
@@ -33,12 +45,10 @@ abstract class Panel {
 
   /// Render the panel and its contents. This should be called from within [Layer.render].
   void render(Terminal terminal) {
-    // render a background if we have one
-    if (background != null) {
-      var bc = Char.create(CharCode.space, terminal.foreground, background);
-      for (var point in bounds.getPoints()) {
-        terminal.drawChar(point.x, point.y, bc);
-      }
+    // render a background
+    var bc = Char.create(CharCode.space, terminal.foreground, background ?? terminal.background);
+    for (var point in bounds.getPoints()) {
+      terminal.drawChar(point.x, point.y, bc);
     }
 
     // render the panel contents
@@ -46,8 +56,11 @@ abstract class Panel {
   }
 
   /// Render content within the panel. The provided [terminal] is already set up such that it
-  /// represents the full extent of the available content area of this [Panel].
-  void renderContent(Terminal terminal);
+  /// represents the full extent of the available content area of this [Panel]. By default, this
+  /// method calls [contentRenderer] if it is defined.
+  void renderContent(Terminal terminal) {
+    if (contentRenderer != null) contentRenderer!(terminal);
+  }
 }
 
 /// Panel border types
@@ -76,7 +89,7 @@ const _frameBorderChars = ['═', '─', '│', '│', '╒', '╕', '└', '┘
 const _solidBorderChars = ['▀', '▄', '▌', '▐', '█', '█', '█', '█'];
 
 /// [Panel] with a rendered border, which can be of several types (see [PanelBorder]).
-abstract class BorderPanel extends Panel {
+class BorderPanel extends Panel {
   final PanelBorder _border;
 
   /// Optional border color; defaults to [Terminal.foreground]
@@ -140,7 +153,7 @@ abstract class BorderPanel extends Panel {
 
 /// Special type of [Panel] using a [PanelBorder.frame] border that renders a title near the
 /// top-right corner.
-abstract class Frame extends BorderPanel {
+class Frame extends BorderPanel {
   final String _title;
 
   /// Optional title color; defaults to [Terminal.foreground]
@@ -160,6 +173,7 @@ abstract class Frame extends BorderPanel {
 
     // draw the frame title
     var panelTerm = terminal.childRect(bounds);
-    panelTerm.drawText(2, 0, ' $_title ');
+    panelTerm.drawText(
+        2, 0, ' $_title ', titleColor ?? terminal.foreground, background ?? terminal.background);
   }
 }
