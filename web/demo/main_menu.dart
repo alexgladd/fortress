@@ -154,7 +154,7 @@ class MainMenu extends Layer<Input> {
     } else if (demoIdx == 2) {
       ui.push(Panels());
     } else if (demoIdx == 3) {
-      ui.push(Modal.ok('This is a Modal panel thats really cool!!!',
+      ui.push(Modal.ok("This is a Modal panel that's really cool!!!",
           showCancel: true,
           borderType: PanelBorder.solid,
           borderColor: Color.gold,
