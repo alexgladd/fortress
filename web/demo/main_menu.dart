@@ -75,7 +75,7 @@ class MainMenu extends Layer<Input> {
   static int get menuWidth => _getMaxWidth(_menuItems);
   static int get menuHeight => _menuItems.length;
   static int get width => math.max<int>(titleWidth, menuWidth);
-  static int get height => titleHeight + menuHeight + 2;
+  static int get height => titleHeight + menuHeight + 2; // plus 2 to leave space for help text
   static Vec2 get minSize => Vec2(width, height);
 
   int _selectedMenuItem = 0;
