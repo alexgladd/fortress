@@ -18,10 +18,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       
-      - name: Dart Setup
+      - name: Dart Install
         uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
+      
+      - name: Dart Setup
         run: |
           dart pub global activate webdev
           dart pub get
