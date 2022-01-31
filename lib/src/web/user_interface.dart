@@ -26,6 +26,7 @@ class UserInterface<T extends InputBase> {
   bool _dirty = true;
   bool _running = false;
   bool _handlingKeyInput = false;
+  double _lastAnimationTime = 0;
 
   /// Keyboard input bindings that this UI consumes and handles.
   ///
@@ -46,7 +47,10 @@ class UserInterface<T extends InputBase> {
   set running(bool value) {
     _running = value;
 
-    if (_running) html.window.requestAnimationFrame(_onTick);
+    if (_running) {
+      _lastAnimationTime = html.window.performance.now();
+      html.window.requestAnimationFrame(_onTick);
+    }
   }
 
   /// Set to true to have the [UserInterface] begin handling keyboard input events and delegating
@@ -125,12 +129,12 @@ class UserInterface<T extends InputBase> {
   }
 
   /// Update all of the [Layer]s currently bound to the UI, regardless of whether
-  /// they're currently visible or not. The provided value, [dt], is the elapsed time in
-  /// milliseconds since the last call to [update]. You can use this value to provide consistent
-  /// animations or game flow regardless of the underlying framerate.
-  void update(num dt) {
+  /// they're currently visible or not. The provided value, [ds], is the elapsed time in
+  /// (fractional) seconds since the last call to [update]. You can use this value to provide
+  /// consistent animations or game flow regardless of the underlying framerate.
+  void update(double ds) {
     for (var i = 0; i < _layers.length; i++) {
-      _layers[i].update(dt);
+      _layers[i].update(ds);
     }
   }
 
@@ -174,7 +178,10 @@ class UserInterface<T extends InputBase> {
 
   /// The primary game loop, driven by the browser's [html.Window.requestAnimationFrame].
   void _onTick(num dt) {
-    update(dt);
+    var animMillis = dt.toDouble() - _lastAnimationTime;
+    _lastAnimationTime = dt.toDouble();
+
+    update(animMillis / 1000.0);
     render();
 
     if (running) html.window.requestAnimationFrame(_onTick);
@@ -256,8 +263,8 @@ abstract class Layer<T extends InputBase> {
   void render(Terminal terminal);
 
   /// Update the state of this [Layer]. The provided value, [dt], is the elapsed time in
-  /// milliseconds since the last call to [update].
-  void update(num dt) {}
+  /// (fractional) seconds since the last call to [update].
+  void update(double dt) {}
 
   /// Called by the UI when the [Layer] above this one has been popped, making this layer the
   /// top-most in the bound [UserInterface]. If a result value was passed to [UserInterface.pop], it
