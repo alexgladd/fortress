@@ -5,7 +5,7 @@ import 'package:fortress/web.dart';
 
 import 'demo_anim.dart';
 import 'demo_game.dart';
-// import 'demo_modals.dart';
+import 'demo_modals.dart';
 import 'demo_panels.dart';
 import 'input.dart';
 import 'placeholder.dart';
@@ -156,12 +156,7 @@ class MainMenu extends Layer<Input> {
     } else if (demoIdx == 2) {
       ui.push(Panels());
     } else if (demoIdx == 3) {
-      ui.push(Modal.ok("This is a Modal panel that's really cool!!!",
-          showCancel: true,
-          borderType: PanelBorder.solid,
-          borderColor: Color.gold,
-          actionTextColor: Color.gray));
-      // ui.push(Modals());
+      ui.push(Modals());
     } else if (demoIdx == 4) {
       ui.push(AnimParticles());
     } else {

@@ -4,6 +4,7 @@ import '../terminal.dart';
 import '../user_interface.dart';
 import '../../util/char_code.dart';
 import '../../util/rect.dart';
+import '../../util/vector.dart';
 
 /// Base panel class, with no border and optional padding and background
 class Panel {
@@ -37,6 +38,16 @@ class Panel {
   set bounds(Rect newBounds) {
     _bounds = newBounds;
     _contentBounds = _bounds.shrink(_padding);
+  }
+
+  /// Create a [Panel] that is sized for the given content [width] and [height], taking the given
+  /// [padding] into consideration. The resulting panel will be positioned at (0, 0), so use a child
+  /// [Terminal] to render it at the desired location.
+  ///
+  /// See [Terminal.childRect]
+  factory Panel.forContent(int width, int height, {Color? background, int padding = 0}) {
+    var bounds = Rect(Vec2(0, 0), Vec2(width + (padding * 2), height + (padding * 2)));
+    return Panel(bounds, background: background, padding: padding);
   }
 
   Panel(this._bounds, {this.background, int padding = 0})

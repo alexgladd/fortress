@@ -77,6 +77,7 @@ class Modal<T extends InputBase> extends BaseModal<T> {
   factory Modal.ok(String panelText,
       {bool showCancel = false,
       PanelBorder borderType = PanelBorder.single,
+      int? padding,
       Color? panelTextColor,
       Color? actionTextColor,
       Color? backgroundColor,
@@ -87,6 +88,7 @@ class Modal<T extends InputBase> extends BaseModal<T> {
 
     var modal = Modal<T>.builder(panelText, actionText,
         borderType: borderType,
+        padding: padding ?? 1,
         panelTextColor: panelTextColor,
         actionTextColor: actionTextColor,
         backgroundColor: backgroundColor,
@@ -109,6 +111,7 @@ class Modal<T extends InputBase> extends BaseModal<T> {
   /// rendered in the center of the [Terminal] that is used to [render] the modal's [Layer].
   factory Modal.yesNo(String panelText,
       {PanelBorder borderType = PanelBorder.single,
+      int? padding,
       Color? panelTextColor,
       Color? actionTextColor,
       Color? backgroundColor,
@@ -117,6 +120,7 @@ class Modal<T extends InputBase> extends BaseModal<T> {
       Object? noResult}) {
     var modal = Modal<T>.builder(panelText, _yesNoText,
         borderType: borderType,
+        padding: padding ?? 1,
         panelTextColor: panelTextColor,
         actionTextColor: actionTextColor,
         backgroundColor: backgroundColor,
