@@ -3,7 +3,9 @@ import 'dart:math' as math;
 import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
 
+import 'demo_anim.dart';
 import 'demo_game.dart';
+// import 'demo_modals.dart';
 import 'demo_panels.dart';
 import 'input.dart';
 import 'placeholder.dart';
@@ -57,7 +59,7 @@ const _charColors = {
   'W': Color.white,
 };
 
-const _menuItems = ['Minigame', 'Map generation', 'UI Panels', 'UI Modals', 'Help'];
+const _menuItems = ['Minigame', 'Map generation', 'UI Panels', 'UI Modals', 'Animation'];
 
 const _help = '[↑↓]: Move   [enter]: Select';
 
@@ -159,6 +161,9 @@ class MainMenu extends Layer<Input> {
           borderType: PanelBorder.solid,
           borderColor: Color.gold,
           actionTextColor: Color.gray));
+      // ui.push(Modals());
+    } else if (demoIdx == 4) {
+      ui.push(AnimParticles());
     } else {
       ui.push(Placeholder());
     }
