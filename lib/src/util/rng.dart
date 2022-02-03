@@ -25,7 +25,7 @@ class Rng {
   double nextDouble(double max) => _random.nextDouble() * max;
 
   /// Get a random boolean value
-  bool randBool() => _random.nextBool();
+  bool nextBool() => _random.nextBool();
 
   /// Returns true [chance] percent of the time
   bool percent(int chance) => nextInt(100) < chance;
