@@ -1,0 +1,29 @@
+# CI workflow
+
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Install Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      
+      - name: Install dependencies
+        run: dart pub get
+      
+      - name: Verify formatting
+        run: dart format --output=none --line-length=100 --set-exit-if-changed .
+      
+      - name: Analyze source
+        run: dart analyze
+      
+      - name: Run tests
+        run: dart test --reporter=expanded

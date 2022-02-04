@@ -18,12 +18,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       
-      - name: Dart Install
+      - name: Install Dart
         uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
       
-      - name: Dart Setup
+      - name: Install dependencies
         run: |
           dart pub global activate webdev
           dart pub get
@@ -31,7 +31,7 @@ jobs:
       - name: Build
         run: webdev build --output web:build
       
-      - name: Deploy Pages
+      - name: Deploy GH-Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
