@@ -1,6 +1,6 @@
 # Github Pages deployment workflow
 
-name: GH Pages Deploy
+name: GH Pages
 
 on:
   push:

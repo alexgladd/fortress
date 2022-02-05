@@ -99,14 +99,15 @@ class Rect {
     return Vec2(x, y);
   }
 
-  /// Returns true if [other] is a [Vec2] or a [Rect] and is contained within this rectangle. For
-  /// this operation the rectangle is treated as a group of columns and rows.
+  /// Returns true if [other] is a [VectorBase] or a [Rect] and is contained within this rectangle.
+  /// For this operation the rectangle is treated as a group of columns and rows.
   ///
   /// See [containsVec] and [containsRect].
   bool contains(Object? other) {
-    if (other is Vec2) return containsVec(other);
+    if (other is VectorBase) return containsVec(other);
     if (other is Rect) return containsRect(other);
-    return false;
+    throw ArgumentError.value(
+        other.runtimeType.toString(), 'other', 'Must be a Rect or VectorBase');
   }
 
   /// Returns true if [other] is contained within this rectangle, including being equivalent to this
@@ -194,15 +195,15 @@ class Rect {
 
   /// Create a new [Rect] with the given [width] and [height] that is centered on this rectangle.
   Rect centerRect(int width, int height) {
-    var x = position.x + ((this.width - width) ~/ 2);
-    var y = position.y + ((this.height - height) ~/ 2);
+    var x = left + ((right - left - width) ~/ 2);
+    var y = top + ((bottom - top - height) ~/ 2);
     return Rect(Vec2(x, y), Vec2(width, height));
   }
 
   /// Get a list of all points enclosed by this [Rect].
   ///
   /// For this operation, the rectangle is treated as a group of columns and rows, so the points on
-  /// the [right] columns and [bottom] row are not included.
+  /// the [right] column and [bottom] row are not included.
   List<Vec2> getPoints() {
     var points = <Vec2>[];
 
@@ -255,7 +256,7 @@ class Rect {
   }
 
   @override
-  int get hashCode => top.hashCode ^ right.hashCode ^ bottom.hashCode ^ left.hashCode;
+  int get hashCode => topLeft.hashCode ^ bottomRight.hashCode;
 
   @override
   String toString() => 'rect($top, $right, $bottom, $left)';
