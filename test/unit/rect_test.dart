@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:fortress/util.dart';
 import 'package:test/test.dart';
 
