@@ -35,9 +35,9 @@ abstract class VectorBase {
     }
 
     if (y < 0) {
-      newY = other.y.clamp(y, 0);
+      newY = other.y.clamp(y, 0).toInt();
     } else {
-      newY = other.y.clamp(0, y);
+      newY = other.y.clamp(0, y).toInt();
     }
 
     return Vec2(newX, newY);
