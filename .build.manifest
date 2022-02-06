@@ -22,4 +22,12 @@ packages/fortress/PerfectDOSVGA437.ttf
 packages/fortress/dos-vga-437.png
 packages/lints/core.yaml
 packages/lints/recommended.yaml
+packages/node_preamble/preamble.js
+packages/node_preamble/preamble.min.js
+packages/test/dart.js
+packages/test/src/runner/browser/static/default.html.tpl
+packages/test/src/runner/browser/static/favicon.ico
+packages/test/src/runner/browser/static/host.css
+packages/test/src/runner/browser/static/host.dart.js
+packages/test/src/runner/browser/static/index.html
 styles.css
