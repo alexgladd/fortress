@@ -15,6 +15,9 @@ class TileMap<T extends TileBase> extends IterableBase<T> {
   /// The height of the map in tiles
   int get height => _tiles.height;
 
+  /// Total number of tiles in the map
+  int get totalTiles => width * height;
+
   /// Iterate through all tiles in row-major order
   @override
   Iterator<T> get iterator => _tiles.iterator;

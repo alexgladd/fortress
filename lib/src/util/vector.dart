@@ -23,6 +23,9 @@ abstract class VectorBase {
   /// Cartesian length of the vector
   num get length => math.sqrt(lengthSquared);
 
+  /// Aspect ratio of the rectangle formed between (0, 0) and this vector (always >= 1.0)
+  double get aspectRatio => x >= y ? x / y : y / x;
+
   /// Clamps the given vector so that it falls within the boundaries formed by a rectangle between
   /// the origin (0, 0) and this vector.
   Vec2 clamp(VectorBase other) {

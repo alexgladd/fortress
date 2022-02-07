@@ -61,6 +61,9 @@ class Rect {
   /// Area of the rectangle (always positive)
   int get absArea => size.absArea;
 
+  /// Aspect ratio of the rectangle (always >= 1.0)
+  double get aspectRatio => width >= height ? width / height : height / width;
+
   /// Create a [Rect] using the given bounds
   Rect.sides(int top, int right, int bottom, int left)
       : position = Vec2(left, top),
