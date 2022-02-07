@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'tile.dart';
-import '../web/char.dart';
 import '../util/array.dart';
 import '../util/vector.dart';
 

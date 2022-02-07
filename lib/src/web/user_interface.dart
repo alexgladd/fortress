@@ -96,6 +96,7 @@ class UserInterface<T extends InputBase> {
   /// Push a new [Layer] onto the top of the stack.
   void push(Layer<T> layer) {
     layer._bindUi(this);
+    layer.start();
     _layers.add(layer);
     dirty();
   }
@@ -265,6 +266,10 @@ abstract class Layer<T extends InputBase> {
   /// Update the state of this [Layer]. The provided value, [dt], is the elapsed time in
   /// (fractional) seconds since the last call to [update].
   void update(double dt) {}
+
+  /// Initialize the state if this [Layer]. This will be called only once, right after the layer is
+  /// bound to a [UserInterface].
+  void start() {}
 
   /// Called by the UI when the [Layer] above this one has been popped, making this layer the
   /// top-most in the bound [UserInterface]. If a result value was passed to [UserInterface.pop], it

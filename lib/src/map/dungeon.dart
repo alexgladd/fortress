@@ -75,6 +75,7 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
 
       if (_canPlaceRoom(room)) {
         _placeRoom(room);
+        print('DUNGEON placed rooms ${_rooms.length} density $roomDensity');
         yield 'Room';
       } else {
         failures++;
