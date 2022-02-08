@@ -106,6 +106,21 @@ class BorderPanel extends Panel {
   /// Optional border color; defaults to [Terminal.foreground]
   Color? borderColor;
 
+  /// Create a [BorderPanel] that is sized for the given content [width] and [height], taking the given
+  /// [padding] into consideration. The resulting panel will be positioned at (0, 0), so use a child
+  /// [Terminal] to render it at the desired location.
+  ///
+  /// See [Terminal.childRect]
+  factory BorderPanel.forContent(int width, int height,
+      {PanelBorder border = PanelBorder.single,
+      Color? borderColor,
+      Color? background,
+      int padding = 0}) {
+    var bounds = Rect(Vec2(0, 0), Vec2(width + (padding * 2) + 2, height + (padding * 2) + 2));
+    return BorderPanel(bounds,
+        border: border, borderColor: borderColor, background: background, padding: padding);
+  }
+
   BorderPanel(Rect bounds,
       {PanelBorder border = PanelBorder.single,
       this.borderColor,

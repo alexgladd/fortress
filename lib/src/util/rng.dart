@@ -27,6 +27,16 @@ class Rng {
   /// Get a random boolean value
   bool nextBool() => _random.nextBool();
 
+  /// Get a random integer between 0 (inclusive) and [minOrMax] (exclusive), or between [minOrMax]
+  /// (inclusive) and [max] (exclusive) if [max] is given.
+  int range(int minOrMax, [int? max]) =>
+      max == null ? nextInt(minOrMax) : nextInt(max - minOrMax) + minOrMax;
+
+  /// Get a random integer between 0 (inclusive) and [minOrMax] (inclusive), or between [minOrMax]
+  /// (inclusive) and [max] (inclusive) if [max] is given.
+  int rangeInclusive(int minOrMax, [int? max]) =>
+      max == null ? range(minOrMax + 1) : range(minOrMax, max + 1);
+
   /// Returns true [chance] percent of the time
   bool percent(int chance) => nextInt(100) < chance;
 
