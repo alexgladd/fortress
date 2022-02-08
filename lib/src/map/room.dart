@@ -1,6 +1,20 @@
+import 'dart:math' as math;
+
 import '../util/rect.dart';
 import '../util/rng.dart';
+import '../util/tuple.dart';
 import '../util/vector.dart';
+
+/// Data model for constraining the dimensions of [Room]s
+class RoomConstraint extends Tuple2<int, int> {
+  int get min => first;
+  int get max => second;
+
+  const RoomConstraint(int min, int max) : super(min, max);
+
+  @override
+  String toString() => 'roomConstraint(min: $min, max: $max)';
+}
 
 /// Rectangular room
 class Room {
@@ -19,23 +33,34 @@ class Room {
 
 /// Random [Room] generator
 class RoomGenerator {
-  final Vec2 _mapSize;
-  final int _minSize;
-  final int _maxSize;
+  final Rect _roomBounds;
+  final RoomConstraint _widthBounds;
+  final RoomConstraint _heightBounds;
   final double _maxAspect;
 
-  int get mapWidth => _mapSize.x;
-  int get mapHeight => _mapSize.y;
-
   /// Initialize a room generator to generate random rooms within a space of the given [width] and
-  /// [height], with other optional tuning parameters.
-  /// - Room size: [minSize] and [maxSize]
+  /// [height], with other tuning parameters:
+  /// - Room size: [widthBounds] and [heightBounds]
   /// - Room shape: [maxAspect]
-  RoomGenerator(int width, int height, int minSize, int maxSize, double maxAspect)
-      : _mapSize = Vec2(width, height),
-        _minSize = minSize,
-        _maxSize = maxSize,
-        _maxAspect = maxAspect;
+  RoomGenerator(int width, int height, RoomConstraint widthBounds, RoomConstraint heightBounds,
+      double maxAspect)
+      : _roomBounds = Rect.sides(1, width - 1, height - 1, 1),
+        _widthBounds = widthBounds,
+        _heightBounds = heightBounds,
+        _maxAspect = maxAspect {
+    // safety checks
+    if (_widthBounds.max < _widthBounds.min || _heightBounds.max < _heightBounds.min) {
+      throw StateError(
+          'Room constraints have swapped min and max values: width $_widthBounds height $_heightBounds');
+    }
+
+    var minAspect = math.max(_widthBounds.min, _heightBounds.min) /
+        math.min(_widthBounds.min, _heightBounds.min);
+    if (minAspect > _maxAspect) {
+      throw StateError(
+          'Room constraints always produce an aspect ratio greater than configured max: width $_widthBounds height $_heightBounds');
+    }
+  }
 
   /// Iterate through a sequence of random rooms generated within the configured constraints
   Iterable<Room> rooms() sync* {
@@ -44,14 +69,6 @@ class RoomGenerator {
 
   /// Generate on random room within the configured constraints
   Room nextRoom() {
-    // safety checking
-    var chkAspect = _maxSize / _minSize;
-    if (chkAspect < 0.0) {
-      throw StateError('Min room size is less than max room size (min: $_minSize, max: $_maxSize)');
-    } else if (chkAspect > _maxAspect) {
-      throw StateError('Min and max room size produce an aspect ratio greater than configured max');
-    }
-
     // get an acceptable room size
     var roomSize = _randomRoomSize();
     while (roomSize.aspectRatio > _maxAspect) {
@@ -64,11 +81,12 @@ class RoomGenerator {
   }
 
   Vec2 _randomRoomSize() {
-    return Vec2(rng.rangeInclusive(_minSize, _maxSize), rng.rangeInclusive(_minSize, _maxSize));
+    return Vec2(rng.rangeInclusive(_widthBounds.min, _widthBounds.max),
+        rng.rangeInclusive(_heightBounds.min, _heightBounds.max));
   }
 
   Vec2 _randomRoomPos(Vec2 size) {
-    return Vec2(rng.rangeInclusive(1, mapWidth - size.x - 1),
-        rng.rangeInclusive(1, mapHeight - size.y - 1));
+    return Vec2(rng.rangeInclusive(_roomBounds.left, _roomBounds.right - size.x),
+        rng.rangeInclusive(_roomBounds.top, _roomBounds.bottom - size.y));
   }
 }

@@ -19,8 +19,12 @@ class DemoTile extends TileBase {
 class Maps extends Layer<Input> {
   static const wall = Char(CharCode.fullBlock, Color.darkBrown);
   static const floor = Char(CharCode.period, Color.lightBrown);
+  static const _busyTxt = 'Building...   [esc] Back';
+  static const _idleTxt = '[d] New dungeon   [esc] Back';
 
   final _timer = Stopwatch();
+  final Panel _busyPanel;
+  final Panel _idlePanel;
 
   late MapBuilder<DemoTile> _builder;
   late Iterator<String> _buildSteps;
@@ -32,6 +36,21 @@ class Maps extends Layer<Input> {
 
   @override
   bool get isTransparent => false;
+
+  Maps()
+      : _busyPanel = BorderPanel.forContent(_busyTxt.length, 1,
+            border: PanelBorder.solid, borderColor: Color.gold, padding: 1),
+        _idlePanel = BorderPanel.forContent(_idleTxt.length, 1,
+            border: PanelBorder.solid, borderColor: Color.gold, padding: 1) {
+    // setup panels
+    _busyPanel.contentRenderer = (terminal) {
+      terminal.drawText(0, 0, _busyTxt);
+    };
+
+    _idlePanel.contentRenderer = (terminal) {
+      terminal.drawText(0, 0, _idleTxt);
+    };
+  }
 
   @override
   void start() {
@@ -46,7 +65,11 @@ class Maps extends Layer<Input> {
       dirty();
       _timer.reset();
     } else {
-      if (!_finished) _finished = true;
+      if (!_finished) {
+        _finished = true;
+        dirty();
+      }
+
       _timer
         ..stop()
         ..reset();
@@ -55,6 +78,7 @@ class Maps extends Layer<Input> {
 
   @override
   void render(Terminal terminal) {
+    // draw the tile map
     for (var pos in terminal.bounds.getPoints()) {
       var tile = _builder.map[pos];
 
@@ -64,6 +88,17 @@ class Maps extends Layer<Input> {
         terminal.drawChar(pos.x, pos.y, wall);
       }
     }
+
+    Panel panel;
+    if (_finished) {
+      panel = _idlePanel;
+    } else {
+      panel = _busyPanel;
+    }
+
+    var pTerm = terminal.child(terminal.width - panel.width - 1, terminal.height - panel.height - 1,
+        panel.width, panel.height);
+    panel.render(pTerm);
   }
 
   @override

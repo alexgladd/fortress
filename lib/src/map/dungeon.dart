@@ -52,11 +52,11 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
       required T corridor,
       required T door,
       double targetDensity = 0.33,
-      int minRoomSize = 5,
-      int maxRoomSize = 9,
-      double maxAspectRatio = 2.0})
+      RoomConstraint roomWidths = const RoomConstraint(9, 15),
+      RoomConstraint roomHeights = const RoomConstraint(5, 9),
+      double maxAspectRatio = 3.0})
       : _tileMap = TileMap(width, height, wall),
-        _roomGen = RoomGenerator(width, height, minRoomSize, maxRoomSize, maxAspectRatio),
+        _roomGen = RoomGenerator(width, height, roomWidths, roomHeights, maxAspectRatio),
         _tilePalette = {
           _DungeonTile.wall: wall,
           _DungeonTile.room: room,
@@ -75,12 +75,18 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
 
       if (_canPlaceRoom(room)) {
         _placeRoom(room);
-        print('DUNGEON placed rooms ${_rooms.length} density $roomDensity');
+        failures = 0;
         yield 'Room';
       } else {
         failures++;
       }
     }
+
+    // TODO: fill empty space with mazes
+
+    // TODO: connect regions
+
+    // TODO: cull dead ends
   }
 
   /// Places the room in the dungeon
