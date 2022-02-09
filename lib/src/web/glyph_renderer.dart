@@ -14,7 +14,9 @@ import '../util/vector.dart';
 /// with an appropriate pixel density scale.
 class GlyphRenderer extends CanvasRenderer {
   /// Default set of glyphs covering the code page 437 content.
-  /// Shout out to https://github.com/munificent/malison
+  ///
+  /// Copyright (c) 2014 Robert Nystrom.
+  /// See https://github.com/munificent/malison
   static const dosVga437GlyphsSrc = 'packages/fortress/dos-vga-437.png';
   static const dosVga437CharWidth = 9;
   static const dosVga437CharHeight = 16;

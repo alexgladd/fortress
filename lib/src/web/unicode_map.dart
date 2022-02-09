@@ -4,7 +4,8 @@ import '../util/char_code.dart';
 ///
 /// Does not include codepoints whose codepage 437 index is the same as the default glyph index.
 ///
-/// Shout out to https://github.com/munificent/malison
+/// Copyright (c) 2014 Robert Nystrom.
+/// See https://github.com/munificent/malison
 const defaultUnicodeMap = {
   // 1 - 15.
   CharCode.whiteSmilingFace: 1,

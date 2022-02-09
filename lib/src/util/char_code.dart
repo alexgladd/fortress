@@ -1,7 +1,8 @@
 /// Unicode code points for various special characters that also exist on
 /// [code page 437][font].
 ///
-/// Shout out to https://github.com/munificent/malison
+/// Copyright (c) 2014 Robert Nystrom.
+/// See https://github.com/munificent/malison
 ///
 /// [font]: http://en.wikipedia.org/wiki/Code_page_437
 class CharCode {

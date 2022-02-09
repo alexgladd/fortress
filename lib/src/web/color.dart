@@ -1,6 +1,7 @@
 /// Basic set of colors and color utilities
 ///
-/// Shamelessly stolen from https://github.com/munificent/malison/blob/master/lib/src/glyph.dart
+/// Copyright (c) 2014 Robert Nystrom.
+/// See https://github.com/munificent/malison
 class Color {
   static const black = Color(0, 0, 0);
   static const white = Color(255, 255, 255);

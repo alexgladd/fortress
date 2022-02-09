@@ -1,7 +1,7 @@
 # Fortress
 
-> Fortress is a zero-dependency library of useful game development utilities written in Dart for web
-> and Flutter apps.
+> Fortress is a package of game development utilities for Dart and Flutter apps. It includes
+> renderers, an extensible game loop, basic UI elements, map generators and more!
 
 <p align="center" width="100%">
   <img width="50%" alt="Fortress logo" src="web/fortress.png">
@@ -20,6 +20,7 @@ was my opportunity to learn more about Dart while exploring more of my gamedev h
 
 ## Usage
 
-For now, see example usage in [web/main.dart](web/main.dart) and [web/demo](web/demo/).
+Fortress is under active development and many of the public APIs will be in flux until the 1.0
+version. For now, see example usage in [web/main.dart](web/main.dart) and [web/demo](web/demo/).
 
 To see the demo in action, visit https://alexgladd.github.io/fortress/
