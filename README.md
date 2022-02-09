@@ -4,7 +4,7 @@
 > renderers, an extensible game loop, basic UI elements, map generators and more!
 
 <p align="center" width="100%">
-  <img width="50%" alt="Fortress logo" src="web/fortress.png">
+  <img width="50%" alt="Fortress logo" src="https://alexgladd.github.io/fortress/fortress.png">
 </p>
 
 Fortress is specifically for retro-style, grid-based games like roguelikes and Dwarf Fortress
