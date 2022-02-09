@@ -85,7 +85,7 @@ CanvasTerminal _makeFontTerminal(html.Element gameDiv, int scale) {
   const fontFamily = 'DOS VGA 437';
 
   // TODO: move this into the font renderer so that we can wait for loading
-  // Shout-out to https://github.com/CP437/PerfectDOSVGA437
+  // See https://github.com/CP437/PerfectDOSVGA437
   var font = html.FontFace(fontFamily, 'url(packages/fortress/PerfectDOSVGA437.ttf)');
   // this ensures that the font is loaded before we start rendering things
   font.load().then((value) => html.document.fonts!.add(value));
