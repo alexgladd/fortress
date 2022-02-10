@@ -1,3 +1,6 @@
+## 0.1.1-dev
+* Fixes a readme issue on pub.dev
+
 ## 0.1.0-dev
 * Initial development pre-release.
 * Includes:
