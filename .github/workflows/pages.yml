@@ -3,9 +3,8 @@
 name: GH Pages
 
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [ published ]
 
 concurrency:
   group: gh-pages-deploy
