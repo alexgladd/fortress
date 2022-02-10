@@ -26,38 +26,45 @@ abstract class Terminal {
   /// The default background color when none is specified
   Color background = Color.black;
 
-  /// Most basic draw method for the terminal; draws the given [Char] at column [x], row [y] of this
-  /// [Terminal].
+  /// Most basic draw method for the terminal; draws the given [Char] at column
+  /// [x], row [y] of this [Terminal].
   ///
   /// Must be implemented by subclasses.
   void drawChar(int x, int y, Char char);
 
-  /// Draws a character at column [x], row [y] of this [Terminal] using its integer [charCode]
-  /// using the given [foreground] and [background] [Color]s (or default colors).
-  void drawCharCode(int x, int y, int charCode, [Color? foreground, Color? background]) {
+  /// Draws a character at column [x], row [y] of this [Terminal] using its
+  /// integer [charCode] using the given [foreground] and [background] [Color]s
+  /// (or default colors).
+  void drawCharCode(int x, int y, int charCode,
+      [Color? foreground, Color? background]) {
     foreground ??= this.foreground;
     background ??= this.background;
 
     drawChar(x, y, Char.create(charCode, foreground, background));
   }
 
-  /// Draws the string of characters in [text] starting at column [x], row [y] of this [Terminal]
-  /// using the given [foreground] and [background] [Color]s (or default colors). The text will be
-  /// truncated if it runs beyond the bounds of the terminal.
-  void drawText(int x, int y, String text, [Color? foreground, Color? background]) {
+  /// Draws the string of characters in [text] starting at column [x], row [y]
+  /// of this [Terminal] using the given [foreground] and [background] [Color]s
+  /// (or default colors). The text will be truncated if it runs beyond the
+  /// bounds of the terminal.
+  void drawText(int x, int y, String text,
+      [Color? foreground, Color? background]) {
     foreground ??= this.foreground;
     background ??= this.background;
 
     for (var i = 0; i < text.length; i++) {
       if (x + i >= width) break;
-      drawChar(x + i, y, Char.create(text.codeUnits[i], foreground, background));
+      drawChar(
+          x + i, y, Char.create(text.codeUnits[i], foreground, background));
     }
   }
 
-  /// Draws the string of characters in [text] on row [y] such that the text is centered
-  /// horizontally in this [Terminal]. If the length of [text] is longer than this terminal's
-  /// [width], the text will be positioned at column 0.
-  void drawTextCenter(int y, String text, [Color? foreground, Color? background]) {
+  /// Draws the string of characters in [text] on row [y] such that the text is
+  /// centered horizontally in this [Terminal]. If the length of [text] is
+  /// longer than this terminal's [width], the text will be positioned at
+  /// column 0.
+  void drawTextCenter(int y, String text,
+      [Color? foreground, Color? background]) {
     int x;
 
     if (text.length >= width) {
@@ -70,7 +77,8 @@ abstract class Terminal {
     drawText(x, y, text, foreground, background);
   }
 
-  /// Clears and fills the given rectangle with the given (or default) background [Color].
+  /// Clears and fills the given rectangle with the given (or default)
+  /// background [Color].
   void fill(final int x, int y, int width, int height, [Color? color]) {
     color ??= background;
 
@@ -87,7 +95,8 @@ abstract class Terminal {
     }
   }
 
-  /// Clears the entire terminal with empty characters using the current [background] [Color].
+  /// Clears the entire terminal with empty characters using the current
+  /// [background] [Color].
   void clear() => fill(0, 0, width, height);
 
   /// Get a child [Terminal] within this one
@@ -102,15 +111,17 @@ abstract class Terminal {
     return child(rect.x, rect.y, rect.width, rect.height);
   }
 
-  /// Ensures that the given position [x], [y] is within the bounds of this [Terminal]
+  /// Ensures that the given position [x], [y] is within the bounds of this
+  /// [Terminal]
   void boundsCheck(int x, int y) {
     if (x < 0 || x >= width) throw RangeError.range(x, 0, width - 1);
     if (y < 0 || y >= height) throw RangeError.range(y, 0, height - 1);
   }
 }
 
-/// A [Terminal] representing a subset of a parent [Terminal]. Will always be fully-enclosed by the
-/// parent terminal. Useful for drawing UI elements without needing to keep track of offsets.
+/// A [Terminal] representing a subset of a parent [Terminal]. Will always be
+/// fully-enclosed by the parent terminal. Useful for drawing UI elements
+/// without needing to keep track of offsets.
 class ChildTerminal extends Terminal {
   final Vec2 _position;
   final Vec2 _size;
@@ -173,8 +184,8 @@ abstract class RenderableTerminal<T extends Renderer> extends Terminal {
     _state.setChar(x, y, char);
   }
 
-  /// Converts the given position on the rendered display in pixels to a column/row position on this
-  /// [RenderableTerminal].
+  /// Converts the given position on the rendered display in pixels to a
+  /// column/row position on this [RenderableTerminal].
   Vec2 pixelsToPosition(Vec2 pixels);
 }
 
@@ -193,8 +204,8 @@ class TerminalState {
   int get height => _state.height;
   Vec2 get size => _state.size;
 
-  /// Requests that the character at position [x], [y] gets represented as [char] during the next
-  /// render call
+  /// Requests that the character at position [x], [y] gets represented as
+  /// [char] during the next render call
   void setChar(int x, int y, Char char) {
     if (_state.get(x, y) != char) {
       _changedState.set(x, y, char);
@@ -203,8 +214,8 @@ class TerminalState {
     }
   }
 
-  /// Uses the given [renderer] to redraw every character in the terminal that has changed since the
-  /// last [render] call
+  /// Uses the given [renderer] to redraw every character in the terminal that
+  /// has changed since the last [render] call
   void render(Renderer renderer) {
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {

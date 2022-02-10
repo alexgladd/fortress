@@ -7,24 +7,26 @@ import 'glyph_renderer.dart';
 import 'terminal.dart';
 import '../util/vector.dart';
 
-/// A [RenderableTerminal] that uses an HTML5 [html.CanvasElement] to render the underlying
-/// [Terminal] using an implementation of [CanvasRenderer].
+/// A [RenderableTerminal] that uses an HTML5 [html.CanvasElement] to render the
+/// underlying [Terminal] using an implementation of [CanvasRenderer].
 class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
   final html.CanvasElement _canvas;
 
   /// The [html.CanvasElement] being used by this [CanvasTerminal]
   html.CanvasElement get canvas => _canvas;
 
-  /// Returns a [Future] that resolves whenever the underlying [CanvasRenderer] is fully loaded and
-  /// the terminal is actually ready to render. Calling [render] on this terminal before waiting for
-  /// this future to resolve may result in undefined behavior.
+  /// Returns a [Future] that resolves whenever the underlying [CanvasRenderer]
+  /// is fully loaded and the terminal is actually ready to render. Calling
+  /// [render] on this terminal before waiting for this future to resolve may
+  /// result in undefined behavior.
   Future<void> get loaded => renderer.loaded;
 
-  /// Builds a [CanvasTerminal] using the given [html.CanvasElement] and a pre-configured
-  /// [CanvasRenderer]. Will update the canvas to fit into the supplied pixel dimensions (or the
-  /// given [minSize] columns and rows) using the given or current [scale].
-  factory CanvasTerminal.withCanvas(
-      html.CanvasElement canvas, CanvasRenderer renderer, int pixelWidth, int pixelHeight,
+  /// Builds a [CanvasTerminal] using the given [html.CanvasElement] and a
+  /// pre-configured [CanvasRenderer]. Will update the canvas to fit into the
+  /// supplied pixel dimensions (or the given [minSize] columns and rows) using
+  /// the given or current [scale].
+  factory CanvasTerminal.withCanvas(html.CanvasElement canvas,
+      CanvasRenderer renderer, int pixelWidth, int pixelHeight,
       [int? scale, Vec2? minSize]) {
     scale ??= html.window.devicePixelRatio.toInt();
     var cols = pixelWidth ~/ renderer.charWidth;
@@ -50,12 +52,14 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
     return CanvasTerminal._(canvas, renderer, cols, rows);
   }
 
-  /// Builds a [CanvasTerminal] by creating a new [html.CanvasElement] so that it fills the
-  /// dimensions of the given [html.Element] (or is at least the given [minSize] in columns and
-  /// rows). Creates a default [CanvasRenderer] of the requested type for the [CanvasTerminal].
+  /// Builds a [CanvasTerminal] by creating a new [html.CanvasElement] so that
+  /// it fills the dimensions of the given [html.Element] (or is at least the
+  /// given [minSize] in columns and rows). Creates a default [CanvasRenderer]
+  /// of the requested type for the [CanvasTerminal].
   ///
   /// Note: will remove any existing canvas elements within the given [parent].
-  factory CanvasTerminal.withParent(html.Element parent, CanvasRendererType rendererType,
+  factory CanvasTerminal.withParent(
+      html.Element parent, CanvasRendererType rendererType,
       {int? scale, String? font, Vec2? minSize}) {
     scale ??= html.window.devicePixelRatio.toInt();
     CanvasRenderer renderer;
@@ -75,8 +79,8 @@ class CanvasTerminal extends RenderableTerminal<CanvasRenderer> {
     parent.children.removeWhere((element) => element is html.CanvasElement);
     parent.append(canvas);
 
-    return CanvasTerminal.withCanvas(
-        canvas, renderer, parent.clientWidth, parent.clientHeight, scale, minSize);
+    return CanvasTerminal.withCanvas(canvas, renderer, parent.clientWidth,
+        parent.clientHeight, scale, minSize);
   }
 
   CanvasTerminal._(this._canvas, CanvasRenderer renderer, int columns, int rows)

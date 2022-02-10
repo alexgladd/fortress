@@ -1,13 +1,9 @@
-// 2D vector and vector math utils
-
 import 'dart:math' as math;
 
 /// Base class of an immutable 2D vector or direction
 abstract class VectorBase {
   final int x;
   final int y;
-
-  const VectorBase(this.x, this.y);
 
   /// The area of a rectangle formed by (0, 0) and this vector
   /// Will be a negative value if one of the vector's components are negative
@@ -23,11 +19,14 @@ abstract class VectorBase {
   /// Cartesian length of the vector
   num get length => math.sqrt(lengthSquared);
 
-  /// Aspect ratio of the rectangle formed between (0, 0) and this vector (always >= 1.0)
+  /// Aspect ratio of the rectangle formed between (0, 0) and this vector
+  /// (always >= 1.0)
   double get aspectRatio => x >= y ? x / y : y / x;
 
-  /// Clamps the given vector so that it falls within the boundaries formed by a rectangle between
-  /// the origin (0, 0) and this vector.
+  const VectorBase(this.x, this.y);
+
+  /// Clamps the given vector so that it falls within the boundaries formed by a
+  /// rectangle between the origin (0, 0) and this vector.
   Vec2 clamp(VectorBase other) {
     int newX, newY;
 

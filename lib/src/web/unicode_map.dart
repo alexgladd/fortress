@@ -2,7 +2,8 @@ import '../util/char_code.dart';
 
 /// Mapping of Unicode codepoints to the built-in codepage 437 glyph index.
 ///
-/// Does not include codepoints whose codepage 437 index is the same as the default glyph index.
+/// Does not include codepoints whose codepage 437 index is the same as the
+/// default glyph index.
 ///
 /// Copyright (c) 2014 Robert Nystrom.
 /// See https://github.com/munificent/malison

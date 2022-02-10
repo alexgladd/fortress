@@ -24,7 +24,8 @@ const _borderColors = [
 
 final _borders = PanelBorder.values.sublist(1);
 
-const _aboutText = 'Modals render as a transparent layer over existing content.';
+const _aboutText =
+    'Modals render as a transparent layer over existing content.';
 
 class Modals extends Layer<Input> {
   var _background = Array2<Char>(1, 1, Char.nill);
@@ -51,18 +52,22 @@ class Modals extends Layer<Input> {
       pText = 'Your modal result was $_lastResult!';
     }
 
-    var resultPanel = Panel.forContent(math.max(pText.length, _aboutText.length), 3,
+    var resultPanel = Panel.forContent(
+        math.max(pText.length, _aboutText.length), 3,
         padding: 2, background: Color.darkOrange);
     resultPanel.contentRenderer = (terminal) {
-      terminal.drawTextCenter(0, _aboutText, terminal.foreground, resultPanel.background);
-      terminal.drawTextCenter(2, pText, terminal.foreground, resultPanel.background);
+      terminal.drawTextCenter(
+          0, _aboutText, terminal.foreground, resultPanel.background);
+      terminal.drawTextCenter(
+          2, pText, terminal.foreground, resultPanel.background);
     };
-    resultPanel.render(
-        terminal.childRect(terminal.bounds.centerRect(resultPanel.width, resultPanel.height)));
+    resultPanel.render(terminal.childRect(
+        terminal.bounds.centerRect(resultPanel.width, resultPanel.height)));
 
     terminal.drawTextCenter(
         terminal.height - 1,
-        '[1] OK modal. [2] OK/Cancel modal. [3] Yes/No modal.   Press [esc] to go back.',
+        '[1] OK modal. [2] OK/Cancel modal. [3] Yes/No modal.   '
+        'Press [esc] to go back.',
         Color.gray);
   }
 
@@ -75,7 +80,10 @@ class Modals extends Layer<Input> {
 
   @override
   bool onKeyDown(String key, String code,
-      {required bool shift, required bool altOpt, required bool ctrl, required bool meta}) {
+      {required bool shift,
+      required bool altOpt,
+      required bool ctrl,
+      required bool meta}) {
     bool handled = true;
 
     Modal<Input>? m;
@@ -142,7 +150,8 @@ class Modals extends Layer<Input> {
     for (var y = 0; y < _background.height; y++) {
       for (var x = 0; x < _background.width; x++) {
         if (rng.percent(10)) {
-          _background.set(x, y, Char.create(CharCode.mediumShade, rng.item(_backgroundColors)));
+          _background.set(x, y,
+              Char.create(CharCode.mediumShade, rng.item(_backgroundColors)));
         }
       }
     }

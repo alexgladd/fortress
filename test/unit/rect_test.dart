@@ -138,7 +138,9 @@ void main() {
       expect(r1.containsRect(r6), isFalse);
     });
 
-    test('.containsVec returns true if the vector is within the row/col bounds of the rect', () {
+    test(
+        '.containsVec returns true if the vector is within the row/col bounds '
+        'of the rect', () {
       var r1 = Rect.sides(-2, 4, 4, -2);
       expect(r1.containsVec(Vec2.zero), isTrue);
       // corners

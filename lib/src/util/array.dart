@@ -6,8 +6,8 @@ import 'vector.dart';
 
 /// A 2D fixed-size array of elements of type [T]
 ///
-/// This class mirrors conceptual game graphics where the horizontal component is indexed before
-/// the vertical component
+/// This class mirrors conceptual game graphics where the horizontal component
+/// is indexed before the vertical component
 class Array2<T> extends IterableBase<T> {
   final Vec2 _size;
   final List<T> _elements;
@@ -47,9 +47,11 @@ class Array2<T> extends IterableBase<T> {
   T operator [](Vec2 position) => get(position.x, position.y);
 
   /// Sets the element at [position] to [value]
-  void operator []=(Vec2 position, T value) => set(position.x, position.y, value);
+  void operator []=(Vec2 position, T value) =>
+      set(position.x, position.y, value);
 
-  /// Throws a [RangeError] if either of the given array indices are out of range
+  /// Throws a [RangeError] if either of the given array indices are out of
+  /// range
   void _checkIndex(int x, int y) {
     if (x < 0 || x >= width) throw RangeError.range(x, 0, width - 1);
     if (y < 0 || y >= height) throw RangeError.range(y, 0, height - 1);

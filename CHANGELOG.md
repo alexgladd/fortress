@@ -1,5 +1,6 @@
 ## 0.1.1-dev
 * Fixes a readme issue on pub.dev
+* Updates to be more compliant with pub.dev scoring
 
 ## 0.1.0-dev
 * Initial development pre-release.

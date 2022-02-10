@@ -59,7 +59,8 @@ void main() {
       expect(v2.length, equals(0.0));
     });
 
-    test(".clamp makes sure the given vector falls within this vector's bounds", () {
+    test(".clamp makes sure the given vector falls within this vector's bounds",
+        () {
       var v1 = Vec2(3, 3);
       var v2 = Vec2(-3, -3);
 

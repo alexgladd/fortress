@@ -96,8 +96,8 @@ class Maps extends Layer<Input> {
       panel = _busyPanel;
     }
 
-    var pTerm = terminal.child(terminal.width - panel.width - 1, terminal.height - panel.height - 1,
-        panel.width, panel.height);
+    var pTerm = terminal.child(terminal.width - panel.width - 1,
+        terminal.height - panel.height - 1, panel.width, panel.height);
     panel.render(pTerm);
   }
 
@@ -117,7 +117,10 @@ class Maps extends Layer<Input> {
 
   @override
   bool onKeyDown(String key, String code,
-      {required bool shift, required bool altOpt, required bool ctrl, required bool meta}) {
+      {required bool shift,
+      required bool altOpt,
+      required bool ctrl,
+      required bool meta}) {
     if (!_finished) return false;
 
     bool handled = true;
@@ -144,7 +147,10 @@ class Maps extends Layer<Input> {
 
   void _buildDungeon() {
     _builder = Dungeon(ui.renderRect.width, ui.renderRect.height,
-        wall: DemoTile.closed, room: DemoTile.open, corridor: DemoTile.open, door: DemoTile.open);
+        wall: DemoTile.closed,
+        room: DemoTile.open,
+        corridor: DemoTile.open,
+        door: DemoTile.open);
     _buildSteps = _builder.build().iterator;
     _finished = false;
     _timer.start();

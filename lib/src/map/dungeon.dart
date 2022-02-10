@@ -25,8 +25,8 @@ enum _DungeonTile {
   door,
 }
 
-/// Builds a dungeon map that consists of rooms connected by corridors, with doors where the
-/// corridors meet the rooms.
+/// Builds a dungeon map that consists of rooms connected by corridors, with
+/// doors where the corridors meet the rooms.
 class Dungeon<T extends TileBase> extends MapBuilder<T> {
   final TileMap<T> _tileMap;
   final Map<_DungeonTile, T> _tilePalette;
@@ -56,7 +56,8 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
       RoomConstraint roomHeights = const RoomConstraint(5, 9),
       double maxAspectRatio = 3.0})
       : _tileMap = TileMap(width, height, wall),
-        _roomGen = RoomGenerator(width, height, roomWidths, roomHeights, maxAspectRatio),
+        _roomGen = RoomGenerator(
+            width, height, roomWidths, roomHeights, maxAspectRatio),
         _tilePalette = {
           _DungeonTile.wall: wall,
           _DungeonTile.room: room,
@@ -99,8 +100,8 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
     _openedRoomTiles += room.bounds.absArea;
   }
 
-  /// Returns true if the given [room] can be placed so that it's at least one tile away from all
-  /// other placed rooms.
+  /// Returns true if the given [room] can be placed so that it's at least one
+  /// tile away from all other placed rooms.
   bool _canPlaceRoom(Room room) {
     for (var placedRoom in _rooms) {
       if (placedRoom.bounds.distanceTo(room.bounds) < 1) return false;

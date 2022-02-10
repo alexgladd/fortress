@@ -56,7 +56,8 @@ class DemoPanel extends BorderPanel {
 
     var txt = 'This is a $bType border Panel!';
 
-    terminal.drawText((terminal.width - txt.length) ~/ 2, terminal.height ~/ 2, txt);
+    terminal.drawText(
+        (terminal.width - txt.length) ~/ 2, terminal.height ~/ 2, txt);
   }
 }
 
@@ -68,7 +69,8 @@ class DemoFrame extends Frame {
 
   @override
   void renderContent(Terminal terminal) {
-    terminal.drawText((terminal.width - _text.length) ~/ 2, terminal.height ~/ 2, _text);
+    terminal.drawText(
+        (terminal.width - _text.length) ~/ 2, terminal.height ~/ 2, _text);
   }
 }
 
@@ -85,12 +87,15 @@ class Panels extends Layer<Input> {
     var midX = pTerm.size.x ~/ 2;
     var midY = pTerm.size.y ~/ 2;
 
-    var singlePanel = DemoPanel(Rect.sides(0, midX, midY, 0), PanelBorder.single, _randomColor);
-    var doublePanel =
-        DemoPanel(Rect.sides(0, pTerm.size.x, midY, midX + 1), PanelBorder.double, _randomColor);
-    var solidPanel =
-        DemoPanel(Rect.sides(midY + 1, midX, pTerm.size.y, 0), PanelBorder.solid, _randomColor);
-    var frame = DemoFrame(Rect.sides(midY + 1, pTerm.size.x, pTerm.size.y, midX + 1), _randomColor);
+    var singlePanel = DemoPanel(
+        Rect.sides(0, midX, midY, 0), PanelBorder.single, _randomColor);
+    var doublePanel = DemoPanel(Rect.sides(0, pTerm.size.x, midY, midX + 1),
+        PanelBorder.double, _randomColor);
+    var solidPanel = DemoPanel(Rect.sides(midY + 1, midX, pTerm.size.y, 0),
+        PanelBorder.solid, _randomColor);
+    var frame = DemoFrame(
+        Rect.sides(midY + 1, pTerm.size.x, pTerm.size.y, midX + 1),
+        _randomColor);
 
     singlePanel.render(pTerm);
     doublePanel.render(pTerm);

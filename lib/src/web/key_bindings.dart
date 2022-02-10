@@ -12,18 +12,27 @@ class KeyBindings<T extends InputBase> {
 
   /// Bind the given keyboard input to the given logical input.
   ///
-  /// The given [keyCode] should be a recognized code from a browser [html.KeyboardEvent]. See
-  /// [KeyCode] for a defined set of codes.
+  /// The given [keyCode] should be a recognized code from a browser
+  /// [html.KeyboardEvent]. See [KeyCode] for a defined set of codes.
   void bind(T input, String keyCode,
-      {bool shift = false, bool ctrl = false, bool altOpt = false, bool meta = false}) {
-    var kb = _KeyBinding(keyCode, shift: shift, ctrl: ctrl, altOpt: altOpt, meta: meta);
+      {bool shift = false,
+      bool ctrl = false,
+      bool altOpt = false,
+      bool meta = false}) {
+    var kb = _KeyBinding(keyCode,
+        shift: shift, ctrl: ctrl, altOpt: altOpt, meta: meta);
     _bindings[kb] = input;
   }
 
-  /// Find and return a logical input for the given keyboard input, if it exists.
+  /// Find and return a logical input for the given keyboard input, if it
+  /// exists.
   T? find(String keyCode,
-      {bool shift = false, bool ctrl = false, bool altOpt = false, bool meta = false}) {
-    var kb = _KeyBinding(keyCode, shift: shift, ctrl: ctrl, altOpt: altOpt, meta: meta);
+      {bool shift = false,
+      bool ctrl = false,
+      bool altOpt = false,
+      bool meta = false}) {
+    var kb = _KeyBinding(keyCode,
+        shift: shift, ctrl: ctrl, altOpt: altOpt, meta: meta);
     return _bindings[kb];
   }
 }
@@ -45,7 +54,10 @@ class _KeyBinding {
   final bool meta;
 
   _KeyBinding(this.keyCode,
-      {required this.shift, required this.ctrl, required this.altOpt, required this.meta});
+      {required this.shift,
+      required this.ctrl,
+      required this.altOpt,
+      required this.meta});
 
   @override
   bool operator ==(Object other) {
@@ -60,7 +72,8 @@ class _KeyBinding {
   }
 
   @override
-  int get hashCode => keyCode.hashCode ^ shift.hashCode ^ altOpt.hashCode ^ meta.hashCode;
+  int get hashCode =>
+      keyCode.hashCode ^ shift.hashCode ^ altOpt.hashCode ^ meta.hashCode;
 
   @override
   String toString() {

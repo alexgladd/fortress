@@ -12,11 +12,12 @@ import '../util/input.dart';
 import '../util/rect.dart';
 import '../util/vector.dart';
 
-/// Logical modal user interface that maintains a stack of UI [Layer]s and writes them to a
-/// [Terminal]. The UI manages the main game loop and renders as efficiently as possible based on
-/// the state of the [Layer] stack.
+/// Modal user interface that maintains a stack of UI [Layer]s and writes them
+/// to a [Terminal]. The UI manages the main game loop and renders as
+/// efficiently as possible based on the state of the [Layer] stack.
 ///
-/// The UI also provides for input handling, which [Layer]s can opt into if needed.
+/// The UI also provides for input handling, which [Layer]s can opt into if
+/// needed.
 class UserInterface<T extends InputBase> {
   final _layers = <Layer<T>>[];
 
@@ -36,14 +37,16 @@ class UserInterface<T extends InputBase> {
   /// Whether the UI's game loop is running and rendering frames. Initially off.
   bool get running => _running;
 
-  /// The [Rect] representing the size of the underlying terminal that this UI is rendering to.
+  /// The [Rect] representing the size of the underlying terminal that this UI
+  /// is rendering to.
   Rect get renderRect {
     if (_terminal == null) return Rect.nill;
     return Rect(Vec2.zero, _terminal!.size);
   }
 
-  /// Set to true to start the game loop for the UI and all of its [Layer]s. Leave this set to false
-  /// if you want to manually manage updating and rendering the UI yourself.
+  /// Set to true to start the game loop for the UI and all of its [Layer]s.
+  /// Leave this set to false if you want to manually manage updating and
+  /// rendering the UI yourself.
   set running(bool value) {
     _running = value;
 
@@ -53,11 +56,12 @@ class UserInterface<T extends InputBase> {
     }
   }
 
-  /// Set to true to have the [UserInterface] begin handling keyboard input events and delegating
-  /// them to its layers based on the current [keyBinds]. Set to false to cancel all keyboard event
-  /// handling within this UI.
+  /// Set to true to have the [UserInterface] begin handling keyboard input
+  /// events and delegating them to its layers based on the current [keyBinds].
+  /// Set to false to cancel all keyboard event handling within this UI.
   ///
-  /// Note that only the top [Layer] on the stack will recieve keyboard input events.
+  /// Note that only the top [Layer] on the stack will recieve keyboard input
+  /// events.
   set handlingKeyInput(bool value) {
     if (value == _handlingKeyInput) return;
     _handlingKeyInput = value;
@@ -101,8 +105,8 @@ class UserInterface<T extends InputBase> {
     dirty();
   }
 
-  /// Pop the top-most [Layer] off of the stack and activate the one below it (if there is one),
-  /// passing the optional [result] value.
+  /// Pop the top-most [Layer] off of the stack and activate the one below it
+  /// (if there is one), passing the optional [result] value.
   void pop([Object? result]) {
     if (_layers.isEmpty) return;
 
@@ -129,24 +133,26 @@ class UserInterface<T extends InputBase> {
     dirty();
   }
 
-  /// Update all of the [Layer]s currently bound to the UI, regardless of whether
-  /// they're currently visible or not. The provided value, [ds], is the elapsed time in
-  /// (fractional) seconds since the last call to [update]. You can use this value to provide
-  /// consistent animations or game flow regardless of the underlying framerate.
+  /// Update all of the [Layer]s currently bound to the UI, regardless of
+  /// whether they're currently visible or not. The provided value, [ds], is the
+  /// elapsed time in (fractional) seconds since the last call to [update].
+  /// You can use this value to provide consistent animations or game flow
+  /// regardless of the underlying framerate.
   void update(double ds) {
     for (var i = 0; i < _layers.length; i++) {
       _layers[i].update(ds);
     }
   }
 
-  /// Renders the current game state to the current terminal, if one is currently bound to this UI.
-  /// If manually calling [render], you can request that the UI render regardless of the current
-  /// dirty state by setting [ignoreDirty] to true.
+  /// Renders the current game state to the current terminal, if one is
+  /// currently bound to this UI. If manually calling [render], you can request
+  /// that the UI render regardless of the current dirty state by setting
+  /// [ignoreDirty] to true.
   void render([bool ignoreDirty = false]) {
     if (!ignoreDirty && !_dirty) return;
 
-    // grab a ref to the current terminal so we can use it for this entire render step even if it
-    // changes
+    // grab a ref to the current terminal so we can use it for this entire
+    // render step even if it changes
     var term = _terminal;
 
     // nothing to render if there is no bound terminal
@@ -177,7 +183,8 @@ class UserInterface<T extends InputBase> {
     _dirty = true;
   }
 
-  /// The primary game loop, driven by the browser's [html.Window.requestAnimationFrame].
+  /// The primary game loop, driven by the browser's
+  /// [html.Window.requestAnimationFrame].
   void _onTick(num dt) {
     var animMillis = dt.toDouble() - _lastAnimationTime;
     _lastAnimationTime = dt.toDouble();
@@ -188,13 +195,17 @@ class UserInterface<T extends InputBase> {
     if (running) html.window.requestAnimationFrame(_onTick);
   }
 
-  /// Internal key down event handler; use key down events to trigger bound inputs
+  /// Internal key down event handler; use key down events to trigger bound
+  /// inputs
   void _onKeyDown(html.KeyboardEvent event) {
     // not sure if this ever even happens?
     if (event.code == null) return;
 
     var input = keyBinds.find(event.code!,
-        shift: event.shiftKey, ctrl: event.ctrlKey, altOpt: event.altKey, meta: event.metaKey);
+        shift: event.shiftKey,
+        ctrl: event.ctrlKey,
+        altOpt: event.altKey,
+        meta: event.metaKey);
 
     // always consume the event for bound inputs
     if (input != null) event.preventDefault();
@@ -211,7 +222,10 @@ class UserInterface<T extends InputBase> {
 
     // finally, fire the low-level handler and consume the event if needed
     if (layer.onKeyDown(event.key!, event.code!,
-        shift: event.shiftKey, ctrl: event.ctrlKey, altOpt: event.altKey, meta: event.metaKey)) {
+        shift: event.shiftKey,
+        ctrl: event.ctrlKey,
+        altOpt: event.altKey,
+        meta: event.metaKey)) {
       event.preventDefault();
     }
   }
@@ -226,19 +240,24 @@ class UserInterface<T extends InputBase> {
     var layer = _layers.last;
 
     if (layer.onKeyUp(event.key!, event.code!,
-        shift: event.shiftKey, ctrl: event.ctrlKey, altOpt: event.altKey, meta: event.metaKey)) {
+        shift: event.shiftKey,
+        ctrl: event.ctrlKey,
+        altOpt: event.altKey,
+        meta: event.metaKey)) {
       event.preventDefault();
     }
   }
 }
 
-/// Each [Layer] in the [UserInterface] can manage different aspects of the overall game. For
-/// instance, one layer for the game map, one layer for an information side panel, another layer
-/// for each different pop-up, etc. Layers can be opaque or transparent to control how far down the
-/// [UserInterface]'s stack of Layers the game gets rendered.
+/// Each [Layer] in the [UserInterface] can manage different aspects of the
+/// overall game. For instance, one layer for the game map, one layer for an
+/// information side panel, another layer for each different pop-up, etc. Layers
+/// can be opaque or transparent to control how far down the [UserInterface]'s
+/// stack of Layers the game gets rendered.
 ///
-/// Each [Layer] has its own [update] and [render] methods that the bound [UserInterface] will
-/// call automatically. [Layer]s can also manage their own input handling.
+/// Each [Layer] has its own [start], [update], and [render] methods that the
+/// bound [UserInterface] will call automatically. [Layer]s can also manage
+/// their own input handling.
 abstract class Layer<T extends InputBase> {
   UserInterface<T>? _ui;
 
@@ -252,68 +271,78 @@ abstract class Layer<T extends InputBase> {
   /// Returns true if the layer is currently bound to a [UserInterface].
   bool get isBound => _ui != null;
 
-  /// Should true if this layer is transparent, allowing the layer below it to render. Returns
-  /// false if this layer is opaque.
+  /// Should true if this layer is transparent, allowing the layer below it to
+  /// render. Returns false if this layer is opaque.
   bool get isTransparent;
 
-  /// Should return true if this layer wants to handle input when it is the active (top-most) layer.
-  /// Returns false if any bound [UserInterface] should not pass any input to the layer.
+  /// Should return true if this layer wants to handle input when it is the
+  /// active (top-most) layer. Returns false if any bound [UserInterface] should
+  /// not pass any input to the layer.
   bool get isHandlingInput;
 
   /// Render the [Layer] using the given [Terminal].
   void render(Terminal terminal);
 
-  /// Update the state of this [Layer]. The provided value, [dt], is the elapsed time in
-  /// (fractional) seconds since the last call to [update].
-  void update(double dt) {}
+  /// Update the state of this [Layer]. The provided value, [ds], is the elapsed
+  /// time in (fractional) seconds since the last call to [update].
+  void update(double ds) {}
 
-  /// Initialize the state if this [Layer]. This will be called only once, right after the layer is
-  /// bound to a [UserInterface].
+  /// Initialize the state if this [Layer]. This will be called only once, right
+  /// after the layer is bound to a [UserInterface].
   void start() {}
 
-  /// Called by the UI when the [Layer] above this one has been popped, making this layer the
-  /// top-most in the bound [UserInterface]. If a result value was passed to [UserInterface.pop], it
-  /// is provided here as [result].
+  /// Called by the UI when the [Layer] above this one has been popped, making
+  /// this layer the top-most in the bound [UserInterface]. If a result value
+  /// was passed to [UserInterface.pop], it is provided here as [result].
   void onActive(Layer<T> popped, Object? result) {}
 
-  /// Called whenever this [Layer] is bound to a new [UserInterface] or the [Terminal] assigned to
-  /// the bound UI changes.
+  /// Called whenever this [Layer] is bound to a new [UserInterface] or the
+  /// [Terminal] assigned to the bound UI changes.
   void onResize(Vec2 size) {}
 
-  /// If one is bound, the [UserInterface] will pass all bound input events to this [Layer] if it is
-  /// the active (top-most) layer. If this method returns false (the default ), the respective
-  /// lower-level input handler will be called.
+  /// If one is bound, the [UserInterface] will pass all bound input events to
+  /// this [Layer] if it is the active (top-most) layer. If this method returns
+  /// false (the default ), the respective lower-level input handler will be
+  /// called.
   ///
   /// See [UserInterface.keyBinds] and [InputBase].
   bool onInput(T input) => false;
 
-  /// If this [Layer] is active (top-most) and accepting inputs, any keyboard key down events not
-  /// handled by the higher-level [Layer.onInput] handler will be passed here by the bound
-  /// [UserInterface].
+  /// If this [Layer] is active (top-most) and accepting inputs, any keyboard
+  /// key down events not handled by the higher-level [Layer.onInput] handler
+  /// will be passed here by the bound [UserInterface].
   ///
-  /// The given [key] is the value of the key that's down, taking into consideration all of the
-  /// modifiers that are also active ([shift], [altOpt], [ctrl], and [meta]). The given [code] is
-  /// the value of the physical keyboard key that's down, ignoring keyboard layout and modifiers.
+  /// The given [key] is the value of the key that's down, taking into
+  /// consideration all of the modifiers that are also active ([shift],
+  /// [altOpt], [ctrl], and [meta]). The given [code] is the value of the
+  /// physical keyboard key that's down, ignoring keyboard layout and modifiers.
   ///
   /// Return true to indicate that this layer consumed the key down event.
   bool onKeyDown(String key, String code,
-          {required bool shift, required bool altOpt, required bool ctrl, required bool meta}) =>
+          {required bool shift,
+          required bool altOpt,
+          required bool ctrl,
+          required bool meta}) =>
       false;
 
-  /// If this [Layer] is active (top-most) and accepting inputs, all keyboard key up events will be
-  /// passed here by the bound [UserInterface].
+  /// If this [Layer] is active (top-most) and accepting inputs, all keyboard
+  /// key up events will be passed here by the bound [UserInterface].
   ///
-  /// The given [key] is the value of the key that's down, taking into consideration all of the
-  /// modifiers that are also active ([shift], [altOpt], [ctrl], and [meta]). The given [code] is
-  /// the value of the physical keyboard key that's down, ignoring keyboard layout and modifiers.
+  /// The given [key] is the value of the key that's down, taking into
+  /// consideration all of the modifiers that are also active ([shift],
+  /// [altOpt], [ctrl], and [meta]). The given [code] is the value of the
+  /// physical keyboard key that's down, ignoring keyboard layout and modifiers.
   ///
   /// Return true to indicate that this layer consumed the key up event.
   bool onKeyUp(String key, String code,
-          {required bool shift, required bool altOpt, required bool ctrl, required bool meta}) =>
+          {required bool shift,
+          required bool altOpt,
+          required bool ctrl,
+          required bool meta}) =>
       false;
 
-  /// Inform the bound [UserInterface] that this [Layer] needs to be rendered during the next
-  /// [UserInterface.render] call.
+  /// Inform the bound [UserInterface] that this [Layer] needs to be rendered
+  /// during the next [UserInterface.render] call.
   void dirty() {
     if (isBound) ui.dirty();
   }

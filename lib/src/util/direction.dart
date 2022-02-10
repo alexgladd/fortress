@@ -1,8 +1,9 @@
 import 'vector.dart';
 
-/// All standard compass directions that can be represented by "unit" vectors (ignoring the fact
-/// that in an integer grid-based game, the intercardinal directions aren't true unit vectors). Also
-/// includes a [none] direction for convenience.
+/// All standard compass directions that can be represented by "unit" vectors
+/// (ignoring the fact that in an integer grid-based game, the intercardinal
+/// directions aren't true unit vectors). Also includes a [none] direction for
+/// convenience.
 enum CompassDirection {
   none,
   n,

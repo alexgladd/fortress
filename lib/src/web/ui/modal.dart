@@ -42,8 +42,8 @@ class Modal<T extends InputBase> extends BaseModal<T> {
   /// The handler to call for No (n key) actions
   void Function() onNo = _doNothing;
 
-  /// General builder factory for [Modal]s. You need to set the handler functions appropriately
-  /// based on what you want to use the modal for.
+  /// General builder factory for [Modal]s. You need to set the handler
+  /// functions appropriately based on what you want to use the modal for.
   factory Modal.builder(String panelText, String actionText,
       {PanelBorder borderType = PanelBorder.single,
       int padding = 1,
@@ -52,10 +52,12 @@ class Modal<T extends InputBase> extends BaseModal<T> {
       Color? backgroundColor,
       Color? borderColor}) {
     // for each of these, the padding size and 1 for the border on each side
-    var minWidth = math.max<int>(panelText.length, actionText.length) + ((1 + padding) * 2);
+    var minWidth = math.max<int>(panelText.length, actionText.length) +
+        ((1 + padding) * 2);
     var minHeight = 3 + ((1 + padding) * 2);
 
-    // create the panel at the origin, we'll use a child terminal to make sure it gets centered
+    // create the panel at the origin, we'll use a child terminal to make sure
+    //it gets centered
     var panel = BorderPanel(Rect.atOrigin(minWidth, minHeight),
         border: borderType,
         borderColor: borderColor,
@@ -71,9 +73,9 @@ class Modal<T extends InputBase> extends BaseModal<T> {
     return Modal<T>(panel);
   }
 
-  /// Creates a simple modal with "OK" (enter key) and optionally "Cancel" (esc key) actions. The
-  /// modal panel will be rendered in the center of the [Terminal] that is used to [render] the
-  /// modal's [Layer].
+  /// Creates a simple modal with "OK" (enter key) and optionally "Cancel"
+  /// (esc key) actions. The modal panel will be rendered in the center of the
+  /// [Terminal] that is used to [render] the modal's [Layer].
   factory Modal.ok(String panelText,
       {bool showCancel = false,
       PanelBorder borderType = PanelBorder.single,
@@ -107,8 +109,9 @@ class Modal<T extends InputBase> extends BaseModal<T> {
     return modal;
   }
 
-  /// Creates a simple modal with "Yes" (y key) and "No" (n key) actions. The modal panel will be
-  /// rendered in the center of the [Terminal] that is used to [render] the modal's [Layer].
+  /// Creates a simple modal with "Yes" (y key) and "No" (n key) actions. The
+  /// modal panel will be rendered in the center of the [Terminal] that is used
+  /// to [render] the modal's [Layer].
   factory Modal.yesNo(String panelText,
       {PanelBorder borderType = PanelBorder.single,
       int? padding,
@@ -146,13 +149,17 @@ class Modal<T extends InputBase> extends BaseModal<T> {
       panel.bounds = terminal.bounds;
     }
 
-    var panelTerm = terminal.childRect(terminal.bounds.centerRect(panel.width, panel.height));
+    var panelTerm = terminal
+        .childRect(terminal.bounds.centerRect(panel.width, panel.height));
     panel.render(panelTerm);
   }
 
   @override
   bool onKeyDown(String key, String code,
-      {required bool shift, required bool altOpt, required bool ctrl, required bool meta}) {
+      {required bool shift,
+      required bool altOpt,
+      required bool ctrl,
+      required bool meta}) {
     bool handled = true;
 
     switch (code) {

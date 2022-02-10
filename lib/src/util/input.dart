@@ -1,4 +1,5 @@
-/// Base class for defining high-level logical inputs (e.g., "interact" or "move north")
+/// Base class for defining high-level logical inputs (e.g., "interact" or
+/// "move north")
 abstract class InputBase {
   final String name;
 

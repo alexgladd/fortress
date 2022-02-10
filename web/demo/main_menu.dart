@@ -60,7 +60,13 @@ const _charColors = {
   'W': Color.white,
 };
 
-const _menuItems = ['Minigame', 'Map generation', 'UI Panels', 'UI Modals', 'Animation'];
+const _menuItems = [
+  'Minigame',
+  'Map generation',
+  'UI Panels',
+  'UI Modals',
+  'Animation'
+];
 
 const _help = '[↑↓]: Move   [enter]: Select';
 
@@ -78,7 +84,8 @@ class MainMenu extends Layer<Input> {
   static int get menuWidth => _getMaxWidth(_menuItems);
   static int get menuHeight => _menuItems.length;
   static int get width => math.max<int>(titleWidth, menuWidth);
-  static int get height => titleHeight + menuHeight + 2; // plus 2 to leave space for help text
+  static int get height =>
+      titleHeight + menuHeight + 2; // plus 2 to leave space for help text
   static Vec2 get minSize => Vec2(width, height);
 
   int _selectedMenuItem = 0;
@@ -108,8 +115,8 @@ class MainMenu extends Layer<Input> {
     }
 
     // center the menu
-    var menuTerm = titleTerm.child(
-        (titleTerm.width - menuWidth - 2) ~/ 2, titleHeight, menuWidth + 2, menuHeight);
+    var menuTerm = titleTerm.child((titleTerm.width - menuWidth - 2) ~/ 2,
+        titleHeight, menuWidth + 2, menuHeight);
 
     // render menu
     for (var i = 0; i < _menuItems.length; i++) {
@@ -120,8 +127,8 @@ class MainMenu extends Layer<Input> {
     }
 
     // render help
-    var helpTerm =
-        terminal.child((terminal.width - _help.length) ~/ 2, terminal.height - 1, _help.length, 1);
+    var helpTerm = terminal.child((terminal.width - _help.length) ~/ 2,
+        terminal.height - 1, _help.length, 1);
     helpTerm.drawText(0, 0, _help, Color.gray);
   }
 
@@ -145,7 +152,8 @@ class MainMenu extends Layer<Input> {
         handled = false;
     }
 
-    _selectedMenuItem = _selectedMenuItem.clamp(0, _menuItems.length - 1).toInt();
+    _selectedMenuItem =
+        _selectedMenuItem.clamp(0, _menuItems.length - 1).toInt();
 
     if (handled) dirty();
     return handled;

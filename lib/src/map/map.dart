@@ -21,14 +21,16 @@ class TileMap<T extends TileBase> extends IterableBase<T> {
   @override
   Iterator<T> get iterator => _tiles.iterator;
 
-  /// Create a [TileMap] with the given [width] and [height], in tiles, filled with the given
-  /// [initialValue].
-  TileMap(int width, int height, T initialValue) : _tiles = Array2(width, height, initialValue);
+  /// Create a [TileMap] with the given [width] and [height], in tiles, filled
+  /// with the given [initialValue].
+  TileMap(int width, int height, T initialValue)
+      : _tiles = Array2(width, height, initialValue);
 
   /// Get the tile at column [x] row [y]
   T get(int x, int y) => _tiles.get(x, y);
 
-  /// Set the tile at column [x] row [y] to [value]. Returns the old tile at that position.
+  /// Set the tile at column [x] row [y] to [value]. Returns the old tile at
+  /// that position.
   T set(int x, int y, T value) => _tiles.set(x, y, value);
 
   /// Get the tile at the given [position]

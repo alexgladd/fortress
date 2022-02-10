@@ -38,31 +38,34 @@ class RoomGenerator {
   final RoomConstraint _heightBounds;
   final double _maxAspect;
 
-  /// Initialize a room generator to generate random rooms within a space of the given [width] and
-  /// [height], with other tuning parameters:
+  /// Initialize a room generator to generate random rooms within a space of the
+  /// given [width] and [height], with other tuning parameters:
   /// - Room size: [widthBounds] and [heightBounds]
   /// - Room shape: [maxAspect]
-  RoomGenerator(int width, int height, RoomConstraint widthBounds, RoomConstraint heightBounds,
-      double maxAspect)
+  RoomGenerator(int width, int height, RoomConstraint widthBounds,
+      RoomConstraint heightBounds, double maxAspect)
       : _roomBounds = Rect.sides(1, width - 1, height - 1, 1),
         _widthBounds = widthBounds,
         _heightBounds = heightBounds,
         _maxAspect = maxAspect {
     // safety checks
-    if (_widthBounds.max < _widthBounds.min || _heightBounds.max < _heightBounds.min) {
-      throw StateError(
-          'Room constraints have swapped min and max values: width $_widthBounds height $_heightBounds');
+    if (_widthBounds.max < _widthBounds.min ||
+        _heightBounds.max < _heightBounds.min) {
+      throw StateError('Room constraints have swapped min and max values: '
+          'width $_widthBounds height $_heightBounds');
     }
 
     var minAspect = math.max(_widthBounds.min, _heightBounds.min) /
         math.min(_widthBounds.min, _heightBounds.min);
     if (minAspect > _maxAspect) {
       throw StateError(
-          'Room constraints always produce an aspect ratio greater than configured max: width $_widthBounds height $_heightBounds');
+          'Room constraints always produce an aspect ratio greater than '
+          'configured max: width $_widthBounds height $_heightBounds');
     }
   }
 
-  /// Iterate through a sequence of random rooms generated within the configured constraints
+  /// Iterate through a sequence of random rooms generated within the configured
+  /// constraints
   Iterable<Room> rooms() sync* {
     yield nextRoom();
   }
@@ -86,7 +89,8 @@ class RoomGenerator {
   }
 
   Vec2 _randomRoomPos(Vec2 size) {
-    return Vec2(rng.rangeInclusive(_roomBounds.left, _roomBounds.right - size.x),
+    return Vec2(
+        rng.rangeInclusive(_roomBounds.left, _roomBounds.right - size.x),
         rng.rangeInclusive(_roomBounds.top, _roomBounds.bottom - size.y));
   }
 }

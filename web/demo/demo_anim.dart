@@ -96,8 +96,8 @@ class AnimParticles extends Layer<Input> {
       terminal.drawChar(i, terminal.height - 3, ground);
     }
 
-    terminal.drawTextCenter(
-        terminal.height - 1, '[←→] Change colors.  Press [esc] to go back.', Color.gray);
+    terminal.drawTextCenter(terminal.height - 1,
+        '[←→] Change colors.  Press [esc] to go back.', Color.gray);
   }
 
   @override
@@ -131,8 +131,8 @@ class AnimParticles extends Layer<Input> {
     var numParticles = (size.absArea.toDouble() * 0.5).round();
     // var numParticles = 10;
     for (var i = 0; i < numParticles; i++) {
-      var p = _Particle(
-          rng.nextInt(size.x), size.y - 3, rng.item(_colorSets[_colorSet]), rng.rand() + 2.0);
+      var p = _Particle(rng.nextInt(size.x), size.y - 3,
+          rng.item(_colorSets[_colorSet]), rng.rand() + 2.0);
       _particles.add(p);
     }
   }

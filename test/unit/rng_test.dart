@@ -28,7 +28,8 @@ void main() {
       expect(testMax, lessThan(max));
     });
 
-    test('.nextDouble produces values between 0.0 inclusive and max exclusive', () {
+    test('.nextDouble produces values between 0.0 inclusive and max exclusive',
+        () {
       const max = 10.0;
       double testMin = 0.0, testMax = 0.0;
 

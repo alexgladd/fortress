@@ -2,13 +2,14 @@ import 'dart:math' as math;
 
 import 'vector.dart';
 
-/// Immutable 2D rectangle with integer position and size. Note that a [Rect] can be constructed
-/// with negative size values; this will be handled properly.
+/// Immutable 2D rectangle with integer position and size. Note that a [Rect]
+/// can be constructed with negative size values; this will be handled properly.
 ///
-/// For many operations, the rectangle is treated as a group of columns and rows. For example,
-/// consider the [Rect] defined by [top]=1, [right]=4, [bottom]=5, [left]=1. This rectangle
-/// consists of 3 columns (right - left) and 4 rows (bottom - top). For grid-based game logic, this
-/// is almost always the behavior we want.
+/// For many operations, the rectangle is treated as a group of columns and
+/// rows. For example, consider the [Rect] defined by [top]=1, [right]=4,
+/// [bottom]=5, [left]=1. This rectangle consists of 3 columns (right - left)
+/// and 4 rows (bottom - top). For grid-based game logic, this is almost always
+/// the behavior we want.
 class Rect {
   /// The null rectangle: position (0, 0) size (0, 0)
   static const nill = Rect(Vec2.zero, Vec2.zero);
@@ -74,27 +75,30 @@ class Rect {
       : position = Vec2.zero,
         size = Vec2(width, height);
 
-  /// Create a [Rect] at the given position coordinates with the given width and height
+  /// Create a [Rect] at the given position coordinates with the given width and
+  /// height
   Rect.positionAndSize(int x, int y, int width, int height)
       : position = Vec2(x, y),
         size = Vec2(width, height);
 
   const Rect(this.position, this.size);
 
-  /// Clamps the given [point] to the nearest point that is within the bounds of this [Rect].
-  /// Returns the clamped point as a new [Vec2].
+  /// Clamps the given [point] to the nearest point that is within the bounds of
+  /// this [Rect]. Returns the clamped point as a new [Vec2].
   ///
-  /// For this operation, the rectangle is treated as a group of columns and rows. For example,
-  /// consider the [Rect] defined by [top]=1, [right]=4, [bottom]=5, [left]=1. This rectangle
-  /// consists of 3 columns (right - left) and 4 rows (bottom - top). This means that the rectangle
-  /// would [clamp] the [Vec2] (4, 5) to (3, 4).
+  /// For this operation, the rectangle is treated as a group of columns and
+  /// ows. For example, consider the [Rect] defined by [top]=1, [right]=4,
+  /// [bottom]=5, [left]=1. This rectangle consists of 3 columns (right - left)
+  /// and 4 rows (bottom - top). This means that the rectangle would [clamp] the
+  /// [Vec2] (4, 5) to (3, 4).
   ///
-  /// The exception to this is when the rectangle has a width or height of zero, in which case it's
-  /// impossible to clamp any vector within the bounds of the rectangle. In this case, a
-  /// [StateError] will be thrown.
+  /// The exception to this is when the rectangle has a width or height of zero,
+  /// in which case it's impossible to clamp any vector within the bounds of the
+  /// rectangle. In this case, a [StateError] will be thrown.
   Vec2 clamp(Vec2 point) {
     if (size.x == 0 || size.y == 0) {
-      throw StateError('Cannot clamp a vector inside a Rect with width or height of 0');
+      throw StateError(
+          'Cannot clamp a vector inside a Rect with width or height of 0');
     }
 
     var x = point.x.clamp(left, right - 1).toInt();
@@ -102,8 +106,9 @@ class Rect {
     return Vec2(x, y);
   }
 
-  /// Returns true if [other] is a [VectorBase] or a [Rect] and is contained within this rectangle.
-  /// For this operation the rectangle is treated as a group of columns and rows.
+  /// Returns true if [other] is a [VectorBase] or a [Rect] and is contained
+  /// within this rectangle. For this operation the rectangle is treated as a
+  /// group of columns and rows.
   ///
   /// See [containsVec] and [containsRect].
   bool contains(Object? other) {
@@ -113,20 +118,27 @@ class Rect {
         other.runtimeType.toString(), 'other', 'Must be a Rect or VectorBase');
   }
 
-  /// Returns true if [other] is contained within this rectangle, including being equivalent to this
-  /// rectangle. That is, [other]'s [top], [right], [bottom], and [left] must be equal to or inside
-  /// this rectangle.
+  /// Returns true if [other] is contained within this rectangle, including
+  /// being equivalent to this rectangle. That is, [other]'s [top], [right],
+  /// [bottom], and [left] must be equal to or inside this rectangle.
   bool containsRect(Rect other) {
-    if (other.top >= top && other.right <= right && other.bottom <= bottom && other.left >= left) {
+    if (other.top >= top &&
+        other.right <= right &&
+        other.bottom <= bottom &&
+        other.left >= left) {
       return true;
     } else {
       return false;
     }
   }
 
-  /// Returns true if [vector] is anywhere within the columns and rows enclosed by this rectangle.
+  /// Returns true if [vector] is anywhere within the columns and rows enclosed
+  /// by this rectangle.
   bool containsVec(VectorBase vector) {
-    if (vector.x >= left && vector.x < right && vector.y >= top && vector.y < bottom) {
+    if (vector.x >= left &&
+        vector.x < right &&
+        vector.y >= top &&
+        vector.y < bottom) {
       return true;
     } else {
       return false;
@@ -161,8 +173,9 @@ class Rect {
     return horizontal + vertical;
   }
 
-  /// Create a new [Rect] by shrinking all four sides of this rectangle inwards by the given
-  /// [amount]. Calling with a negative [amount] will return an expanded [Rect].
+  /// Create a new [Rect] by shrinking all four sides of this rectangle inwards
+  /// by the given [amount]. Calling with a negative [amount] will return an
+  /// expanded [Rect].
   ///
   /// Note that this will not shrink the rectangle beyond size zero.
   Rect shrink(int amount) {
@@ -188,15 +201,18 @@ class Rect {
     return Rect.sides(t, r, b, l);
   }
 
-  /// Create a new [Rect] by expanding all four sides of this rectangle outwards by the given
-  /// [amount]. Calling with a negative [amount] will return a shrunken [Rect] (see [shrink]).
+  /// Create a new [Rect] by expanding all four sides of this rectangle outwards
+  /// by the given [amount]. Calling with a negative [amount] will return a
+  /// shrunken [Rect] (see [shrink]).
   Rect expand(int amount) {
     if (amount == 0) return this;
     if (amount < 0) return shrink(amount.abs());
-    return Rect.sides(top - amount, right + amount, bottom + amount, left - amount);
+    return Rect.sides(
+        top - amount, right + amount, bottom + amount, left - amount);
   }
 
-  /// Create a new [Rect] with the given [width] and [height] that is centered on this rectangle.
+  /// Create a new [Rect] with the given [width] and [height] that is centered
+  /// on this rectangle.
   Rect centerRect(int width, int height) {
     var x = left + ((right - left - width) ~/ 2);
     var y = top + ((bottom - top - height) ~/ 2);
@@ -205,8 +221,9 @@ class Rect {
 
   /// Get a list of all points enclosed by this [Rect].
   ///
-  /// For this operation, the rectangle is treated as a group of columns and rows, so the points on
-  /// the [right] column and [bottom] row are not included.
+  /// For this operation, the rectangle is treated as a group of columns and
+  /// rows, so the points on the [right] column and [bottom] row are not
+  /// included.
   List<Vec2> getPoints() {
     var points = <Vec2>[];
 
@@ -248,14 +265,17 @@ class Rect {
     return border;
   }
 
-  /// Returns true if [other] is another [Rect] that creates the same rectangle in 2D coordinate
-  /// space as this rectangle (i.e., their [top], [right], [bottom], and [left] values are
-  /// equivalent).
+  /// Returns true if [other] is another [Rect] that creates the same rectangle
+  /// in 2D coordinate space as this rectangle (i.e., their [top], [right],
+  /// [bottom], and [left] values are equivalent).
   @override
   bool operator ==(Object other) {
     if (other is! Rect) return false;
 
-    return top == other.top && right == other.right && bottom == other.bottom && left == other.left;
+    return top == other.top &&
+        right == other.right &&
+        bottom == other.bottom &&
+        left == other.left;
   }
 
   @override

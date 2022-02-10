@@ -13,8 +13,8 @@ class Placeholder extends Layer<Input> {
 
   @override
   void render(Terminal terminal) {
-    var term =
-        terminal.child((terminal.width - _text.length) ~/ 2, terminal.height ~/ 2, _text.length, 1);
+    var term = terminal.child((terminal.width - _text.length) ~/ 2,
+        terminal.height ~/ 2, _text.length, 1);
     term.drawText(0, 0, _text);
   }
 

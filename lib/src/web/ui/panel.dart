@@ -13,13 +13,15 @@ class Panel {
   Rect _bounds;
   Rect _contentBounds;
 
-  /// Optional background color; uses the [Terminal]'s background color by default
+  /// Optional background color; uses the [Terminal]'s background color
+  /// by default
   Color? background;
 
-  /// Set a [void Function(Terminal)] implementation to render content within the panel. The
-  /// provided [Terminal] is already set up such that it represents the full extent of the available
-  /// content area of this [Panel]. You can use this to draw panels without subclassing and
-  /// overriding [renderContent].
+  /// Set a [void Function(Terminal)] implementation to render content within
+  /// the panel. The provided [Terminal] is already set up such that it
+  /// represents the full extent of the available content area of this [Panel].
+  /// You can use this to draw panels without subclassing and overriding
+  /// [renderContent].
   void Function(Terminal)? contentRenderer;
 
   /// Panel bounds
@@ -40,13 +42,16 @@ class Panel {
     _contentBounds = _bounds.shrink(_padding);
   }
 
-  /// Create a [Panel] that is sized for the given content [width] and [height], taking the given
-  /// [padding] into consideration. The resulting panel will be positioned at (0, 0), so use a child
-  /// [Terminal] to render it at the desired location.
+  /// Create a [Panel] that is sized for the given content [width] and [height],
+  /// taking the given [padding] into consideration. The resulting panel will be
+  /// positioned at (0, 0), so use a child [Terminal] to render it at the
+  /// desired location.
   ///
   /// See [Terminal.childRect]
-  factory Panel.forContent(int width, int height, {Color? background, int padding = 0}) {
-    var bounds = Rect(Vec2(0, 0), Vec2(width + (padding * 2), height + (padding * 2)));
+  factory Panel.forContent(int width, int height,
+      {Color? background, int padding = 0}) {
+    var bounds =
+        Rect(Vec2(0, 0), Vec2(width + (padding * 2), height + (padding * 2)));
     return Panel(bounds, background: background, padding: padding);
   }
 
@@ -54,10 +59,12 @@ class Panel {
       : _padding = padding,
         _contentBounds = _bounds.shrink(padding);
 
-  /// Render the panel and its contents. This should be called from within [Layer.render].
+  /// Render the panel and its contents. This should be called from within
+  /// [Layer.render].
   void render(Terminal terminal) {
     // render a background
-    var bc = Char.create(CharCode.space, terminal.foreground, background ?? terminal.background);
+    var bc = Char.create(
+        CharCode.space, terminal.foreground, background ?? terminal.background);
     for (var point in bounds.getPoints()) {
       terminal.drawChar(point.x, point.y, bc);
     }
@@ -66,9 +73,10 @@ class Panel {
     renderContent(terminal.childRect(contentBounds));
   }
 
-  /// Render content within the panel. The provided [terminal] is already set up such that it
-  /// represents the full extent of the available content area of this [Panel]. By default, this
-  /// method calls [contentRenderer] if it is defined.
+  /// Render content within the panel. The provided [terminal] is already set up
+  /// such that it represents the full extent of the available content area of
+  /// this [Panel]. By default, this method calls [contentRenderer] if it is
+  /// defined.
   void renderContent(Terminal terminal) {
     if (contentRenderer != null) contentRenderer!(terminal);
   }
@@ -99,16 +107,18 @@ const _doubleBorderChars = ['═', '═', '║', '║', '╔', '╗', '╚', '�
 const _frameBorderChars = ['═', '─', '│', '│', '╒', '╕', '└', '┘'];
 const _solidBorderChars = ['▀', '▄', '▌', '▐', '█', '█', '█', '█'];
 
-/// [Panel] with a rendered border, which can be of several types (see [PanelBorder]).
+/// [Panel] with a rendered border, which can be of several types (see
+/// [PanelBorder]).
 class BorderPanel extends Panel {
   final PanelBorder _border;
 
   /// Optional border color; defaults to [Terminal.foreground]
   Color? borderColor;
 
-  /// Create a [BorderPanel] that is sized for the given content [width] and [height], taking the given
-  /// [padding] into consideration. The resulting panel will be positioned at (0, 0), so use a child
-  /// [Terminal] to render it at the desired location.
+  /// Create a [BorderPanel] that is sized for the given content [width] and
+  /// [height], taking the given [padding] into consideration. The resulting
+  /// panel will be positioned at (0, 0), so use a child [Terminal] to render it
+  /// at the desired location.
   ///
   /// See [Terminal.childRect]
   factory BorderPanel.forContent(int width, int height,
@@ -116,9 +126,13 @@ class BorderPanel extends Panel {
       Color? borderColor,
       Color? background,
       int padding = 0}) {
-    var bounds = Rect(Vec2(0, 0), Vec2(width + (padding * 2) + 2, height + (padding * 2) + 2));
+    var bounds = Rect(Vec2(0, 0),
+        Vec2(width + (padding * 2) + 2, height + (padding * 2) + 2));
     return BorderPanel(bounds,
-        border: border, borderColor: borderColor, background: background, padding: padding);
+        border: border,
+        borderColor: borderColor,
+        background: background,
+        padding: padding);
   }
 
   BorderPanel(Rect bounds,
@@ -128,7 +142,8 @@ class BorderPanel extends Panel {
       int padding = 0})
       : _border = border,
         super(bounds,
-            background: background, padding: border == PanelBorder.none ? padding : padding + 1);
+            background: background,
+            padding: border == PanelBorder.none ? padding : padding + 1);
 
   @override
   void render(Terminal terminal) {
@@ -140,19 +155,23 @@ class BorderPanel extends Panel {
     // draw the border
     // top & bottom
     for (var x = bounds.left + 1; x < bounds.right - 1; x++) {
-      terminal.drawChar(x, bounds.top, _getBorderChar(_BorderChars.top, fColor, bColor));
-      terminal.drawChar(x, bounds.bottom - 1, _getBorderChar(_BorderChars.bottom, fColor, bColor));
+      terminal.drawChar(
+          x, bounds.top, _getBorderChar(_BorderChars.top, fColor, bColor));
+      terminal.drawChar(x, bounds.bottom - 1,
+          _getBorderChar(_BorderChars.bottom, fColor, bColor));
     }
 
     // left & right
     for (var y = bounds.top + 1; y < bounds.bottom - 1; y++) {
-      terminal.drawChar(bounds.left, y, _getBorderChar(_BorderChars.left, fColor, bColor));
-      terminal.drawChar(bounds.right - 1, y, _getBorderChar(_BorderChars.right, fColor, bColor));
+      terminal.drawChar(
+          bounds.left, y, _getBorderChar(_BorderChars.left, fColor, bColor));
+      terminal.drawChar(bounds.right - 1, y,
+          _getBorderChar(_BorderChars.right, fColor, bColor));
     }
 
     // corners
-    terminal.drawChar(
-        bounds.topLeft.x, bounds.topLeft.y, _getBorderChar(_BorderChars.topLeft, fColor, bColor));
+    terminal.drawChar(bounds.topLeft.x, bounds.topLeft.y,
+        _getBorderChar(_BorderChars.topLeft, fColor, bColor));
     terminal.drawChar(bounds.topRight.x - 1, bounds.topRight.y,
         _getBorderChar(_BorderChars.topRight, fColor, bColor));
     terminal.drawChar(bounds.bottomRight.x - 1, bounds.bottomRight.y - 1,
@@ -166,9 +185,11 @@ class BorderPanel extends Panel {
       case PanelBorder.none:
         return Char.create(CharCode.space, foreground, background);
       case PanelBorder.single:
-        return Char.create(_singleBorderChars[bc.index], foreground, background);
+        return Char.create(
+            _singleBorderChars[bc.index], foreground, background);
       case PanelBorder.double:
-        return Char.create(_doubleBorderChars[bc.index], foreground, background);
+        return Char.create(
+            _doubleBorderChars[bc.index], foreground, background);
       case PanelBorder.frame:
         return Char.create(_frameBorderChars[bc.index], foreground, background);
       case PanelBorder.solid:
@@ -177,8 +198,8 @@ class BorderPanel extends Panel {
   }
 }
 
-/// Special type of [Panel] using a [PanelBorder.frame] border that renders a title near the
-/// top-right corner.
+/// Special type of [Panel] using a [PanelBorder.frame] border that renders a
+/// title near the top-right corner.
 class Frame extends BorderPanel {
   final String _title;
 
@@ -199,7 +220,7 @@ class Frame extends BorderPanel {
 
     // draw the frame title
     var panelTerm = terminal.childRect(bounds);
-    panelTerm.drawText(
-        2, 0, ' $_title ', titleColor ?? terminal.foreground, background ?? terminal.background);
+    panelTerm.drawText(2, 0, ' $_title ', titleColor ?? terminal.foreground,
+        background ?? terminal.background);
   }
 }

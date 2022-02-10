@@ -82,5 +82,6 @@ class Color {
         (b * fractionThis + other.b * fractionOther).toInt());
   }
 
-  Color blendPercent(Color other, int percentOther) => blend(other, percentOther / 100);
+  Color blendPercent(Color other, int percentOther) =>
+      blend(other, percentOther / 100);
 }

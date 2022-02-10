@@ -21,19 +21,20 @@ class Rng {
   /// Get a random integer between 0 inclusive and [max] exclusive
   int nextInt(int max) => _random.nextInt(max);
 
-  /// Get a random floating point number between 0.0 inclusive and [max] exclusive
+  /// Get a random floating point number between 0.0 inclusive and [max]
+  /// exclusive
   double nextDouble(double max) => _random.nextDouble() * max;
 
   /// Get a random boolean value
   bool nextBool() => _random.nextBool();
 
-  /// Get a random integer between 0 (inclusive) and [minOrMax] (exclusive), or between [minOrMax]
-  /// (inclusive) and [max] (exclusive) if [max] is given.
+  /// Get a random integer between 0 (inclusive) and [minOrMax] (exclusive), or
+  /// between [minOrMax] (inclusive) and [max] (exclusive) if [max] is given.
   int range(int minOrMax, [int? max]) =>
       max == null ? nextInt(minOrMax) : nextInt(max - minOrMax) + minOrMax;
 
-  /// Get a random integer between 0 (inclusive) and [minOrMax] (inclusive), or between [minOrMax]
-  /// (inclusive) and [max] (inclusive) if [max] is given.
+  /// Get a random integer between 0 (inclusive) and [minOrMax] (inclusive), or
+  /// between [minOrMax] (inclusive) and [max] (inclusive) if [max] is given.
   int rangeInclusive(int minOrMax, [int? max]) =>
       max == null ? range(minOrMax + 1) : range(minOrMax, max + 1);
 

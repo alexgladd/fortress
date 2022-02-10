@@ -19,11 +19,12 @@ class Minigame extends Layer<Input> {
 
   @override
   void render(Terminal terminal) {
-    var textTerm = terminal.child((terminal.width - _text.length) ~/ 2, 10, _text.length, 1);
+    var textTerm = terminal.child(
+        (terminal.width - _text.length) ~/ 2, 10, _text.length, 1);
     textTerm.drawText(0, 0, _text);
 
-    var helpTerm =
-        terminal.child((terminal.width - _help.length) ~/ 2, terminal.height - 1, _help.length, 1);
+    var helpTerm = terminal.child((terminal.width - _help.length) ~/ 2,
+        terminal.height - 1, _help.length, 1);
     helpTerm.drawText(0, 0, _help, Color.gray);
 
     terminal.drawChar(heroPos.x, heroPos.y, hero);
