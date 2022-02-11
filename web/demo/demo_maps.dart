@@ -5,20 +5,25 @@ import 'package:fortress/web.dart';
 import 'input.dart';
 
 class DemoTile extends TileBase {
-  static const open = DemoTile(true);
-  static const closed = DemoTile(false);
+  static const room = DemoTile(0, true);
+  static const corridor = DemoTile(1, true);
+  static const door = DemoTile(2, true);
+  static const wall = DemoTile(3, false);
 
+  final int id;
   final bool isOpen;
 
   @override
   bool get isWalkable => isOpen;
 
-  const DemoTile(this.isOpen);
+  const DemoTile(this.id, this.isOpen);
 }
 
 class Maps extends Layer<Input> {
   static const wall = Char(CharCode.fullBlock, Color.darkBrown);
-  static const floor = Char(CharCode.period, Color.lightBrown);
+  static const room = Char(CharCode.fullBlock, Color.lightGold);
+  static const corridor = Char(CharCode.fullBlock, Color.lightBrown);
+  static const door = Char(CharCode.fullBlock, Color.gold);
   static const _busyTxt = 'Building...   [esc] Back';
   static const _idleTxt = '[d] New dungeon   [esc] Back';
 
@@ -82,13 +87,23 @@ class Maps extends Layer<Input> {
     for (var pos in terminal.bounds.getPoints()) {
       var tile = _builder.map[pos];
 
-      if (tile.isWalkable) {
-        terminal.drawChar(pos.x, pos.y, floor);
-      } else {
-        terminal.drawChar(pos.x, pos.y, wall);
+      switch (tile) {
+        case DemoTile.wall:
+          terminal.drawChar(pos.x, pos.y, wall);
+          break;
+        case DemoTile.room:
+          terminal.drawChar(pos.x, pos.y, room);
+          break;
+        case DemoTile.corridor:
+          terminal.drawChar(pos.x, pos.y, corridor);
+          break;
+        case DemoTile.door:
+          terminal.drawChar(pos.x, pos.y, door);
+          break;
       }
     }
 
+    // draw the status panel
     Panel panel;
     if (_finished) {
       panel = _idlePanel;
@@ -96,8 +111,8 @@ class Maps extends Layer<Input> {
       panel = _busyPanel;
     }
 
-    var pTerm = terminal.child(terminal.width - panel.width - 1,
-        terminal.height - panel.height - 1, panel.width, panel.height);
+    var pTerm = terminal.child(terminal.width - panel.width,
+        terminal.height - panel.height, panel.width, panel.height);
     panel.render(pTerm);
   }
 
@@ -147,10 +162,11 @@ class Maps extends Layer<Input> {
 
   void _buildDungeon() {
     _builder = Dungeon(ui.renderRect.width, ui.renderRect.height,
-        wall: DemoTile.closed,
-        room: DemoTile.open,
-        corridor: DemoTile.open,
-        door: DemoTile.open);
+        wall: DemoTile.wall,
+        room: DemoTile.room,
+        corridor: DemoTile.corridor,
+        door: DemoTile.door,
+        targetDensity: 1.0);
     _buildSteps = _builder.build().iterator;
     _finished = false;
     _timer.start();

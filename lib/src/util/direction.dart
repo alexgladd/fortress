@@ -27,6 +27,10 @@ class Direction extends VectorBase {
   static const w = Direction(-1, 0);
   static const nw = Direction(-1, -1);
 
+  static const all = [n, ne, e, se, s, sw, w, nw];
+  static const cardinals = [n, e, s, w];
+  static const intercardinals = [ne, se, sw, nw];
+
   /// Build a direction based on the given [CompassDirection].
   factory Direction.compass(CompassDirection direction) {
     switch (direction) {

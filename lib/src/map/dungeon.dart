@@ -1,5 +1,8 @@
+import 'package:fortress/src/map/maze.dart';
+
 import 'builder.dart';
 import 'map.dart';
+import 'regions.dart';
 import 'room.dart';
 import 'tile.dart';
 
@@ -29,6 +32,7 @@ enum _DungeonTile {
 /// doors where the corridors meet the rooms.
 class Dungeon<T extends TileBase> extends MapBuilder<T> {
   final TileMap<T> _tileMap;
+  final RegionMap _regions;
   final Map<_DungeonTile, T> _tilePalette;
   final RoomGenerator _roomGen;
   final double _targetDensity;
@@ -39,6 +43,9 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
 
   @override
   TileMap<T> get map => _tileMap;
+
+  /// Get the regions of the dungeon
+  RegionMap get regions => _regions;
 
   /// The list of rooms generated for this [Dungeon]
   List<Room> get rooms => _rooms.toList(growable: false);
@@ -56,6 +63,7 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
       RoomConstraint roomHeights = const RoomConstraint(5, 9),
       double maxAspectRatio = 3.0})
       : _tileMap = TileMap(width, height, wall),
+        _regions = RegionMap(width, height),
         _roomGen = RoomGenerator(
             width, height, roomWidths, roomHeights, maxAspectRatio),
         _tilePalette = {
@@ -68,6 +76,7 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
 
   @override
   Iterable<String> build() sync* {
+    var mazeGen = MazeGenerator(regions);
     var failures = 0;
 
     // add rooms until we get to the target density or we fail too many times
@@ -77,13 +86,24 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
       if (_canPlaceRoom(room)) {
         _placeRoom(room);
         failures = 0;
+        _regions.nextRegion();
         yield 'Room';
       } else {
         failures++;
       }
     }
 
-    // TODO: fill empty space with mazes
+    // fill the remaining open area with mazes
+    var maze = mazeGen.nextMaze();
+    while (maze.isNotEmpty) {
+      for (var pos in maze) {
+        _tileMap[pos] = _tilePalette[_DungeonTile.corridor]!;
+      }
+
+      _regions.nextRegion();
+      maze = mazeGen.nextMaze();
+      yield 'Corridor';
+    }
 
     // TODO: connect regions
 
@@ -93,7 +113,10 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
   /// Places the room in the dungeon
   void _placeRoom(Room room) {
     for (var pos in room.bounds.getPoints()) {
+      // update the tile map
       _tileMap[pos] = _tilePalette[_DungeonTile.room]!;
+      // update the region map
+      _regions.visit(pos);
     }
 
     _rooms.add(room);

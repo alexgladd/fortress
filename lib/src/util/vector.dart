@@ -65,6 +65,26 @@ abstract class VectorBase {
     }
   }
 
+  Vec2 operator *(Object other) {
+    if (other is VectorBase) {
+      return Vec2(x * other.x, y * other.y);
+    } else if (other is int) {
+      return Vec2(x * other, y * other);
+    } else {
+      throw ArgumentError('Argument must be a VectorBase or an int');
+    }
+  }
+
+  Vec2 operator ~/(Object other) {
+    if (other is VectorBase) {
+      return Vec2(x ~/ other.x, y ~/ other.y);
+    } else if (other is int) {
+      return Vec2(x ~/ other, y ~/ other);
+    } else {
+      throw ArgumentError('Argument must be a VectorBase or an int');
+    }
+  }
+
   @override
   bool operator ==(Object other) {
     if (other is! VectorBase) return false;
