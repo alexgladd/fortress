@@ -1,3 +1,7 @@
+## 0.1.2-dev
+* Adds example usage in example/example.md
+* Updates the readme
+
 ## 0.1.1-dev
 * Fixes a readme issue on pub.dev
 * Updates to be more compliant with pub.dev scoring
