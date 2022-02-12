@@ -41,6 +41,9 @@ class Rng {
   /// Returns true [chance] percent of the time
   bool percent(int chance) => nextInt(100) < chance;
 
+  /// Returns true one over [value] percent of the time
+  bool oneIn(int value) => rand() < (1.0 / value);
+
   /// Return a random item from the list of [items]
   T item<T>(List<T> items) => items[nextInt(items.length)];
 }

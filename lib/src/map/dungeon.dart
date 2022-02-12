@@ -5,6 +5,7 @@ import 'map.dart';
 import 'regions.dart';
 import 'room.dart';
 import 'tile.dart';
+import '../util/rng.dart';
 
 /// Very basic dungeon tile
 class DungeonTile extends TileBase {
@@ -76,10 +77,8 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
 
   @override
   Iterable<String> build() sync* {
-    var mazeGen = MazeGenerator(regions);
-    var failures = 0;
-
     // add rooms until we get to the target density or we fail too many times
+    var failures = 0;
     while (roomDensity < _targetDensity && failures < 100) {
       var room = _roomGen.nextRoom();
 
@@ -94,6 +93,7 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
     }
 
     // fill the remaining open area with mazes
+    var mazeGen = MazeGenerator(regions);
     var maze = mazeGen.nextMaze();
     while (maze.isNotEmpty) {
       for (var pos in maze) {
@@ -105,7 +105,16 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
       yield 'Corridor';
     }
 
-    // TODO: connect regions
+    // pick a room to start from
+    var mainRoom = rng.item(rooms);
+    // connect regions
+    var connector = RegionConnector(regions[mainRoom.bounds.center]!, regions)
+      ..findConnections();
+
+    for (var pos in connector.carveConnections()) {
+      _tileMap[pos] = _tilePalette[_DungeonTile.door]!;
+      yield 'Connector';
+    }
 
     // TODO: cull dead ends
   }

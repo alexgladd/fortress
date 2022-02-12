@@ -44,9 +44,11 @@ class Maps extends Layer<Input> {
 
   Maps()
       : _busyPanel = BorderPanel.forContent(_busyTxt.length, 1,
-            border: PanelBorder.solid, borderColor: Color.gold, padding: 1),
+            border: PanelBorder.solid, borderColor: Color.darkGold, padding: 1),
         _idlePanel = BorderPanel.forContent(_idleTxt.length, 1,
-            border: PanelBorder.solid, borderColor: Color.gold, padding: 1) {
+            border: PanelBorder.solid,
+            borderColor: Color.darkGold,
+            padding: 1) {
     // setup panels
     _busyPanel.contentRenderer = (terminal) {
       terminal.drawText(0, 0, _busyTxt);
