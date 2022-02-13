@@ -86,13 +86,15 @@ class RegionConnector {
 
   /// Initialize a [RegionConnector] with the given [regions] map. The
   /// [extraConnectionChance] controls how often more than one connection will
-  /// be opened between adjacent regions (0.0 == never, 1.0 == always).
+  /// be opened between adjacent regions (0.0 == never, 1.0 == always). The
+  /// default [extraConnectionChance] value represents a 1-in-50 chance.
   RegionConnector(RegionMap regions, [double extraConnectionChance = 0.02])
       : _regionMap = regions,
         _dupConnectionChance = extraConnectionChance;
 
   /// Carve connections in the region map until all regions are interconnected.
-  /// Will open at least one connection between adjacent regions.
+  /// Will open at least one connection between adjacent regions. Each value in
+  /// the returned [Iterable] is one [Connector] that has been carved open.
   Iterable<Connector> carveConnections() sync* {
     var connections = _findConnections();
     var startRegion = rng.item(connections).region1;
@@ -137,8 +139,6 @@ class RegionConnector {
       if (!connectedRegions.contains(carvedConnection.region2)) {
         connectedRegions.add(carvedConnection.region2);
       }
-      // connectedRegions
-      //     .addAll([carvedConnection.region1, carvedConnection.region2]);
 
       for (var c in result) {
         yield c;

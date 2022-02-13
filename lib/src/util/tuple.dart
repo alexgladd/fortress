@@ -21,3 +21,18 @@ class Tuple2<N, M> extends TupleBase {
 
   const Tuple2(this.first, this.second);
 }
+
+class Tuple4<I, J, K, L> extends TupleBase {
+  final I first;
+  final J second;
+  final K third;
+  final L fourth;
+
+  @override
+  Iterator get iterator => sequence.iterator;
+
+  @override
+  List get sequence => [first, second, third, fourth];
+
+  const Tuple4(this.first, this.second, this.third, this.fourth);
+}

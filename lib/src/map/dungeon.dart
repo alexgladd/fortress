@@ -1,6 +1,7 @@
 import 'package:fortress/src/map/maze.dart';
 
 import 'builder.dart';
+import 'dead_ends.dart';
 import 'map.dart';
 import 'regions.dart';
 import 'room.dart';
@@ -84,7 +85,15 @@ class Dungeon extends MapBuilder<LevelTile> {
       yield 'Connector';
     }
 
-    // TODO: cull dead ends
+    // cull dead ends
+    var culler = DeadEndCuller(map);
+    for (var deadEnd in culler.cullDeadEnds()) {
+      for (var pos in deadEnd) {
+        _tileMap[pos] = LevelTile.solid;
+      }
+
+      yield 'Dead end';
+    }
   }
 
   /// Places the room in the dungeon

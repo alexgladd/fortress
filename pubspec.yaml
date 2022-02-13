@@ -2,7 +2,7 @@ name: fortress
 description: >-
   Fortress is a package of game development utilities for Dart and Flutter apps. It includes
   renderers, an extensible game loop, basic UI elements, map generators and more!
-version: 0.1.2-dev
+version: 0.2.0-dev
 homepage: https://alexgladd.github.io/fortress/
 repository: https://github.com/alexgladd/fortress
 issue_tracker: https://github.com/alexgladd/fortress/issues
