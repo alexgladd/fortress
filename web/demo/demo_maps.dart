@@ -4,21 +4,12 @@ import 'package:fortress/web.dart';
 
 import 'input.dart';
 
-class DemoTile extends TileBase {
-  static const open = DemoTile(true);
-  static const closed = DemoTile(false);
-
-  final bool isOpen;
-
-  @override
-  bool get isWalkable => isOpen;
-
-  const DemoTile(this.isOpen);
-}
-
 class Maps extends Layer<Input> {
   static const wall = Char(CharCode.fullBlock, Color.darkBrown);
-  static const floor = Char(CharCode.period, Color.lightBrown);
+  static const room = Char(CharCode.fullBlock, Color.lightGold);
+  static const corridor = Char(CharCode.fullBlock, Color.lightBrown);
+  static const door = Char(CharCode.fullBlock, Color.gold);
+  static const dupDoor = Char(CharCode.mediumShade, Color.gold);
   static const _busyTxt = 'Building...   [esc] Back';
   static const _idleTxt = '[d] New dungeon   [esc] Back';
 
@@ -26,7 +17,7 @@ class Maps extends Layer<Input> {
   final Panel _busyPanel;
   final Panel _idlePanel;
 
-  late MapBuilder<DemoTile> _builder;
+  late MapBuilder _builder;
   late Iterator<String> _buildSteps;
 
   var _finished = false;
@@ -39,9 +30,11 @@ class Maps extends Layer<Input> {
 
   Maps()
       : _busyPanel = BorderPanel.forContent(_busyTxt.length, 1,
-            border: PanelBorder.solid, borderColor: Color.gold, padding: 1),
+            border: PanelBorder.solid, borderColor: Color.darkGold, padding: 1),
         _idlePanel = BorderPanel.forContent(_idleTxt.length, 1,
-            border: PanelBorder.solid, borderColor: Color.gold, padding: 1) {
+            border: PanelBorder.solid,
+            borderColor: Color.darkGold,
+            padding: 1) {
     // setup panels
     _busyPanel.contentRenderer = (terminal) {
       terminal.drawText(0, 0, _busyTxt);
@@ -79,16 +72,9 @@ class Maps extends Layer<Input> {
   @override
   void render(Terminal terminal) {
     // draw the tile map
-    for (var pos in terminal.bounds.getPoints()) {
-      var tile = _builder.map[pos];
+    if (_builder is Dungeon) _renderDungeon(_builder as Dungeon, terminal);
 
-      if (tile.isWalkable) {
-        terminal.drawChar(pos.x, pos.y, floor);
-      } else {
-        terminal.drawChar(pos.x, pos.y, wall);
-      }
-    }
-
+    // draw the status panel
     Panel panel;
     if (_finished) {
       panel = _idlePanel;
@@ -96,8 +82,8 @@ class Maps extends Layer<Input> {
       panel = _busyPanel;
     }
 
-    var pTerm = terminal.child(terminal.width - panel.width - 1,
-        terminal.height - panel.height - 1, panel.width, panel.height);
+    var pTerm = terminal.child(terminal.width - panel.width,
+        terminal.height - panel.height, panel.width, panel.height);
     panel.render(pTerm);
   }
 
@@ -146,14 +132,35 @@ class Maps extends Layer<Input> {
   }
 
   void _buildDungeon() {
-    _builder = Dungeon(ui.renderRect.width, ui.renderRect.height,
-        wall: DemoTile.closed,
-        room: DemoTile.open,
-        corridor: DemoTile.open,
-        door: DemoTile.open);
+    _builder =
+        Dungeon(ui.renderRect.width, ui.renderRect.height, targetDensity: 1.0);
     _buildSteps = _builder.build().iterator;
     _finished = false;
     _timer.start();
     dirty();
+  }
+
+  void _renderDungeon(Dungeon d, Terminal t) {
+    for (var pos in t.bounds.getPoints()) {
+      var tile = d.map[pos];
+
+      switch (tile) {
+        case LevelTile.solid:
+          t.drawChar(pos.x, pos.y, wall);
+          break;
+        case LevelTile.room:
+          t.drawChar(pos.x, pos.y, room);
+          break;
+        case LevelTile.corridor:
+          t.drawChar(pos.x, pos.y, corridor);
+          break;
+        case LevelTile.connector:
+          t.drawChar(pos.x, pos.y, door);
+          break;
+        case LevelTile.duplicateConnector:
+          t.drawChar(pos.x, pos.y, dupDoor);
+          break;
+      }
+    }
   }
 }

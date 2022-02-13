@@ -2,9 +2,12 @@ import 'dart:collection';
 
 import 'tile.dart';
 import '../util/array.dart';
+import '../util/direction.dart';
+import '../util/rect.dart';
 import '../util/vector.dart';
 
-/// 2D array of tiles, most often used for representing a world or level map
+/// 2D array of tiles, most often used for representing a level (see
+/// [LevelTile]) or world map.
 class TileMap<T extends TileBase> extends IterableBase<T> {
   final Array2<T> _tiles;
 
@@ -13,6 +16,9 @@ class TileMap<T extends TileBase> extends IterableBase<T> {
 
   /// The height of the map in tiles
   int get height => _tiles.height;
+
+  /// The bounds of the map as a [Rect]
+  Rect get bounds => _tiles.bounds;
 
   /// Total number of tiles in the map
   int get totalTiles => width * height;
@@ -39,6 +45,50 @@ class TileMap<T extends TileBase> extends IterableBase<T> {
   /// Set the tile at [position] to [value]
   void operator []=(Vec2 position, T value) => _tiles[position] = value;
 
-  /// true if the tile at column [x] row [y] is walkable
-  bool isWalkable(int x, int y) => get(x, y).isWalkable;
+  /// true if the tile at column [x] row [y] is a valid position and is open
+  bool isOpen(int x, int y) {
+    if (_tiles.isValid(Vec2(x, y))) {
+      return get(x, y).isOpen;
+    } else {
+      return false;
+    }
+  }
+
+  /// Get all of the cardinal neighbors of the tile at column [x] row [y].
+  List<T> neighbors(int x, int y) {
+    var neighbors = <T>[];
+    var start = Vec2(x, y);
+
+    for (var d in Direction.cardinals) {
+      var neigbor = start + d;
+      if (_tiles.isValid(neigbor)) {
+        neighbors.add(this[neigbor]);
+      }
+    }
+
+    return neighbors;
+  }
+
+  /// The number of cardinal neighbors of the tile at column [x] row [y]
+  int countNeighbors(int x, int y) => neighbors(x, y).length;
+
+  /// The number of cardinal neighbors of the tile at column [x] row [y] that
+  /// are open
+  int countOpenNeighbors(int x, int y) {
+    int count = 0;
+    for (var n in neighbors(x, y)) {
+      if (n.isOpen) count++;
+    }
+    return count;
+  }
+
+  /// The number of cardinal neighbors of the tile at column [x] row [y] that
+  /// are closed (not open)
+  int countClosedNeighbors(int x, int y) {
+    int count = 0;
+    for (var n in neighbors(x, y)) {
+      if (!n.isOpen) count++;
+    }
+    return count;
+  }
 }

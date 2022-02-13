@@ -2,6 +2,7 @@
 
 import 'dart:collection';
 
+import 'rect.dart';
 import 'vector.dart';
 
 /// A 2D fixed-size array of elements of type [T]
@@ -19,6 +20,7 @@ class Array2<T> extends IterableBase<T> {
   int get width => _size.x;
   int get height => _size.y;
   Vec2 get size => _size;
+  Rect get bounds => Rect(Vec2(0, 0), size);
 
   @override
   Iterator<T> get iterator => _elements.iterator;
@@ -49,6 +51,16 @@ class Array2<T> extends IterableBase<T> {
   /// Sets the element at [position] to [value]
   void operator []=(Vec2 position, T value) =>
       set(position.x, position.y, value);
+
+  /// Returns true if the given [position] is within the bounds of this 2D array
+  bool isValid(Vec2 position) {
+    try {
+      _checkIndex(position.x, position.y);
+    } on RangeError {
+      return false;
+    }
+    return true;
+  }
 
   /// Throws a [RangeError] if either of the given array indices are out of
   /// range
