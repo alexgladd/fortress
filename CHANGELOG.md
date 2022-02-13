@@ -1,3 +1,9 @@
+## 0.2.0-dev
+* Finishes dungeon generation
+  * Builds corridor mazes
+  * Creates connectors (doors)
+  * Culls dead ends
+
 ## 0.1.2-dev
 * Adds example usage in example/example.md
 * Updates the readme
