@@ -49,6 +49,11 @@ class RegionMap {
   int? operator [](Vec2 position) => _regionMap[position];
 }
 
+enum ConnectorType {
+  normal,
+  duplicate,
+}
+
 class _Connection {
   final Vec2 position;
   late final Tuple2<int, int> regions;
@@ -63,6 +68,13 @@ class _Connection {
       regions = Tuple2(secondRegion, firstRegion);
     }
   }
+}
+
+/// A connection between two regions
+class Connector extends Tuple2<Vec2, ConnectorType> {
+  Vec2 get position => first;
+  ConnectorType get type => second;
+  Connector(Vec2 position, ConnectorType type) : super(position, type);
 }
 
 /// Connects disparate regions within a [RegionMap] so that all regions are
@@ -81,13 +93,14 @@ class RegionConnector {
 
   /// Carve connections in the region map until all regions are interconnected.
   /// Will open at least one connection between adjacent regions.
-  Iterable<Vec2> carveConnections() sync* {
+  Iterable<Connector> carveConnections() sync* {
     var connections = _findConnections();
     var startRegion = rng.item(connections).region1;
     var connectedRegions = [startRegion];
 
     while (connections.isNotEmpty) {
       var carved = <_Connection>[];
+      var result = <Connector>[];
 
       // pick a random connection to carve open
       var connsToMain = _findConnectionsToMain(connections, connectedRegions);
@@ -104,6 +117,7 @@ class RegionConnector {
       connsToMain.remove(carvedConnection);
       connections.remove(carvedConnection);
       carved.add(carvedConnection);
+      result.add(Connector(carvedConnection.position, ConnectorType.normal));
 
       // remove all duplicate connections, with a chance to open up duplicates
       // that aren't nearby any other already opened ones
@@ -111,6 +125,7 @@ class RegionConnector {
       for (var conn in dupConnections) {
         if (!_isNearby(conn, carved) && rng.rand() < _dupConnectionChance) {
           carved.add(conn);
+          result.add(Connector(conn.position, ConnectorType.duplicate));
         }
         connections.remove(conn);
       }
@@ -125,8 +140,8 @@ class RegionConnector {
       // connectedRegions
       //     .addAll([carvedConnection.region1, carvedConnection.region2]);
 
-      for (var c in carved) {
-        yield c.position;
+      for (var c in result) {
+        yield c;
       }
     }
   }

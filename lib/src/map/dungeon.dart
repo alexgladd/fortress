@@ -6,34 +6,11 @@ import 'regions.dart';
 import 'room.dart';
 import 'tile.dart';
 
-/// Very basic dungeon tile
-class DungeonTile extends TileBase {
-  static const wall = DungeonTile(false);
-  static const room = DungeonTile(true);
-  static const corridor = DungeonTile(true);
-  static const door = DungeonTile(true);
-
-  final bool _isOpen;
-
-  @override
-  bool get isWalkable => _isOpen;
-
-  const DungeonTile(this._isOpen);
-}
-
-enum _DungeonTile {
-  wall,
-  room,
-  corridor,
-  door,
-}
-
 /// Builds a dungeon map that consists of rooms connected by corridors, with
 /// doors where the corridors meet the rooms.
-class Dungeon<T extends TileBase> extends MapBuilder<T> {
-  final TileMap<T> _tileMap;
+class Dungeon extends MapBuilder<LevelTile> {
+  final TileMap<LevelTile> _tileMap;
   final RegionMap _regions;
-  final Map<_DungeonTile, T> _tilePalette;
   final RoomGenerator _roomGen;
   final double _targetDensity;
 
@@ -42,7 +19,7 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
   int _openedRoomTiles = 0;
 
   @override
-  TileMap<T> get map => _tileMap;
+  TileMap<LevelTile> get map => _tileMap;
 
   /// Get the regions of the dungeon
   RegionMap get regions => _regions;
@@ -54,24 +31,14 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
   double get roomDensity => _openedRoomTiles / _tileMap.totalTiles;
 
   Dungeon(int width, int height,
-      {required T wall,
-      required T room,
-      required T corridor,
-      required T door,
-      double targetDensity = 0.33,
+      {double targetDensity = 0.33,
       RoomConstraint roomWidths = const RoomConstraint(9, 15),
       RoomConstraint roomHeights = const RoomConstraint(5, 9),
       double maxAspectRatio = 3.0})
-      : _tileMap = TileMap(width, height, wall),
+      : _tileMap = TileMap(width, height, LevelTile.solid),
         _regions = RegionMap(width, height),
         _roomGen = RoomGenerator(
             width, height, roomWidths, roomHeights, maxAspectRatio),
-        _tilePalette = {
-          _DungeonTile.wall: wall,
-          _DungeonTile.room: room,
-          _DungeonTile.corridor: corridor,
-          _DungeonTile.door: door
-        },
         _targetDensity = targetDensity;
 
   @override
@@ -96,7 +63,7 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
     var maze = mazeGen.nextMaze();
     while (maze.isNotEmpty) {
       for (var pos in maze) {
-        _tileMap[pos] = _tilePalette[_DungeonTile.corridor]!;
+        _tileMap[pos] = LevelTile.corridor;
       }
 
       _regions.nextRegion();
@@ -107,8 +74,13 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
     // connect regions
     var connector = RegionConnector(regions);
 
-    for (var pos in connector.carveConnections()) {
-      _tileMap[pos] = _tilePalette[_DungeonTile.door]!;
+    for (var conn in connector.carveConnections()) {
+      if (conn.type == ConnectorType.duplicate) {
+        _tileMap[conn.position] = LevelTile.duplicateConnector;
+      } else {
+        _tileMap[conn.position] = LevelTile.connector;
+      }
+
       yield 'Connector';
     }
 
@@ -119,7 +91,7 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
   void _placeRoom(Room room) {
     for (var pos in room.bounds.getPoints()) {
       // update the tile map
-      _tileMap[pos] = _tilePalette[_DungeonTile.room]!;
+      _tileMap[pos] = LevelTile.room;
       // update the region map
       _regions.visit(pos);
     }

@@ -4,26 +4,12 @@ import 'package:fortress/web.dart';
 
 import 'input.dart';
 
-class DemoTile extends TileBase {
-  static const room = DemoTile(0, true);
-  static const corridor = DemoTile(1, true);
-  static const door = DemoTile(2, true);
-  static const wall = DemoTile(3, false);
-
-  final int id;
-  final bool isOpen;
-
-  @override
-  bool get isWalkable => isOpen;
-
-  const DemoTile(this.id, this.isOpen);
-}
-
 class Maps extends Layer<Input> {
   static const wall = Char(CharCode.fullBlock, Color.darkBrown);
   static const room = Char(CharCode.fullBlock, Color.lightGold);
   static const corridor = Char(CharCode.fullBlock, Color.lightBrown);
   static const door = Char(CharCode.fullBlock, Color.gold);
+  static const dupDoor = Char(CharCode.mediumShade, Color.gold);
   static const _busyTxt = 'Building...   [esc] Back';
   static const _idleTxt = '[d] New dungeon   [esc] Back';
 
@@ -31,7 +17,7 @@ class Maps extends Layer<Input> {
   final Panel _busyPanel;
   final Panel _idlePanel;
 
-  late MapBuilder<DemoTile> _builder;
+  late MapBuilder _builder;
   late Iterator<String> _buildSteps;
 
   var _finished = false;
@@ -86,24 +72,7 @@ class Maps extends Layer<Input> {
   @override
   void render(Terminal terminal) {
     // draw the tile map
-    for (var pos in terminal.bounds.getPoints()) {
-      var tile = _builder.map[pos];
-
-      switch (tile) {
-        case DemoTile.wall:
-          terminal.drawChar(pos.x, pos.y, wall);
-          break;
-        case DemoTile.room:
-          terminal.drawChar(pos.x, pos.y, room);
-          break;
-        case DemoTile.corridor:
-          terminal.drawChar(pos.x, pos.y, corridor);
-          break;
-        case DemoTile.door:
-          terminal.drawChar(pos.x, pos.y, door);
-          break;
-      }
-    }
+    if (_builder is Dungeon) _renderDungeon(_builder as Dungeon, terminal);
 
     // draw the status panel
     Panel panel;
@@ -163,15 +132,35 @@ class Maps extends Layer<Input> {
   }
 
   void _buildDungeon() {
-    _builder = Dungeon(ui.renderRect.width, ui.renderRect.height,
-        wall: DemoTile.wall,
-        room: DemoTile.room,
-        corridor: DemoTile.corridor,
-        door: DemoTile.door,
-        targetDensity: 1.0);
+    _builder =
+        Dungeon(ui.renderRect.width, ui.renderRect.height, targetDensity: 1.0);
     _buildSteps = _builder.build().iterator;
     _finished = false;
     _timer.start();
     dirty();
+  }
+
+  void _renderDungeon(Dungeon d, Terminal t) {
+    for (var pos in t.bounds.getPoints()) {
+      var tile = d.map[pos];
+
+      switch (tile) {
+        case LevelTile.solid:
+          t.drawChar(pos.x, pos.y, wall);
+          break;
+        case LevelTile.room:
+          t.drawChar(pos.x, pos.y, room);
+          break;
+        case LevelTile.corridor:
+          t.drawChar(pos.x, pos.y, corridor);
+          break;
+        case LevelTile.connector:
+          t.drawChar(pos.x, pos.y, door);
+          break;
+        case LevelTile.duplicateConnector:
+          t.drawChar(pos.x, pos.y, dupDoor);
+          break;
+      }
+    }
   }
 }

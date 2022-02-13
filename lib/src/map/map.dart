@@ -4,7 +4,8 @@ import 'tile.dart';
 import '../util/array.dart';
 import '../util/vector.dart';
 
-/// 2D array of tiles, most often used for representing a world or level map
+/// 2D array of tiles, most often used for representing a level (see
+/// [LevelTile]) or world map.
 class TileMap<T extends TileBase> extends IterableBase<T> {
   final Array2<T> _tiles;
 
@@ -39,6 +40,6 @@ class TileMap<T extends TileBase> extends IterableBase<T> {
   /// Set the tile at [position] to [value]
   void operator []=(Vec2 position, T value) => _tiles[position] = value;
 
-  /// true if the tile at column [x] row [y] is walkable
-  bool isWalkable(int x, int y) => get(x, y).isWalkable;
+  /// true if the tile at column [x] row [y] is open
+  bool isOpen(int x, int y) => get(x, y).isOpen;
 }
