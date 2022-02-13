@@ -69,70 +69,64 @@ class _Connection {
 /// interconnected.
 class RegionConnector {
   static const testDirs = [Direction.n, Direction.s, Direction.e, Direction.w];
-  final int _mainRegion;
   final RegionMap _regionMap;
+  final double _dupConnectionChance;
 
-  final _connectedRegions = <int>[];
-  final _connections = <_Connection>[];
-  // final _connectionsByRegion = <int, List<Vec2>>{};
-
-  List<Vec2> get connections => _connections.map((e) => e.position).toList();
-
-  RegionConnector(this._mainRegion, this._regionMap) {
-    // for (var r = 0; r < _regionMap.regions; r++) {
-    //   _connectionsByRegion[r] = [];
-    // }
-  }
+  /// Initialize a [RegionConnector] with the given [regions] map. The
+  /// [extraConnectionChance] controls how often more than one connection will
+  /// be opened between adjacent regions (0.0 == never, 1.0 == always).
+  RegionConnector(RegionMap regions, [double extraConnectionChance = 0.02])
+      : _regionMap = regions,
+        _dupConnectionChance = extraConnectionChance;
 
   /// Carve connections in the region map until all regions are interconnected.
   /// Will open at least one connection between adjacent regions.
   Iterable<Vec2> carveConnections() sync* {
-    for (var i = 0; i < _regionMap.regions; i++) {
-      // get all connections for the current region, starting with the main one
-      var regionId = (_mainRegion + i) % _regionMap.regions;
-      var regionConnections = _connectionsForRegion(regionId);
-      if (regionConnections.isEmpty) continue;
+    var connections = _findConnections();
+    var startRegion = rng.item(connections).region1;
+    var connectedRegions = [startRegion];
 
-      // select a random connection to open
-      var carved = <Vec2>[];
-      var carvedConnection = rng.item(regionConnections);
-      carved.add(carvedConnection.position);
+    while (connections.isNotEmpty) {
+      var carved = <_Connection>[];
 
-      print('CONN carved ${carvedConnection.position}');
+      // pick a random connection to carve open
+      var connsToMain = _findConnectionsToMain(connections, connectedRegions);
+      var carvedConnection = rng.item(connsToMain);
 
-      // remove connection from lists
-      regionConnections.remove(carvedConnection);
-      _connections.remove(carvedConnection);
-
-      // get all other connections that link the same regions
-      var dupConnections = regionConnections.where((e) =>
-          e.region1 == carvedConnection.region1 &&
-          e.region2 == carvedConnection.region2);
-
-      for (var dupConn in dupConnections) {
-        // some small chance to carve valid duplicate connections up
-        if (!_isNearby(dupConn.position, carved) && rng.oneIn(50)) {
-          carved.add(dupConn.position);
-          print('CONN dup carved ${dupConn.position}');
-        }
-        _connections.remove(dupConn);
+      // if both regions are already connected, skip
+      if (connectedRegions.contains(carvedConnection.region1) &&
+          connectedRegions.contains(carvedConnection.region2)) {
+        connections.remove(carvedConnection);
+        continue;
       }
 
-      // mark regions as merged
-      _connectedRegions
-          .addAll([carvedConnection.region1, carvedConnection.region2]);
+      // carve
+      connsToMain.remove(carvedConnection);
+      connections.remove(carvedConnection);
+      carved.add(carvedConnection);
 
-      // need to rethink this!
+      // remove all duplicate connections, with a chance to open up duplicates
+      // that aren't nearby any other already opened ones
+      var dupConnections = _findDuplicates(carvedConnection, connsToMain);
+      for (var conn in dupConnections) {
+        if (!_isNearby(conn, carved) && rng.rand() < _dupConnectionChance) {
+          carved.add(conn);
+        }
+        connections.remove(conn);
+      }
 
-      // var regConnected = _regionsForConnection(carved);
-      // _connectedRegions.addAll(regConnected);
-
-      // for (var r in regConnected) {
-      //   _connectionsByRegion[r]!.
-      // }
+      // mark regions as connected
+      if (!connectedRegions.contains(carvedConnection.region1)) {
+        connectedRegions.add(carvedConnection.region1);
+      }
+      if (!connectedRegions.contains(carvedConnection.region2)) {
+        connectedRegions.add(carvedConnection.region2);
+      }
+      // connectedRegions
+      //     .addAll([carvedConnection.region1, carvedConnection.region2]);
 
       for (var c in carved) {
-        yield c;
+        yield c.position;
       }
     }
   }
@@ -140,7 +134,9 @@ class RegionConnector {
   /// Finds all of the regional connections in the region map. A regional
   /// connection is a position that doesn't belong to any region that has two
   /// adjacent positions of different regions.
-  void findConnections() {
+  List<_Connection> _findConnections() {
+    var conns = <_Connection>[];
+
     for (var y = 1; y < _regionMap.height - 1; y++) {
       for (var x = 1; x < _regionMap.width - 1; x++) {
         var pos = Vec2(x, y);
@@ -154,34 +150,46 @@ class RegionConnector {
             lastRegion = region;
           } else if (region != null && region != lastRegion) {
             // this is a connection!
-            _connections.add(_Connection(region, lastRegion!, pos));
-            // _connectionsByRegion[lastRegion]!.add(pos);
-            // _connectionsByRegion[region]!.add(pos);
+            conns.add(_Connection(region, lastRegion!, pos));
             break;
           }
           // else same region
         }
       }
     }
+
+    return conns;
   }
 
-  List<_Connection> _connectionsForRegion(int region) => _connections
-      .where((e) => e.region1 == region || e.region2 == region)
-      .toList();
+  List<_Connection> _findConnectionsToMain(
+      List<_Connection> conns, List<int> main) {
+    var ctm = <_Connection>[];
+    for (var conn in conns) {
+      if (main.contains(conn.region1) || main.contains(conn.region2)) {
+        ctm.add(conn);
+      }
+    }
+    return ctm;
+  }
 
-  bool _isNearby(Vec2 position, List<Vec2> candidates) {
+  /// Finds connections in the given list that connect the same two regions as
+  /// the given connection.
+  List<_Connection> _findDuplicates(
+      _Connection conn, List<_Connection> connList) {
+    var dups = <_Connection>[];
+    for (var other in connList) {
+      if (other.region1 == conn.region1 && other.region2 == conn.region2) {
+        dups.add(other);
+      }
+    }
+    return dups;
+  }
+
+  bool _isNearby(_Connection conn, List<_Connection> candidates) {
     for (var test in candidates) {
-      var distance = position - test;
+      var distance = conn.position - test.position;
       if (distance.lengthSquared <= 4) return true;
     }
     return false;
   }
-
-  // List<int> _regionsForConnection(Vec2 conn) {
-  //   var regions = <int>[];
-  //   for (var k in _connectionsByRegion.keys) {
-  //     if (_connectionsByRegion[k]!.contains(conn)) regions.add(k);
-  //   }
-  //   return regions;
-  // }
 }

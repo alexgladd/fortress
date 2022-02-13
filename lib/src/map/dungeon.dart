@@ -5,7 +5,6 @@ import 'map.dart';
 import 'regions.dart';
 import 'room.dart';
 import 'tile.dart';
-import '../util/rng.dart';
 
 /// Very basic dungeon tile
 class DungeonTile extends TileBase {
@@ -105,11 +104,8 @@ class Dungeon<T extends TileBase> extends MapBuilder<T> {
       yield 'Corridor';
     }
 
-    // pick a room to start from
-    var mainRoom = rng.item(rooms);
     // connect regions
-    var connector = RegionConnector(regions[mainRoom.bounds.center]!, regions)
-      ..findConnections();
+    var connector = RegionConnector(regions);
 
     for (var pos in connector.carveConnections()) {
       _tileMap[pos] = _tilePalette[_DungeonTile.door]!;
