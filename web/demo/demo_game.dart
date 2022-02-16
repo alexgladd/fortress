@@ -32,8 +32,9 @@ class Minigame extends Layer<Input> {
   @override
   void start() {
     hero.position = ui.renderRect.center;
-    hero.renderer.charCode = '@'.codeUnits[0];
-    hero.renderer.foregroundColor = Color.gold;
+    hero.renderer.set(char: '@', foreground: Color.gold);
+
+    print('HERO $hero');
 
     print('ECS entities ${ecs.entities.length}');
     print('ECS components ${ecs.components.length}');

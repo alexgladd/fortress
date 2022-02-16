@@ -21,10 +21,12 @@ class Transform extends Component {
   /// Set the Y coordinate of the position
   set y(int nextY) => position = Vec2(x, nextY);
 
+  /// Create a new [Transform] component, optionally providing a starting
+  /// [position]
+  Transform([this.position = Vec2.zero]);
+
   /// Move the position by [move]
   void move(VectorBase move) => position += move;
-
-  Transform([this.position = Vec2.zero]);
 }
 
 class CharRenderer extends Component {
@@ -40,8 +42,23 @@ class CharRenderer extends Component {
   /// The [Char] that should be rendered based on the component's current state
   Char get char => Char(charCode, foregroundColor, backgroundColor);
 
+  /// Create a new [CharRenderer] component, optionally providing a starting
+  /// [charCode], [foregroundColor], and [backgroundColor]
   CharRenderer(
       [this.charCode = CharCode.space,
       this.foregroundColor = Color.white,
       this.backgroundColor = Color.black]);
+
+  void set({Object? char, Color? foreground, Color? background}) {
+    if (char != null) {
+      if (char is int) {
+        charCode = char;
+      } else if (char is String && char.isNotEmpty) {
+        charCode = char.codeUnits[0];
+      }
+    }
+
+    if (foreground != null) foregroundColor = foreground;
+    if (background != null) backgroundColor = background;
+  }
 }

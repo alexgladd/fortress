@@ -161,7 +161,7 @@ abstract class Entity {
   /// Get the next available entity ID
   static _getNextId() => _nextId++;
 
-  /// The entity's ID
+  /// The entity's ID. IDs are automatically assigned incrementally.
   final int id;
 
   /// The list of [Component]s attached to the entity
@@ -238,11 +238,13 @@ abstract class Entity {
 /// The base 'component' part of an Entity Component System (ECS). These are
 /// mostly just data containers that get operated on by a [System].
 abstract class Component {
-  int? _entityId;
+  static const noEntity = -1;
 
-  /// The ID of the [Entity] that this [Component] belongs to. Will be null if
-  /// the component hasn't been bound to an entity.
-  int? get entityId => _entityId;
+  int _entityId = noEntity;
+
+  /// The ID of the [Entity] that this [Component] belongs to. Will be
+  /// [noEntity] if the component hasn't been bound to an entity.
+  int get entityId => _entityId;
 
   @override
   bool operator ==(Object? other) {
