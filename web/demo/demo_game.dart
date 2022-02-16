@@ -1,3 +1,4 @@
+import 'package:fortress/engine.dart';
 import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
 
@@ -7,9 +8,7 @@ const _text = "There doesn't seem to be anything here yet...";
 const _help = '[↑↓←→]: Move   [esc]: Quit';
 
 class Minigame extends Layer<Input> {
-  final hero = Char.create('@', Color.gold);
-  bool firstRun = true;
-  Vec2 heroPos = Vec2.zero;
+  final hero = GameObject();
 
   @override
   bool get isHandlingInput => true;
@@ -27,7 +26,17 @@ class Minigame extends Layer<Input> {
         terminal.height - 1, _help.length, 1);
     helpTerm.drawText(0, 0, _help, Color.gray);
 
-    terminal.drawChar(heroPos.x, heroPos.y, hero);
+    terminal.drawChar(hero.transform.x, hero.transform.y, hero.renderer.char);
+  }
+
+  @override
+  void start() {
+    hero.position = ui.renderRect.center;
+    hero.renderer.charCode = '@'.codeUnits[0];
+    hero.renderer.foregroundColor = Color.gold;
+
+    print('ECS entities ${ecs.entities.length}');
+    print('ECS components ${ecs.components.length}');
   }
 
   @override
@@ -36,19 +45,19 @@ class Minigame extends Layer<Input> {
     var handled = true;
     switch (input) {
       case Input.n:
-        heroPos += Direction.n;
+        hero.position += Direction.n;
         break;
 
       case Input.e:
-        heroPos += Direction.e;
+        hero.position += Direction.e;
         break;
 
       case Input.s:
-        heroPos += Direction.s;
+        hero.position += Direction.s;
         break;
 
       case Input.w:
-        heroPos += Direction.w;
+        hero.position += Direction.w;
         break;
 
       case Input.cancel:
@@ -62,7 +71,7 @@ class Minigame extends Layer<Input> {
     }
 
     if (moved) {
-      heroPos = ui.renderRect.clamp(heroPos);
+      hero.position = ui.renderRect.clamp(hero.position);
       dirty();
     }
 
@@ -71,12 +80,6 @@ class Minigame extends Layer<Input> {
 
   @override
   void onResize(Vec2 size) {
-    if (firstRun) {
-      heroPos = Vec2(size.x ~/ 2, size.y ~/ 2);
-      firstRun = false;
-      return;
-    }
-
-    heroPos = ui.renderRect.clamp(heroPos);
+    hero.position = ui.renderRect.clamp(hero.position);
   }
 }
