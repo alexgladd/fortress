@@ -22,7 +22,6 @@ class DeadEndCuller {
   /// [Vec2] points in one culled dead end.
   Iterable<List<Vec2>> cullDeadEnds() sync* {
     var deadEnds = _findDeadEnds();
-    print('DEAD END total ${deadEnds.length}');
 
     // for each dead end cull all points until we reach a non dead-end
     for (var deadEnd in deadEnds) {
