@@ -36,8 +36,8 @@ class Minigame extends Layer<Input> {
 
     print('HERO $hero');
 
-    print('ECS entities ${ecs.entities.length}');
-    print('ECS components ${ecs.components.length}');
+    // print('ECS entities ${ecs.entities.length}');
+    // print('ECS components ${ecs.components.length}');
   }
 
   @override

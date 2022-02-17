@@ -49,13 +49,13 @@ class CharRenderer extends Component {
       this.foregroundColor = Color.white,
       this.backgroundColor = Color.black]);
 
+  /// Update the configuration of the [Char] that will be rendered, where
+  /// [char] is an [int] character code (see [CharCode]) or a non-empty
+  /// [String] (only the first character is used).
   void set({Object? char, Color? foreground, Color? background}) {
     if (char != null) {
-      if (char is int) {
-        charCode = char;
-      } else if (char is String && char.isNotEmpty) {
-        charCode = char.codeUnits[0];
-      }
+      if (char is int) charCode = char;
+      if (char is String && char.isNotEmpty) charCode = char.codeUnits[0];
     }
 
     if (foreground != null) foregroundColor = foreground;

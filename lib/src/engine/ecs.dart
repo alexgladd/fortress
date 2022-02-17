@@ -1,9 +1,12 @@
 import 'dart:collection';
 
 /// The Entity Component System instance
-final ecs = _EntityComponentSystem();
+// final ecs = _EntityComponentSystem();
 
-class _EntityComponentSystem {
+/// An Entity Component System (ECS) implementation. Manages sets of [Entity]s,
+/// [Component]s, and [System]s and provides methods that supports interation
+/// between them.
+class EntityComponentSystem {
   final _entities = HashMap<int, Entity>();
   final _componentsByType = HashMap<Type, Set<Component>>();
   final _systemsByType = HashMap<Type, System>();
@@ -34,31 +37,13 @@ class _EntityComponentSystem {
     }
   }
 
-  /// Fixed length [List] of all [Components] of type [T] currently active in
+  /// Fixed length [List] of all [Component]s of type [T] currently active in
   /// the ECS
   List<T> typeComponents<T extends Component>() {
     var comps = <T>[];
     var compSet = _componentsByType[T];
     if (compSet != null) comps.addAll(compSet as Iterable<T>);
     return comps.toList(growable: false);
-  }
-
-  /// Adds a [System] to the ECS
-  void addSystem(System system) {
-    _systemsByType[system.componentType] = system;
-    _updateSortedSystems();
-  }
-
-  /// Remove a [System] from the ECS
-  void removeSystem(System system) {
-    if (_systemsByType.remove(system.componentType) != null) {
-      _updateSortedSystems();
-    }
-  }
-
-  /// Removes the given [entity] and all of its [Component]s from the ECS
-  void removeEntity(Entity entity) {
-    _removeEntity(entity);
   }
 
   /// Update the ECS. This should be called once per frame and [ds] should be
@@ -75,25 +60,40 @@ class _EntityComponentSystem {
     }
   }
 
-  /// Add an [Entity] or [Component] to the ECS
-  void _add(Object o) {
-    if (o is Entity) return _addEntity(o);
-    if (o is Component) return _addComponent(o);
+  /// Add an [Entity] or [System] to the ECS. If [entityOrSystem] is an
+  /// [Entity], all of its existing [Component]s will be added to the ECS.
+  void add(Object entityOrSystem) {
+    if (entityOrSystem is Entity) return addEntity(entityOrSystem);
+    if (entityOrSystem is System) return addSystem(entityOrSystem);
     throw ArgumentError.value(
-        o, 'o', 'ECS.add only accepts Entities and Components');
+        entityOrSystem, 'o', 'ECS.add only accepts Entities and Systems');
   }
 
   /// Add an [Entity] to the ECS
-  void _addEntity(Entity entity) {
+  void addEntity(Entity entity) {
     // no duplicates
     if (_entities.containsKey(entity.id)) {
       throw StateError('ECS already contains $entity');
     }
+
     // add the entity
+    entity._bind(this);
     _entities[entity.id] = entity;
+
+    // add its components
+    for (var c in entity.components) {
+      _addComponent(c);
+    }
   }
 
-  /// Add a [Component] to the ECS
+  /// Adds a [System] to the ECS
+  void addSystem(System system) {
+    system._bind(this);
+    _systemsByType[system.componentType] = system;
+    _updateSortedSystems();
+  }
+
+  /// Add a [Component] to the ECS. This should only be called internally.
   void _addComponent(Component component) {
     var compSet = _componentsByType[component.runtimeType];
     if (compSet == null) {
@@ -103,19 +103,22 @@ class _EntityComponentSystem {
 
     if (!compSet!.add(component)) {
       throw StateError('ECS already contains $component');
+    } else {
+      component._bind(this);
     }
   }
 
-  /// Remove an [Entity] or [Component] from the ECS
-  void _remove(Object o) {
-    if (o is Entity) return _removeEntity(o);
-    if (o is Component) return _removeComponent(o);
+  /// Remove an [Entity] or [System] from the ECS. If [entityOrSystem] is an
+  /// [Entity], all of its [Component]s will be removed from the ECS.
+  void remove(Object entityOrSystem) {
+    if (entityOrSystem is Entity) return removeEntity(entityOrSystem);
+    if (entityOrSystem is System) return removeSystem(entityOrSystem);
     throw ArgumentError.value(
-        o, 'o', 'ECS.remove only accepts Entities and Components');
+        entityOrSystem, 'o', 'ECS.remove only accepts Entities and Systems');
   }
 
   /// Remove an [Entity] from the ECS
-  void _removeEntity(Entity entity) {
+  void removeEntity(Entity entity) {
     // error check
     if (!_entities.containsKey(entity.id)) {
       throw StateError("ECS doesn't contain $entity");
@@ -128,9 +131,18 @@ class _EntityComponentSystem {
 
     // remove the entity
     _entities.remove(entity.id);
+    entity._unbind();
   }
 
-  /// Remove a [Component] from the ECS
+  /// Remove a [System] from the ECS
+  void removeSystem(System system) {
+    if (_systemsByType.remove(system.componentType) != null) {
+      _updateSortedSystems();
+      system._unbind();
+    }
+  }
+
+  /// Remove a [Component] from the ECS. This should only be called internally.
   void _removeComponent(Component component) {
     var compSet = _componentsByType[component.runtimeType];
 
@@ -141,6 +153,8 @@ class _EntityComponentSystem {
 
     if (!compSet.remove(component)) {
       throw StateError("ECS doesn't contain $component");
+    } else {
+      component._unbind();
     }
   }
 
@@ -150,66 +164,66 @@ class _EntityComponentSystem {
   }
 }
 
+/// Mixin for things that can be bound to an [EntityComponentSystem].
+mixin EcsBindable {
+  /// Reference to the bound [EntityComponentSystem]. Will be null if not
+  /// currently bound.
+  EntityComponentSystem? ecs;
+
+  /// Bind this object to the given [ecs]
+  void _bind(EntityComponentSystem ecs) => this.ecs = ecs;
+
+  /// Unbind this object from its currently bound [ecs].
+  void _unbind() => ecs = null;
+}
+
 /// The base 'entity' part of an Entity Component System (ECS). This is
 /// basically just a bag of [Component]s.
-///
-/// Note: subclasses MUST call the base constructor (i.e., as super()) in order
-/// for the ECS to work properly.
-abstract class Entity {
+abstract class Entity with EcsBindable {
   static var _nextId = 0;
 
   /// Get the next available entity ID
-  static _getNextId() => _nextId++;
+  static int _getNextId() => _nextId++;
 
   /// The entity's ID. IDs are automatically assigned incrementally.
-  final int id;
+  final int id = _getNextId();
 
   /// The list of [Component]s attached to the entity
   List<Component> get components => _components.values.toList(growable: false);
 
   final _components = HashMap<Type, Component>();
 
-  /// Create a new entity instance. This will automatically assign it the next
-  /// available [id] and add it to the main [ecs]. Subclasses MUST remember to
-  /// call this constructor in their initializer lists for the ECS to work
-  /// properly.
-  Entity() : id = _getNextId() {
-    ecs._add(this);
-  }
-
   /// Add the given [component] to the entity. This will automatically update
-  /// the [Component.entityId] and add it to the main [ecs].
+  /// the [Component.entityId].
   void add(Component component) {
     component._entityId = id;
     if (!_components.containsKey(component.runtimeType)) {
       _components[component.runtimeType] = component;
-      ecs._add(component);
+      if (ecs != null) ecs!._addComponent(component);
     } else {
       throw StateError('$this already has $component');
     }
   }
 
   /// Add all of the [components] to the entity. This will automatically update
-  /// the [Component.entityId] for each and add each to the main [ecs].
+  /// the [Component.entityId] for each.
   void addAll(List<Component> components) {
     for (var c in components) {
       add(c);
     }
   }
 
-  /// Remove the given [component] from the entity. This will automatically
-  /// remove it from the main [ecs].
+  /// Remove the given [component] from the entity.
   void remove(Component component) {
     if (_components.containsKey(component.runtimeType)) {
+      if (ecs != null) ecs!._removeComponent(component);
       _components.remove(component.runtimeType);
-      ecs._remove(component);
     } else {
       throw StateError("$this doesn't have $component");
     }
   }
 
-  /// Remove all of the [components] from the entity. This will automatically
-  /// remove each from the main [ecs].
+  /// Remove all of the [components] from the entity.
   void removeAll(List<Component> components) {
     for (var c in components) {
       remove(c);
@@ -237,7 +251,7 @@ abstract class Entity {
 
 /// The base 'component' part of an Entity Component System (ECS). These are
 /// mostly just data containers that get operated on by a [System].
-abstract class Component {
+abstract class Component with EcsBindable {
   static const noEntity = -1;
 
   int _entityId = noEntity;
@@ -263,7 +277,7 @@ abstract class Component {
 
 /// The base 'system' part of an Entity Component System (ECS). These operate on
 /// a set of [Component]s of a single type.
-abstract class System<T extends Component> {
+abstract class System<T extends Component> with EcsBindable {
   /// The type of [Component] that this [System] operates on
   Type get componentType => T;
 
