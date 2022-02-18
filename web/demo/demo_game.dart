@@ -7,7 +7,14 @@ import 'input.dart';
 const _text = "There doesn't seem to be anything here yet...";
 const _help = '[↑↓←→]: Move   [esc]: Quit';
 
-class Minigame extends Layer<Input> {
+class Foo extends Behavior {
+  @override
+  void start() {
+    print('Foo behavior started!');
+  }
+}
+
+class Minigame extends EcsLayer<Input> {
   final hero = GameObject();
 
   @override
@@ -31,13 +38,18 @@ class Minigame extends Layer<Input> {
 
   @override
   void start() {
+    var sys = BehaviorSystem();
+    ecs.add(sys);
+    add(hero);
+    hero.add(Foo());
     hero.position = ui.renderRect.center;
     hero.renderer.set(char: '@', foreground: Color.gold);
 
     print('HERO $hero');
 
-    // print('ECS entities ${ecs.entities.length}');
-    // print('ECS components ${ecs.components.length}');
+    print('Behavior system comp type ${sys.componentType}');
+    print('ECS entities ${ecs.entities.length}');
+    print('ECS components ${ecs.components.length}');
   }
 
   @override

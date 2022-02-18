@@ -1,7 +1,7 @@
-import '../web/char.dart';
 import 'ecs.dart';
 import '../util/char_code.dart';
 import '../util/vector.dart';
+import '../web/char.dart';
 import '../web/color.dart';
 
 /// Provides a 2D transform (position in x, y coordinate space)
@@ -29,6 +29,7 @@ class Transform extends Component {
   void move(VectorBase move) => position += move;
 }
 
+/// Provides a renderable [Char]
 class CharRenderer extends Component {
   /// The current character code to render
   int charCode;

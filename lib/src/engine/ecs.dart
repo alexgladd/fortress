@@ -37,9 +37,15 @@ class EntityComponentSystem {
     }
   }
 
-  /// Fixed length [List] of all [Component]s of type [T] currently active in
-  /// the ECS
-  List<T> typeComponents<T extends Component>() {
+  /// Fixed length [List] of all [Component]s that implement the given
+  /// [system]'s [System.componentType] active in the ECS.
+  List<Component> systemComponents(System system) {
+    return system._filterComponents(components);
+  }
+
+  /// Fixed length [List] of all [Component]s of *runtime* type [T] currently
+  /// active in the ECS
+  List<T> runtimeTypeComponents<T extends Component>() {
     var comps = <T>[];
     var compSet = _componentsByType[T];
     if (compSet != null) comps.addAll(compSet as Iterable<T>);
@@ -51,11 +57,15 @@ class EntityComponentSystem {
   /// [update]. When called, the ECS will automatically call [System.update] on
   /// all [System]s that have been added to the ECS so that they can operate on
   /// their respective [Component] types.
+  ///
+  /// Note that the ECS respects the [Component] type hierarchy when processing
+  /// [System]s. Consider the hierarchy Component -> Foo -> Bar. A System<Foo>
+  /// will process both Foo and Bar components.
   void update(double ds) {
     for (var system in _sortedSystems) {
-      var components = _componentsByType[system.componentType];
-      if (components != null) {
-        system.update(ds, components.toList(growable: false));
+      var systemComponents = system._filterComponents(components);
+      if (systemComponents.isNotEmpty) {
+        system.update(ds, systemComponents);
       }
     }
   }
@@ -276,7 +286,8 @@ abstract class Component with EcsBindable {
 }
 
 /// The base 'system' part of an Entity Component System (ECS). These operate on
-/// a set of [Component]s of a single type.
+/// a set of [Component]s of type [T]. Note that the ECS respects the type
+/// hierarchy when processing systems.
 abstract class System<T extends Component> with EcsBindable {
   /// The type of [Component] that this [System] operates on
   Type get componentType => T;
@@ -291,5 +302,28 @@ abstract class System<T extends Component> with EcsBindable {
   /// Update the given [components]. This is generally called once per frame.
   /// The provided [ds] value is the number of (fractional) seconds since the
   /// last call to [update].
+  ///
+  /// Note that the ECS respects the [Component] type hierarchy when processing
+  /// [System]s. Consider the hierarchy Component -> Foo -> Bar. A System<Foo>
+  /// will process both Foo and Bar components.
   void update(double ds, List<T> components);
+
+  /// Filters the given [components] down to only those
+  List<T> _filterComponents(List<Component> components) {
+    return components
+        .where((c) => _tryCast(c) != null)
+        .toList(growable: false)
+        .cast<T>();
+  }
+
+  /// Attempts to cast the [component] to the [System]'s component type. Returns
+  /// null if the cast does not succeed.
+  T? _tryCast(Component component) {
+    try {
+      var typeComp = component as T;
+      return typeComp;
+    } catch (_) {
+      return null;
+    }
+  }
 }
