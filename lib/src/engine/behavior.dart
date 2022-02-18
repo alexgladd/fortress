@@ -14,8 +14,11 @@ abstract class Behavior extends Component {
   void update(double ds) {}
 }
 
-/// Processes [Behavior] components
+/// Processes [Behavior] components. Default [System.priority] is 500.
 class BehaviorSystem extends System<Behavior> {
+  @override
+  int get priority => 500;
+
   @override
   void update(double ds, List<Behavior> components) {
     for (var behavior in components) {

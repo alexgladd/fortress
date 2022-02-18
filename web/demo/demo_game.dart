@@ -40,14 +40,13 @@ class Minigame extends EcsLayer<Input> {
   void start() {
     var sys = BehaviorSystem();
     ecs.add(sys);
-    add(hero);
+    ecs.add(hero);
     hero.add(Foo());
     hero.position = ui.renderRect.center;
     hero.renderer.set(char: '@', foreground: Color.gold);
 
     print('HERO $hero');
 
-    print('Behavior system comp type ${sys.componentType}');
     print('ECS entities ${ecs.entities.length}');
     print('ECS components ${ecs.components.length}');
   }

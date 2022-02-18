@@ -176,15 +176,24 @@ class EntityComponentSystem {
 
 /// Mixin for things that can be bound to an [EntityComponentSystem].
 mixin EcsBindable {
-  /// Reference to the bound [EntityComponentSystem]. Will be null if not
-  /// currently bound.
-  EntityComponentSystem? ecs;
+  EntityComponentSystem? _ecs;
+
+  /// Reference to the bound [EntityComponentSystem]. Will throw a [StateError]
+  /// if there is no bound ECS.
+  EntityComponentSystem get ecs {
+    if (_ecs != null) return _ecs!;
+    throw StateError('$this has no bound EntityComponentSystem');
+  }
+
+  /// Reference to the bound [EntityComponentSystem]. Will return null if there
+  /// is no bound ECS.
+  EntityComponentSystem? get safeEcs => _ecs;
 
   /// Bind this object to the given [ecs]
-  void _bind(EntityComponentSystem ecs) => this.ecs = ecs;
+  void _bind(EntityComponentSystem ecs) => _ecs = ecs;
 
   /// Unbind this object from its currently bound [ecs].
-  void _unbind() => ecs = null;
+  void _unbind() => _ecs = null;
 }
 
 /// The base 'entity' part of an Entity Component System (ECS). This is
@@ -209,7 +218,7 @@ abstract class Entity with EcsBindable {
     component._entityId = id;
     if (!_components.containsKey(component.runtimeType)) {
       _components[component.runtimeType] = component;
-      if (ecs != null) ecs!._addComponent(component);
+      if (safeEcs != null) safeEcs!._addComponent(component);
     } else {
       throw StateError('$this already has $component');
     }
@@ -226,7 +235,7 @@ abstract class Entity with EcsBindable {
   /// Remove the given [component] from the entity.
   void remove(Component component) {
     if (_components.containsKey(component.runtimeType)) {
-      if (ecs != null) ecs!._removeComponent(component);
+      if (safeEcs != null) safeEcs!._removeComponent(component);
       _components.remove(component.runtimeType);
     } else {
       throw StateError("$this doesn't have $component");
@@ -270,6 +279,22 @@ abstract class Component with EcsBindable {
   /// [noEntity] if the component hasn't been bound to an entity.
   int get entityId => _entityId;
 
+  /// The [Entity] that this [Component] is attached to. Will throw a
+  /// [StateError] if the component is not bound to an ECS or not attached to
+  /// an entity.
+  Entity get entity {
+    var entity = ecs.entity(entityId);
+    if (entity != null) return entity;
+    throw StateError('$this is not attached to a valid entity: $entityId');
+  }
+
+  /// The [Entity] that this [Component] is attached to. Will return null if the
+  /// component is not bound to an ECS or not attached to an entity.
+  Entity? get safeEntity {
+    if (safeEcs == null) return null;
+    return safeEcs!.entity(entityId);
+  }
+
   @override
   bool operator ==(Object? other) {
     if (other is Component) {
@@ -304,7 +329,7 @@ abstract class System<T extends Component> with EcsBindable {
   /// last call to [update].
   ///
   /// Note that the ECS respects the [Component] type hierarchy when processing
-  /// [System]s. Consider the hierarchy Component -> Foo -> Bar. A System<Foo>
+  /// [System]s. Consider the hierarchy Component -> Foo -> Bar. A System\<Foo\>
   /// will process both Foo and Bar components.
   void update(double ds, List<T> components);
 

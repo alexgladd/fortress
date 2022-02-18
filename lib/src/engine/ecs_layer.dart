@@ -9,12 +9,6 @@ abstract class EcsLayer<T extends InputBase> extends Layer<T> {
   /// The [EntityComponentSystem] for the layer
   final ecs = EntityComponentSystem();
 
-  /// Add an [Entity] or [System] to the [ecs]
-  void add(Object entityOrSystem) => ecs.add(entityOrSystem);
-
-  /// Remove an [Entity] or [System] from the [ecs]
-  void remove(Object entityOrSystem) => ecs.remove(entityOrSystem);
-
   /// Updates the [ecs]. Recommend overriding [preUpdate] or [postUpdate] if you
   /// want to implement extra functionality during the layer's update step. If
   /// you need to override [update], make sure you call super.update(ds).
