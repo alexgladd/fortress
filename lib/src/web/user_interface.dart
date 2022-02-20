@@ -100,8 +100,8 @@ class UserInterface<T extends InputBase> {
   /// Push a new [Layer] onto the top of the stack.
   void push(Layer<T> layer) {
     layer._bindUi(this);
-    layer.start();
     _layers.add(layer);
+    layer.start();
     dirty();
   }
 

@@ -2,6 +2,8 @@ import 'package:fortress/engine.dart';
 import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
 
+import 'game/level.dart';
+import 'game/loading.dart';
 import 'input.dart';
 
 const _text = "There doesn't seem to be anything here yet...";
@@ -69,6 +71,14 @@ class Minigame extends GameLayer<Input> {
 
     print('ECS entities ${ecs.entities.length}');
     print('ECS components ${ecs.components.length}');
+
+    ui.push(LoadingScreen(1));
+  }
+
+  @override
+  void onActive(Layer<Input> popped, Object? result) {
+    var level = result as Level;
+    print('GAME built $level');
   }
 
   @override
