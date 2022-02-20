@@ -1,7 +1,6 @@
 import 'dart:collection';
 
-/// The Entity Component System instance
-// final ecs = _EntityComponentSystem();
+import 'game_object.dart';
 
 /// An Entity Component System (ECS) implementation. Manages sets of [Entity]s,
 /// [Component]s, and [System]s and provides methods that supports interation
@@ -255,6 +254,16 @@ abstract class Entity with EcsBindable {
     return _components[T] as T;
   }
 
+  /// Attempt to cast the [Entity] to a [GameObject]. Throws a [StateError] if
+  /// the entity is not a game object.
+  GameObject asGameObject() {
+    try {
+      return this as GameObject;
+    } catch (_) {
+      throw StateError('$this is not a GameObject');
+    }
+  }
+
   @override
   bool operator ==(Object? other) {
     if (other is Entity) return id == other.id;
@@ -295,6 +304,11 @@ abstract class Component with EcsBindable {
     return safeEcs!.entity(entityId);
   }
 
+  /// The [GameObject] that this [Component] is attached to. Will throw a
+  /// [StateError] if the component is not bound to an ECS or not attached to
+  /// a [GameObject].
+  GameObject get gameObject => entity.asGameObject();
+
   @override
   bool operator ==(Object? other) {
     if (other is Component) {
@@ -307,7 +321,7 @@ abstract class Component with EcsBindable {
   int get hashCode => runtimeType.hashCode ^ entityId.hashCode;
 
   @override
-  String toString() => '$runtimeType(for: $entityId)';
+  String toString() => '$runtimeType($safeEntity)';
 }
 
 /// The base 'system' part of an Entity Component System (ECS). These operate on

@@ -1,16 +1,18 @@
-import 'package:fortress/web.dart';
-
-import 'ecs.dart';
 import 'components.dart';
+import 'dirty.dart';
+import 'ecs.dart';
 import '../util/vector.dart';
 
-/// An [Entity] that always has a [Transform] and a [CharRenderer]. Meant to
-/// serve as the base class for things that exist in the game world.
+/// An [Entity] that always has a [Transform], [CharRenderer], and a
+/// [DirtySignal]. Meant to serve as the base class for things that exist in the
+/// game world.
 class GameObject extends Entity {
   // hold a reference to our position component
-  final Transform _transform;
+  final Transform _transform = Transform();
   // hold a reference to our renderer component
-  final CharRenderer _renderer;
+  final CharRenderer _renderer = CharRenderer();
+  // hold a reference to our dirty signal component
+  final DirtySignal _dirtySignal = DirtySignal();
 
   /// The game object's [Transform]
   Transform get transform => _transform;
@@ -33,10 +35,13 @@ class GameObject extends Entity {
 
   /// Creates a new [GameObject] positioned at the origin (0, 0) that renders
   /// as an empty character with a black background.
-  GameObject()
-      : _transform = Transform(),
-        _renderer = CharRenderer(),
-        super() {
-    addAll([_transform, _renderer]);
+  GameObject() {
+    addAll([_transform, _renderer, _dirtySignal]);
   }
+
+  /// Signal that the [GameObject] needs to be re-rendered
+  void dirty() => _dirtySignal.dirty();
+
+  @override
+  String toString() => 'GameObject($id)';
 }

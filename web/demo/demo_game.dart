@@ -7,14 +7,33 @@ import 'input.dart';
 const _text = "There doesn't seem to be anything here yet...";
 const _help = '[↑↓←→]: Move   [esc]: Quit';
 
-class Foo extends Behavior {
+class HeroController extends Behavior {
+  final Rect bounds;
+  late final InputHandler<Input> input;
+
+  HeroController(this.bounds);
+
   @override
   void start() {
-    print('Foo behavior started!');
+    input = gameObject.get<InputHandler<Input>>()!;
+    print('HeroController has input comp: $input');
+  }
+
+  @override
+  void update(double ds) {
+    var pos = gameObject.position;
+    if (input.hasInput(Input.n)) gameObject.position += Direction.n;
+    if (input.hasInput(Input.e)) gameObject.position += Direction.e;
+    if (input.hasInput(Input.s)) gameObject.position += Direction.s;
+    if (input.hasInput(Input.w)) gameObject.position += Direction.w;
+
+    gameObject.position = bounds.clamp(gameObject.position);
+
+    if (gameObject.position != pos) gameObject.dirty();
   }
 }
 
-class Minigame extends EcsLayer<Input> {
+class Minigame extends GameLayer<Input> {
   final hero = GameObject();
 
   @override
@@ -33,15 +52,16 @@ class Minigame extends EcsLayer<Input> {
         terminal.height - 1, _help.length, 1);
     helpTerm.drawText(0, 0, _help, Color.gray);
 
-    terminal.drawChar(hero.transform.x, hero.transform.y, hero.renderer.char);
+    super.render(terminal);
   }
 
   @override
   void start() {
-    var sys = BehaviorSystem();
-    ecs.add(sys);
-    ecs.add(hero);
-    hero.add(Foo());
+    super.start();
+
+    add(hero);
+    hero.add(InputHandler<Input>());
+    hero.add(HeroController(ui.renderRect));
     hero.position = ui.renderRect.center;
     hero.renderer.set(char: '@', foreground: Color.gold);
 
@@ -53,41 +73,14 @@ class Minigame extends EcsLayer<Input> {
 
   @override
   bool onInput(Input input) {
-    var moved = true;
-    var handled = true;
-    switch (input) {
-      case Input.n:
-        hero.position += Direction.n;
-        break;
+    super.onInput(input);
 
-      case Input.e:
-        hero.position += Direction.e;
-        break;
-
-      case Input.s:
-        hero.position += Direction.s;
-        break;
-
-      case Input.w:
-        hero.position += Direction.w;
-        break;
-
-      case Input.cancel:
-        ui.pop();
-        moved = false;
-        break;
-
-      default:
-        moved = false;
-        handled = false;
+    if (input == Input.cancel) {
+      ui.pop();
+      return true;
     }
 
-    if (moved) {
-      hero.position = ui.renderRect.clamp(hero.position);
-      dirty();
-    }
-
-    return handled;
+    return false;
   }
 
   @override
