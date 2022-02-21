@@ -1,6 +1,7 @@
 import 'package:fortress/web.dart';
 
 import '../input.dart';
+import 'game.dart';
 import 'level.dart';
 
 class LoadingScreen extends Layer<Input> {
@@ -18,11 +19,12 @@ class LoadingScreen extends Layer<Input> {
   @override
   bool get isTransparent => true;
 
-  LoadingScreen(int level) : _level = Level(125, 75, level) {
+  LoadingScreen(int level)
+      : _level = Level(Game.levelSize.x, Game.levelSize.y, level) {
     _panel.contentRenderer = (terminal) {
       var text = _loadTxt ?? 'Preparing...';
       terminal.drawTextCenter(
-          0, 'Loading level ${_level.level}', Color.lightGold);
+          0, 'Loading Level ${_level.level}', Color.lightGold);
       terminal.drawTextCenter(2, text);
     };
   }

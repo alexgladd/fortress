@@ -111,6 +111,13 @@ abstract class Terminal {
     return child(rect.x, rect.y, rect.width, rect.height);
   }
 
+  /// Get a child [Terminal] of the requested [width] and [height] that's
+  /// centered within this terminal.
+  Terminal childCenter(int width, int height) {
+    return child(
+        (this.width - width) ~/ 2, (this.height - height) ~/ 2, width, height);
+  }
+
   /// Ensures that the given position [x], [y] is within the bounds of this
   /// [Terminal]
   void boundsCheck(int x, int y) {

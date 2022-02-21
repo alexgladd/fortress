@@ -219,6 +219,56 @@ class Rect {
     return Rect(Vec2(x, y), Vec2(width, height));
   }
 
+  /// Creates a new [Rect] of the same [width] and [height] centered on the
+  /// given [position].
+  Rect centerOn(Vec2 position) {
+    var distance = position - center;
+    return Rect(this.position + distance, size);
+  }
+
+  /// Creates a new [Rect] that's the result of moving and/or resizing [other]
+  /// such that it is fully contained within this rectangle (i.e., [contains]
+  /// would return true).
+  Rect contain(Rect other) {
+    if (contains(other)) return other;
+    if (other.width > width && other.height > height) return this;
+
+    var cTop = other.top;
+    var cBottom = other.bottom;
+    var cLeft = other.left;
+    var cRight = other.right;
+
+    // top and bottom
+    if (other.top < top && other.bottom > bottom) {
+      cTop = top;
+      cBottom = bottom;
+    } else if (other.top < top) {
+      var diff = top - other.top;
+      cTop = other.top + diff;
+      cBottom = other.bottom + diff;
+    } else if (other.bottom > bottom) {
+      var diff = bottom - other.bottom;
+      cTop = other.top + diff;
+      cBottom = other.bottom + diff;
+    }
+
+    // left and right
+    if (other.left < left && other.right > right) {
+      cLeft = left;
+      cRight = right;
+    } else if (other.left < left) {
+      var diff = left - other.left;
+      cLeft = other.left + diff;
+      cRight = other.right + diff;
+    } else if (other.right > right) {
+      var diff = right - other.right;
+      cLeft = other.left + diff;
+      cRight = other.right + diff;
+    }
+
+    return Rect.sides(cTop, cRight, cBottom, cLeft);
+  }
+
   /// Get a list of all points enclosed by this [Rect].
   ///
   /// For this operation, the rectangle is treated as a group of columns and
@@ -236,34 +286,34 @@ class Rect {
     return points;
   }
 
-  List<Vec2> getBorder() {
-    var border = <Vec2>[];
+  // List<Vec2> getBorder() {
+  //   var border = <Vec2>[];
 
-    if (this == Rect.nill || size.x == 0 || size.y == 0) return border;
-    // TODO: address rects that are single rows or columns
+  //   if (this == Rect.nill || size.x == 0 || size.y == 0) return border;
+  //   // TODO: address rects that are single rows or columns
 
-    // top
-    for (var x = left; x < right - 1; x++) {
-      border.add(Vec2(x, top));
-    }
+  //   // top
+  //   for (var x = left; x < right - 1; x++) {
+  //     border.add(Vec2(x, top));
+  //   }
 
-    // right
-    for (var y = top; y < bottom - 1; y++) {
-      border.add(Vec2(right - 1, y));
-    }
+  //   // right
+  //   for (var y = top; y < bottom - 1; y++) {
+  //     border.add(Vec2(right - 1, y));
+  //   }
 
-    // bottom
-    for (var x = right - 1; x >= left; x--) {
-      border.add(Vec2(x, bottom - 1));
-    }
+  //   // bottom
+  //   for (var x = right - 1; x >= left; x--) {
+  //     border.add(Vec2(x, bottom - 1));
+  //   }
 
-    // left
-    for (var y = bottom - 1; y >= top; y--) {
-      border.add(Vec2(left, y));
-    }
+  //   // left
+  //   for (var y = bottom - 1; y >= top; y--) {
+  //     border.add(Vec2(left, y));
+  //   }
 
-    return border;
-  }
+  //   return border;
+  // }
 
   /// Returns true if [other] is another [Rect] that creates the same rectangle
   /// in 2D coordinate space as this rectangle (i.e., their [top], [right],

@@ -2,23 +2,19 @@ import 'package:fortress/engine.dart';
 import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
 
+import 'game/game.dart';
 import 'game/level.dart';
 import 'game/loading.dart';
 import 'input.dart';
 
-const _text = "There doesn't seem to be anything here yet...";
 const _help = '[↑↓←→]: Move   [esc]: Quit';
 
 class HeroController extends Behavior {
-  final Rect bounds;
   late final InputHandler<Input> input;
-
-  HeroController(this.bounds);
 
   @override
   void start() {
     input = gameObject.get<InputHandler<Input>>()!;
-    print('HeroController has input comp: $input');
   }
 
   @override
@@ -29,14 +25,23 @@ class HeroController extends Behavior {
     if (input.hasInput(Input.s)) gameObject.position += Direction.s;
     if (input.hasInput(Input.w)) gameObject.position += Direction.w;
 
-    gameObject.position = bounds.clamp(gameObject.position);
-
     if (gameObject.position != pos) gameObject.dirty();
   }
 }
 
 class Minigame extends GameLayer<Input> {
+  static const rightPanelWidth = 20;
+  static const bottomPanelHeight = 8;
+
   final hero = GameObject();
+  late final Array2<Color> background;
+
+  Level? level;
+  Rect maxViewport = Rect(
+      Vec2.zero,
+      Vec2(Game.levelSize.x + rightPanelWidth,
+          Game.levelSize.y + bottomPanelHeight));
+  Rect gameViewport = Rect.nill;
 
   @override
   bool get isHandlingInput => true;
@@ -45,16 +50,30 @@ class Minigame extends GameLayer<Input> {
   bool get isTransparent => false;
 
   @override
-  void render(Terminal terminal) {
-    var textTerm = terminal.child(
-        (terminal.width - _text.length) ~/ 2, 10, _text.length, 1);
-    textTerm.drawText(0, 0, _text);
+  Rect get clippingRect {
+    if (level == null) return ui.renderRect;
 
-    var helpTerm = terminal.child((terminal.width - _help.length) ~/ 2,
-        terminal.height - 1, _help.length, 1);
+    var clip = gameViewport.centerOn(hero.position);
+
+    // ensure it's contained in the level
+    return level!.map.bounds.contain(clip);
+  }
+
+  @override
+  void render(Terminal terminal) {
+    Terminal rTerm = terminal;
+    if (ui.renderRect.contains(maxViewport)) {
+      rTerm = terminal.childCenter(maxViewport.width, maxViewport.height);
+    }
+
+    var helpTerm = rTerm.child(
+        (rTerm.width - _help.length) ~/ 2, rTerm.height - 1, _help.length, 1);
     helpTerm.drawText(0, 0, _help, Color.gray);
 
-    super.render(terminal);
+    var viewportTerm = rTerm.childRect(gameViewport);
+    if (level != null) _renderMap(viewportTerm);
+
+    super.render(viewportTerm);
   }
 
   @override
@@ -62,23 +81,25 @@ class Minigame extends GameLayer<Input> {
     super.start();
 
     add(hero);
+    hero.position = Vec2(-1, -1);
     hero.add(InputHandler<Input>());
-    hero.add(HeroController(ui.renderRect));
-    hero.position = ui.renderRect.center;
+    hero.add(HeroController());
     hero.renderer.set(char: '@', foreground: Color.gold);
 
-    print('HERO $hero');
-
-    print('ECS entities ${ecs.entities.length}');
-    print('ECS components ${ecs.components.length}');
-
     ui.push(LoadingScreen(1));
+
+    background =
+        Array2<Color>(Game.levelSize.x, Game.levelSize.y, Color.darkBrown);
+    _fillBackground();
   }
 
   @override
   void onActive(Layer<Input> popped, Object? result) {
-    var level = result as Level;
+    level = result as Level;
+    hero.position = level!.startPosition;
+    hero.dirty();
     print('GAME built $level');
+    print('LEVEL start ${level!.startPosition}');
   }
 
   @override
@@ -95,6 +116,39 @@ class Minigame extends GameLayer<Input> {
 
   @override
   void onResize(Vec2 size) {
-    hero.position = ui.renderRect.clamp(hero.position);
+    if (maxViewport.contains(ui.renderRect)) {
+      // game layout is larger than available render space
+      gameViewport = Rect(
+          Vec2.zero,
+          Vec2(ui.renderRect.width - rightPanelWidth,
+              ui.renderRect.height - bottomPanelHeight));
+    } else {
+      gameViewport = Rect(
+          Vec2.zero,
+          Vec2(maxViewport.width - rightPanelWidth,
+              maxViewport.height - bottomPanelHeight));
+    }
+  }
+
+  void _renderMap(Terminal t) {
+    for (var pos in clippingRect.getPoints()) {
+      Char c;
+      if (level!.map[pos].isOpen) {
+        c = Char(CharCode.period, Color.darkGray);
+      } else {
+        c = Char(CharCode.fullBlock, background[pos]);
+      }
+
+      t.drawChar(pos.x - clippingRect.x, pos.y - clippingRect.y, c);
+    }
+  }
+
+  void _fillBackground() {
+    for (var y = 0; y < background.height; y++) {
+      for (var x = 0; x < background.width; x++) {
+        var rand = rng.nextInt(100);
+        if (rand < 5) background[Vec2(x, y)] = Color.darkGray;
+      }
+    }
   }
 }
