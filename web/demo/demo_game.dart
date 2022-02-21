@@ -5,6 +5,8 @@ import 'package:fortress/web.dart';
 import 'game/game.dart';
 import 'game/level.dart';
 import 'game/loading.dart';
+import 'game/log_panel.dart';
+import 'game/stats_panel.dart';
 import 'input.dart';
 
 const _help = '[↑↓←→]: Move   [esc]: Quit';
@@ -30,17 +32,18 @@ class HeroController extends Behavior {
 }
 
 class Minigame extends GameLayer<Input> {
-  static const rightPanelWidth = 20;
+  static const rightPanelWidth = 24;
   static const bottomPanelHeight = 8;
 
   final hero = GameObject();
   late final Array2<Color> background;
+  late StatsPanel statsPanel;
+  late LogPanel logPanel;
 
   Level? level;
-  Rect maxViewport = Rect(
-      Vec2.zero,
-      Vec2(Game.levelSize.x + rightPanelWidth,
-          Game.levelSize.y + bottomPanelHeight));
+  Vec2 maxLayoutSize = Vec2(
+      Game.levelSize.x + rightPanelWidth, Game.levelSize.y + bottomPanelHeight);
+  Rect layoutBounds = Rect.nill;
   Rect gameViewport = Rect.nill;
 
   @override
@@ -61,10 +64,11 @@ class Minigame extends GameLayer<Input> {
 
   @override
   void render(Terminal terminal) {
-    Terminal rTerm = terminal;
-    if (ui.renderRect.contains(maxViewport)) {
-      rTerm = terminal.childCenter(maxViewport.width, maxViewport.height);
-    }
+    Terminal rTerm =
+        terminal.childCenter(layoutBounds.width, layoutBounds.height);
+
+    statsPanel.render(rTerm);
+    logPanel.render(rTerm);
 
     var helpTerm = rTerm.child(
         (rTerm.width - _help.length) ~/ 2, rTerm.height - 1, _help.length, 1);
@@ -116,18 +120,24 @@ class Minigame extends GameLayer<Input> {
 
   @override
   void onResize(Vec2 size) {
-    if (maxViewport.contains(ui.renderRect)) {
-      // game layout is larger than available render space
-      gameViewport = Rect(
-          Vec2.zero,
-          Vec2(ui.renderRect.width - rightPanelWidth,
-              ui.renderRect.height - bottomPanelHeight));
+    if (ui.renderRect.contains(maxLayoutSize)) {
+      // render space is larger than the game layout
+      layoutBounds = Rect(Vec2.zero, maxLayoutSize);
     } else {
-      gameViewport = Rect(
-          Vec2.zero,
-          Vec2(maxViewport.width - rightPanelWidth,
-              maxViewport.height - bottomPanelHeight));
+      // shrink game layout to fit within available render space
+      layoutBounds = ui.renderRect;
     }
+
+    gameViewport = Rect(
+        Vec2.zero,
+        Vec2(layoutBounds.width - rightPanelWidth,
+            layoutBounds.height - bottomPanelHeight));
+
+    statsPanel = StatsPanel(Rect(Vec2(layoutBounds.right - rightPanelWidth, 0),
+        Vec2(rightPanelWidth, layoutBounds.height - 1)));
+
+    logPanel = LogPanel(Rect.sides(layoutBounds.bottom - bottomPanelHeight,
+        layoutBounds.right - rightPanelWidth, layoutBounds.bottom - 1, 0));
   }
 
   void _renderMap(Terminal t) {
@@ -147,7 +157,11 @@ class Minigame extends GameLayer<Input> {
     for (var y = 0; y < background.height; y++) {
       for (var x = 0; x < background.width; x++) {
         var rand = rng.nextInt(100);
-        if (rand < 5) background[Vec2(x, y)] = Color.darkGray;
+        if (rand < 2) {
+          background.set(x, y, Color.darkOrange);
+        } else if (rand < 5) {
+          background.set(x, y, Color.darkGray);
+        }
       }
     }
   }

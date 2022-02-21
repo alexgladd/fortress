@@ -17,7 +17,7 @@ class LoadingScreen extends Layer<Input> {
   bool get isHandlingInput => false;
 
   @override
-  bool get isTransparent => true;
+  bool get isTransparent => _level.level > 1;
 
   LoadingScreen(int level)
       : _level = Level(Game.levelSize.x, Game.levelSize.y, level) {
