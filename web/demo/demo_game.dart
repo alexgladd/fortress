@@ -2,6 +2,7 @@ import 'package:fortress/engine.dart';
 import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
 
+import 'game/dialogs.dart';
 import 'game/game.dart';
 import 'game/level.dart';
 import 'game/loading.dart';
@@ -22,12 +23,22 @@ class HeroController extends Behavior {
   @override
   void update(double ds) {
     var pos = gameObject.position;
-    if (input.hasInput(Input.n)) gameObject.position += Direction.n;
-    if (input.hasInput(Input.e)) gameObject.position += Direction.e;
-    if (input.hasInput(Input.s)) gameObject.position += Direction.s;
-    if (input.hasInput(Input.w)) gameObject.position += Direction.w;
+    if (input.hasInput(Input.n)) _checkMove(Direction.n);
+    if (input.hasInput(Input.e)) _checkMove(Direction.e);
+    if (input.hasInput(Input.s)) _checkMove(Direction.s);
+    if (input.hasInput(Input.w)) _checkMove(Direction.w);
 
     if (gameObject.position != pos) gameObject.dirty();
+  }
+
+  void _checkMove(Direction dir) {
+    if (game.level == null) return;
+
+    Level level = game.level!;
+
+    if (/*level.map[gameObject.position + dir].isOpen*/ true) {
+      gameObject.position += dir;
+    }
   }
 }
 
@@ -40,7 +51,8 @@ class Minigame extends GameLayer<Input> {
   late StatsPanel statsPanel;
   late LogPanel logPanel;
 
-  Level? level;
+  bool dialogOpen = false;
+  Vec2 dialogPosition = Vec2.zero;
   Vec2 maxLayoutSize = Vec2(
       Game.levelSize.x + rightPanelWidth, Game.levelSize.y + bottomPanelHeight);
   Rect layoutBounds = Rect.nill;
@@ -54,12 +66,26 @@ class Minigame extends GameLayer<Input> {
 
   @override
   Rect get clippingRect {
-    if (level == null) return ui.renderRect;
+    if (game.level == null) return ui.renderRect;
 
     var clip = gameViewport.centerOn(hero.position);
 
     // ensure it's contained in the level
-    return level!.map.bounds.contain(clip);
+    return game.level!.map.bounds.contain(clip);
+  }
+
+  @override
+  void postUpdate(double ds) {
+    if (hero.position != dialogPosition) dialogPosition = Vec2.zero;
+
+    if (!dialogOpen &&
+        game.level != null &&
+        hero.position != dialogPosition &&
+        hero.position == game.level!.endPosition) {
+      dialogOpen = true;
+      dialogPosition = hero.position;
+      ui.push(levelChangeDialog);
+    }
   }
 
   @override
@@ -75,7 +101,7 @@ class Minigame extends GameLayer<Input> {
     helpTerm.drawText(0, 0, _help, Color.gray);
 
     var viewportTerm = rTerm.childRect(gameViewport);
-    if (level != null) _renderMap(viewportTerm);
+    if (game.level != null) _renderMap(viewportTerm);
 
     super.render(viewportTerm);
   }
@@ -83,6 +109,8 @@ class Minigame extends GameLayer<Input> {
   @override
   void start() {
     super.start();
+
+    game.reset();
 
     add(hero);
     hero.position = Vec2(-1, -1);
@@ -99,11 +127,17 @@ class Minigame extends GameLayer<Input> {
 
   @override
   void onActive(Layer<Input> popped, Object? result) {
-    level = result as Level;
-    hero.position = level!.startPosition;
-    hero.dirty();
-    print('GAME built $level');
-    print('LEVEL start ${level!.startPosition}');
+    if (popped is LoadingScreen) {
+      _loadLevel(result! as Level);
+    } else if (popped == levelChangeDialog) {
+      print('LEVEL CHANGE result $result');
+      dialogOpen = false;
+
+      bool isReady = result! as bool;
+      if (isReady) {
+        ui.push(LoadingScreen(game.dungeonLevel + 1));
+      }
+    }
   }
 
   @override
@@ -140,10 +174,33 @@ class Minigame extends GameLayer<Input> {
         layoutBounds.right - rightPanelWidth, layoutBounds.bottom - 1, 0));
   }
 
+  void _loadLevel(Level level) {
+    game.level = level;
+
+    hero.position = level.startPosition;
+    hero.dirty();
+    dialogPosition = Vec2.zero;
+
+    game.log.msg(
+        'You enter level ${game.dungeonLevel}; the staircase crumbles behind '
+        'you');
+
+    if (level.level == 1) {
+      game.log.msg(
+          'The room carries the foul stench of demon and you hear stirrings in '
+          'the darkness...');
+    }
+
+    print('GAME built $level');
+    print('LEVEL start ${level.startPosition}');
+  }
+
   void _renderMap(Terminal t) {
     for (var pos in clippingRect.getPoints()) {
       Char c;
-      if (level!.map[pos].isOpen) {
+      if (pos == game.level!.endPosition) {
+        c = Char(CharCode.blackDownPointingTriangle, Color.yellow);
+      } else if (game.level!.map[pos].isOpen) {
         c = Char(CharCode.period, Color.darkGray);
       } else {
         c = Char(CharCode.fullBlock, background[pos]);
