@@ -214,10 +214,11 @@ abstract class Entity with EcsBindable {
   /// Add the given [component] to the entity. This will automatically update
   /// the [Component.entityId].
   void add(Component component) {
-    component._entityId = id;
     if (!_components.containsKey(component.runtimeType)) {
+      component._entityId = id;
       _components[component.runtimeType] = component;
       if (safeEcs != null) safeEcs!._addComponent(component);
+      component.onAdded();
     } else {
       throw StateError('$this already has $component');
     }
@@ -234,8 +235,10 @@ abstract class Entity with EcsBindable {
   /// Remove the given [component] from the entity.
   void remove(Component component) {
     if (_components.containsKey(component.runtimeType)) {
+      component.onRemove();
       if (safeEcs != null) safeEcs!._removeComponent(component);
       _components.remove(component.runtimeType);
+      component._entityId = Component.noEntity;
     } else {
       throw StateError("$this doesn't have $component");
     }
@@ -308,6 +311,12 @@ abstract class Component with EcsBindable {
   /// [StateError] if the component is not bound to an ECS or not attached to
   /// a [GameObject].
   GameObject get gameObject => entity.asGameObject();
+
+  /// Called right after the [Component] is added to an [Entity]
+  void onAdded() {}
+
+  /// Called right before the [Component] will be removed from an [Entity]
+  void onRemove() {}
 
   @override
   bool operator ==(Object? other) {

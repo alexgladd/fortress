@@ -16,7 +16,7 @@ class DirtySignal extends Component {
 }
 
 /// Processes [DirtySignal] components and signals its [Layer] when something
-/// needs to be re-rendered.
+/// needs to be re-rendered. Default [System.priority] is 2000.
 class DirtySignalSystem extends System<DirtySignal> {
   final Layer _layer;
 

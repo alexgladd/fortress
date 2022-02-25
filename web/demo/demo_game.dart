@@ -4,49 +4,51 @@ import 'package:fortress/web.dart';
 
 import 'game/dialogs.dart';
 import 'game/game.dart';
+import 'game/hero.dart';
 import 'game/level.dart';
 import 'game/loading.dart';
 import 'game/log_panel.dart';
 import 'game/stats_panel.dart';
+import 'game/turn_based.dart';
 import 'input.dart';
 
 const _help = '[↑↓←→]: Move   [esc]: Quit';
 
-class HeroController extends Behavior {
-  late final InputHandler<Input> input;
+// class HeroController extends Behavior {
+//   late final InputHandler<Input> input;
 
-  @override
-  void start() {
-    input = gameObject.get<InputHandler<Input>>()!;
-  }
+//   @override
+//   void start() {
+//     input = gameObject.get<InputHandler<Input>>()!;
+//   }
 
-  @override
-  void update(double ds) {
-    var pos = gameObject.position;
-    if (input.hasInput(Input.n)) _checkMove(Direction.n);
-    if (input.hasInput(Input.e)) _checkMove(Direction.e);
-    if (input.hasInput(Input.s)) _checkMove(Direction.s);
-    if (input.hasInput(Input.w)) _checkMove(Direction.w);
+//   @override
+//   void update(double ds) {
+//     var pos = gameObject.position;
+//     if (input.hasInput(Input.n)) _checkMove(Direction.n);
+//     if (input.hasInput(Input.e)) _checkMove(Direction.e);
+//     if (input.hasInput(Input.s)) _checkMove(Direction.s);
+//     if (input.hasInput(Input.w)) _checkMove(Direction.w);
 
-    if (gameObject.position != pos) gameObject.dirty();
-  }
+//     if (gameObject.position != pos) gameObject.dirty();
+//   }
 
-  void _checkMove(Direction dir) {
-    if (game.level == null) return;
+//   void _checkMove(Direction dir) {
+//     if (game.level == null) return;
 
-    Level level = game.level!;
+//     Level level = game.level!;
 
-    if (/*level.map[gameObject.position + dir].isOpen*/ true) {
-      gameObject.position += dir;
-    }
-  }
-}
+//     if (/*level.map[gameObject.position + dir].isOpen*/ true) {
+//       gameObject.position += dir;
+//     }
+//   }
+// }
 
 class Minigame extends GameLayer<Input> {
   static const rightPanelWidth = 24;
   static const bottomPanelHeight = 8;
 
-  final hero = GameObject();
+  final hero = Hero();
   late final Array2<Color> background;
   late StatsPanel statsPanel;
   late LogPanel logPanel;
@@ -112,11 +114,13 @@ class Minigame extends GameLayer<Input> {
 
     game.reset();
 
+    addSystem(TurnBasedSystem(hero));
+
     add(hero);
     hero.position = Vec2(-1, -1);
-    hero.add(InputHandler<Input>());
-    hero.add(HeroController());
-    hero.renderer.set(char: '@', foreground: Color.gold);
+    // hero.add(InputHandler<Input>());
+    // hero.add(HeroController());
+    // hero.renderer.set(char: '@', foreground: Color.gold);
 
     ui.push(LoadingScreen(1));
 
