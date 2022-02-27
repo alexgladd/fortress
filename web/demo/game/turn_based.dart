@@ -35,11 +35,11 @@ abstract class TurnController extends Component {
 }
 
 /// A turn-based [GameObject]
-abstract class TurnBasedActor extends GameObject {
+abstract class TurnBasedObject extends GameObject {
   /// Reference to our turn controller
   final TurnController turnController;
 
-  TurnBasedActor(this.turnController) {
+  TurnBasedObject(this.turnController) {
     add(turnController);
   }
 }
@@ -48,33 +48,41 @@ abstract class TurnBasedActor extends GameObject {
 ///
 /// Component order is shuffled each turn step.
 class TurnBasedSystem extends System<TurnController> {
-  final TurnBasedActor _controlledActor;
+  final TurnBasedObject _controlledActor;
+
+  int _turn = 0;
+
+  /// The current turn that the game is on
+  int get turn => _turn;
 
   @override
   int get priority => 200;
 
   /// Create a new turn-based system that monitors the given [controlledActor],
   /// which is usually the main human-controlled actor in the game
-  TurnBasedSystem(TurnBasedActor controlledActor)
+  TurnBasedSystem(TurnBasedObject controlledActor)
       : _controlledActor = controlledActor;
 
   @override
   void update(double ds, List<TurnController> components) {
     // let the AI process their turns
     while (!_controlledActor.turnController.canTakeTurn) {
-      components.shuffle();
-      for (var comp in components) {
-        _processComponent(comp);
-      }
+      _runTurn(components);
     }
 
-    // human-controlled actor not ready yet
-    if (_controlledActor.turnController.getTurnAction() == null) return;
+    // only proceed if human-controlled actor is ready
+    if (_controlledActor.turnController.getTurnAction() != null) {
+      _runTurn(components);
+    }
+  }
 
-    // human-controlled actor ready
-    components.shuffle();
-    for (var comp in components) {
-      _processComponent(comp);
+  void _runTurn(List<TurnController> tcs) {
+    _turn++;
+    // print('TURN SYS turn $turn');
+
+    tcs.shuffle();
+    for (var tc in tcs) {
+      _processComponent(tc);
     }
   }
 

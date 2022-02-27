@@ -14,36 +14,6 @@ import 'input.dart';
 
 const _help = '[↑↓←→]: Move   [esc]: Quit';
 
-// class HeroController extends Behavior {
-//   late final InputHandler<Input> input;
-
-//   @override
-//   void start() {
-//     input = gameObject.get<InputHandler<Input>>()!;
-//   }
-
-//   @override
-//   void update(double ds) {
-//     var pos = gameObject.position;
-//     if (input.hasInput(Input.n)) _checkMove(Direction.n);
-//     if (input.hasInput(Input.e)) _checkMove(Direction.e);
-//     if (input.hasInput(Input.s)) _checkMove(Direction.s);
-//     if (input.hasInput(Input.w)) _checkMove(Direction.w);
-
-//     if (gameObject.position != pos) gameObject.dirty();
-//   }
-
-//   void _checkMove(Direction dir) {
-//     if (game.level == null) return;
-
-//     Level level = game.level!;
-
-//     if (/*level.map[gameObject.position + dir].isOpen*/ true) {
-//       gameObject.position += dir;
-//     }
-//   }
-// }
-
 class Minigame extends GameLayer<Input> {
   static const rightPanelWidth = 24;
   static const bottomPanelHeight = 8;
@@ -118,15 +88,11 @@ class Minigame extends GameLayer<Input> {
 
     add(hero);
     hero.position = Vec2(-1, -1);
-    // hero.add(InputHandler<Input>());
-    // hero.add(HeroController());
-    // hero.renderer.set(char: '@', foreground: Color.gold);
 
     ui.push(LoadingScreen(1));
 
     background =
         Array2<Color>(Game.levelSize.x, Game.levelSize.y, Color.darkBrown);
-    _fillBackground();
   }
 
   @override
@@ -180,19 +146,19 @@ class Minigame extends GameLayer<Input> {
 
   void _loadLevel(Level level) {
     game.level = level;
+    _fillBackground();
 
     hero.position = level.startPosition;
     hero.dirty();
     dialogPosition = Vec2.zero;
 
-    game.log.msg(
-        'You enter level ${game.dungeonLevel}; the staircase crumbles behind '
-        'you');
+    game.log.msg('You enter level ${game.dungeonLevel}; the staircase crumbles '
+        'behind you');
 
     if (level.level == 1) {
-      game.log.msg(
-          'The room carries the foul stench of demon and you hear stirrings in '
-          'the darkness...');
+      game.log
+          .msg('You detect the foul stench of demon and hear stirrings in the '
+              'darkness...');
     }
 
     print('GAME built $level');
@@ -215,6 +181,8 @@ class Minigame extends GameLayer<Input> {
   }
 
   void _fillBackground() {
+    background.fill(Color.darkBrown);
+
     for (var y = 0; y < background.height; y++) {
       for (var x = 0; x < background.width; x++) {
         var rand = rng.nextInt(100);

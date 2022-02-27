@@ -4,33 +4,58 @@ import 'package:fortress/web.dart';
 
 import '../input.dart';
 import 'action.dart';
+import 'game.dart';
 import 'turn_based.dart';
 
-class Hero extends TurnBasedActor {
+class Hero extends TurnBasedObject {
   Hero() : super(HeroController()) {
     add(InputHandler<Input>());
     renderer.set(char: '@', foreground: Color.gold);
   }
 }
 
-/// Input-driven turn-based controller
-///
-/// Automatically adds an [InputHandler].
+/// Input-driven turn-based controller for the [Hero]
 class HeroController extends TurnController {
-  // late final InputHandler inputs;
+  static const movement = {Input.n, Input.e, Input.s, Input.w};
+
+  @override
+  int get initiativePerTurn => 50;
+
+  /// Get the attached entity as a [Hero]
+  Hero get hero => gameObject as Hero;
+
+  HeroController() : super(100);
 
   @override
   Action? getTurnAction() {
     var inputs = gameObject.get<InputHandler<Input>>()!;
 
+    if (inputs.hasAny(movement)) return _handleInput(inputs);
+
+    return null;
+  }
+
+  Action? _handleInput(InputHandler<Input> inputs) {
     Action? action;
-    if (inputs.hasInput(Input.n)) action = MoveAction(Direction.n);
-    if (inputs.hasInput(Input.e)) action = MoveAction(Direction.e);
-    if (inputs.hasInput(Input.s)) action = MoveAction(Direction.s);
-    if (inputs.hasInput(Input.w)) action = MoveAction(Direction.w);
+
+    if (inputs.has(Input.n)) action = _tryMovement(Direction.n);
+    if (inputs.has(Input.e)) action = _tryMovement(Direction.e);
+    if (inputs.has(Input.s)) action = _tryMovement(Direction.s);
+    if (inputs.has(Input.w)) action = _tryMovement(Direction.w);
 
     if (action != null) gameObject.dirty();
 
     return action;
+  }
+
+  Action? _tryMovement(Direction dir) {
+    var position = gameObject.position + dir;
+
+    if (game.level!.map[position].isOpen) {
+      // TODO: check if there is something to attack or interact with
+      return MoveAction(dir);
+    }
+
+    return null;
   }
 }

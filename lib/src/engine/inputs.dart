@@ -9,9 +9,17 @@ class InputHandler<T extends InputBase> extends Component {
   /// cycle (current frame)
   Set<T> get inputs => _inputs;
 
-  /// Returns true if the input system captured the given input during the
+  /// Returns true if the input system captured the given [input] during the
   /// current update cycle (current frame)
-  bool hasInput(T input) => _inputs.contains(input);
+  bool has(T input) => _inputs.contains(input);
+
+  /// Returns true if the input system captured any of the given [inputs] during
+  /// the current update cycle (current frame)
+  bool hasAny(Iterable<T> inputs) => _inputs.any((i) => inputs.contains(i));
+
+  /// Returns true if the input system captured all of the given [inputs] during
+  /// the current update cycle (current frame)
+  bool hasAll(Iterable<T> inputs) => _inputs.every((i) => inputs.contains(i));
 
   /// Set the inputs for the current update cycle
   void _setInputs(Iterable<T> inputs) {
