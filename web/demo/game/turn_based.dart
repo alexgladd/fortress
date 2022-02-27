@@ -6,7 +6,7 @@ import 'action.dart';
 abstract class TurnController extends Component {
   int _initiative;
 
-  /// Amount of initiative required to take a turn
+  /// Amount of initiative required to take an action during a turn
   int get initiativeRequired => 100;
 
   /// Amount of initiative gained per idle turn
@@ -38,6 +38,16 @@ abstract class TurnController extends Component {
 abstract class TurnBasedObject extends GameObject {
   /// Reference to our turn controller
   final TurnController turnController;
+
+  /// The number of turns it takes for this object to be able to take an action
+  /// (lower is better)
+  double get turnsPerAction =>
+      turnController.initiativeRequired / turnController.initiativePerTurn;
+
+  /// The number of actions per turn (generally between 0.0 and 1.0). This can
+  /// be used to show a normalized "speed" value.
+  double get actionsPerTurn =>
+      turnController.initiativePerTurn / turnController.initiativeRequired;
 
   TurnBasedObject(this.turnController) {
     add(turnController);

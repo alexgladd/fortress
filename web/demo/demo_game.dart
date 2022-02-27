@@ -47,6 +47,23 @@ class Minigame extends GameLayer<Input> {
   }
 
   @override
+  void start() {
+    super.start();
+
+    game.reset();
+
+    addSystem(TurnBasedSystem(hero));
+
+    add(hero);
+    hero.position = Vec2(-1, -1);
+
+    ui.push(LoadingScreen(1));
+
+    background =
+        Array2<Color>(Game.levelSize.x, Game.levelSize.y, Color.darkBrown);
+  }
+
+  @override
   void postUpdate(double ds) {
     if (hero.position != dialogPosition) dialogPosition = Vec2.zero;
 
@@ -76,23 +93,6 @@ class Minigame extends GameLayer<Input> {
     if (game.level != null) _renderMap(viewportTerm);
 
     super.render(viewportTerm);
-  }
-
-  @override
-  void start() {
-    super.start();
-
-    game.reset();
-
-    addSystem(TurnBasedSystem(hero));
-
-    add(hero);
-    hero.position = Vec2(-1, -1);
-
-    ui.push(LoadingScreen(1));
-
-    background =
-        Array2<Color>(Game.levelSize.x, Game.levelSize.y, Color.darkBrown);
   }
 
   @override
@@ -137,8 +137,10 @@ class Minigame extends GameLayer<Input> {
         Vec2(layoutBounds.width - rightPanelWidth,
             layoutBounds.height - bottomPanelHeight));
 
-    statsPanel = StatsPanel(Rect(Vec2(layoutBounds.right - rightPanelWidth, 0),
-        Vec2(rightPanelWidth, layoutBounds.height - 1)));
+    statsPanel = StatsPanel(
+        Rect(Vec2(layoutBounds.right - rightPanelWidth, 0),
+            Vec2(rightPanelWidth, layoutBounds.height - 1)),
+        hero);
 
     logPanel = LogPanel(Rect.sides(layoutBounds.bottom - bottomPanelHeight,
         layoutBounds.right - rightPanelWidth, layoutBounds.bottom - 1, 0));
