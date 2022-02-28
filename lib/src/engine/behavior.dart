@@ -20,7 +20,7 @@ class BehaviorSystem extends System<Behavior> {
   int get priority => 500;
 
   @override
-  void update(double ds, List<Behavior> components) {
+  void update(double ds) {
     for (var behavior in components) {
       if (!behavior._started) {
         behavior.start();

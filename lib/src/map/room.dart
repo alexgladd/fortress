@@ -33,6 +33,15 @@ class Room {
   const Room(this.bounds);
 
   @override
+  bool operator ==(Object other) {
+    if (other is Room) return bounds == other.bounds;
+    return false;
+  }
+
+  @override
+  int get hashCode => bounds.hashCode;
+
+  @override
   String toString() => 'room($position, $size)';
 }
 

@@ -26,13 +26,19 @@ class DirtySignalSystem extends System<DirtySignal> {
   DirtySignalSystem(this._layer);
 
   @override
-  void update(double ds, List<DirtySignal> components) {
-    if (components.any((d) {
-      if (d.isDirty) {
-        d._dirty = false;
-        return true;
+  void update(double ds) {
+    for (var c in components) {
+      if (c.isDirty) {
+        c._dirty = false;
+        _layer.dirty();
       }
-      return false;
-    })) _layer.dirty();
+    }
+    // if (components.any((d) {
+    //   if (d.isDirty) {
+    //     d._dirty = false;
+    //     return true;
+    //   }
+    //   return false;
+    // })) _layer.dirty();
   }
 }

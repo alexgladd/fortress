@@ -42,7 +42,7 @@ class InputSystem<T extends InputBase> extends System<InputHandler<T>> {
   }
 
   @override
-  void update(double ds, List<InputHandler<T>> components) {
+  void update(double ds) {
     for (var c in components) {
       c._setInputs(_inputs);
     }

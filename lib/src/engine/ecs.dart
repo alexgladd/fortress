@@ -3,12 +3,12 @@ import 'dart:collection';
 import 'game_object.dart';
 
 /// An Entity Component System (ECS) implementation. Manages sets of [Entity]s,
-/// [Component]s, and [System]s and provides methods that supports interation
+/// [Component]s, and [System]s and provides methods that supports interaction
 /// between them.
 class EntityComponentSystem {
   final _entities = HashMap<int, Entity>();
-  final _componentsByType = HashMap<Type, Set<Component>>();
-  final _systemsByType = HashMap<Type, System>();
+  final _components = HashSet<Component>();
+  final _systems = <System>{};
 
   var _sortedSystems = <System>[];
 
@@ -16,13 +16,7 @@ class EntityComponentSystem {
   List<Entity> get entities => _entities.values.toList(growable: false);
 
   /// Fixed length [List] of all [Component]s currently active in the ECS
-  List<Component> get components {
-    var comps = <Component>[];
-    for (var compSet in _componentsByType.values) {
-      comps.addAll(compSet);
-    }
-    return comps.toList(growable: false);
-  }
+  List<Component> get components => _components.toList(growable: false);
 
   /// Get the [Entity] with the given [id], if it exists
   Entity? entity(int id) => _entities[id];
@@ -38,18 +32,8 @@ class EntityComponentSystem {
 
   /// Fixed length [List] of all [Component]s that implement the given
   /// [system]'s [System.componentType] active in the ECS.
-  List<Component> systemComponents(System system) {
-    return system._filterComponents(components);
-  }
-
-  /// Fixed length [List] of all [Component]s of *runtime* type [T] currently
-  /// active in the ECS
-  List<T> runtimeTypeComponents<T extends Component>() {
-    var comps = <T>[];
-    var compSet = _componentsByType[T];
-    if (compSet != null) comps.addAll(compSet as Iterable<T>);
-    return comps.toList(growable: false);
-  }
+  List<Component> systemComponents(System system) =>
+      system.components.toList(growable: false);
 
   /// Update the ECS. This should be called once per frame and [ds] should be
   /// the number of (fractional) seconds elapsed since the last call to
@@ -62,10 +46,7 @@ class EntityComponentSystem {
   /// will process both Foo and Bar components.
   void update(double ds) {
     for (var system in _sortedSystems) {
-      var systemComponents = system._filterComponents(components);
-      if (systemComponents.isNotEmpty) {
-        system.update(ds, systemComponents);
-      }
+      if (system.components.isNotEmpty) system.update(ds);
     }
   }
 
@@ -74,11 +55,12 @@ class EntityComponentSystem {
   void add(Object entityOrSystem) {
     if (entityOrSystem is Entity) return addEntity(entityOrSystem);
     if (entityOrSystem is System) return addSystem(entityOrSystem);
-    throw ArgumentError.value(
-        entityOrSystem, 'o', 'ECS.add only accepts Entities and Systems');
+    throw ArgumentError.value(entityOrSystem, 'entityOrSystem',
+        'ECS.add only accepts Entities and Systems');
   }
 
-  /// Add an [Entity] to the ECS
+  /// Add the [entity] to the ECS. Throws a [StateError] if the ECS already has
+  /// the [entity].
   void addEntity(Entity entity) {
     // no duplicates
     if (_entities.containsKey(entity.id)) {
@@ -95,25 +77,34 @@ class EntityComponentSystem {
     }
   }
 
-  /// Adds a [System] to the ECS
+  /// Adds the [system] to the ECS. Throws a [StateError] if the ECS already has
+  /// a [System] of the same type.
   void addSystem(System system) {
-    system._bind(this);
-    _systemsByType[system.componentType] = system;
-    _updateSortedSystems();
+    if (_systems.add(system)) {
+      system._bind(this);
+      _updateSortedSystems();
+
+      // seed with any matching components
+      for (var component in _components) {
+        if (system._accepts(component)) system._addComponent(component);
+      }
+    } else {
+      throw StateError('ECS already contains $system');
+    }
   }
 
-  /// Add a [Component] to the ECS. This should only be called internally.
+  /// Add the given [component] to the ECS. This should only be called
+  /// internally.
   void _addComponent(Component component) {
-    var compSet = _componentsByType[component.runtimeType];
-    if (compSet == null) {
-      _componentsByType[component.runtimeType] = <Component>{};
-      compSet = _componentsByType[component.runtimeType];
-    }
-
-    if (!compSet!.add(component)) {
-      throw StateError('ECS already contains $component');
-    } else {
+    if (_components.add(component)) {
       component._bind(this);
+
+      // add to relevant system(s)
+      for (var system in _systems) {
+        if (system._accepts(component)) system._addComponent(component);
+      }
+    } else {
+      throw StateError('ECS already contains $component');
     }
   }
 
@@ -122,11 +113,12 @@ class EntityComponentSystem {
   void remove(Object entityOrSystem) {
     if (entityOrSystem is Entity) return removeEntity(entityOrSystem);
     if (entityOrSystem is System) return removeSystem(entityOrSystem);
-    throw ArgumentError.value(
-        entityOrSystem, 'o', 'ECS.remove only accepts Entities and Systems');
+    throw ArgumentError.value(entityOrSystem, 'entityOrSystem',
+        'ECS.remove only accepts Entities and Systems');
   }
 
-  /// Remove an [Entity] from the ECS
+  /// Remove the [entity] from the ECS. Throws a [StateError] if the ECS does
+  /// not have the [entity].
   void removeEntity(Entity entity) {
     // error check
     if (!_entities.containsKey(entity.id)) {
@@ -143,32 +135,33 @@ class EntityComponentSystem {
     entity._unbind();
   }
 
-  /// Remove a [System] from the ECS
+  /// Remove the [system] from the ECS. Throws a [StateError] if the ECS does
+  /// not have the [system].
   void removeSystem(System system) {
-    if (_systemsByType.remove(system.componentType) != null) {
-      _updateSortedSystems();
+    if (_systems.remove(system)) {
       system._unbind();
+      _updateSortedSystems();
+    } else {
+      throw StateError('ECS does not contain $system');
     }
   }
 
   /// Remove a [Component] from the ECS. This should only be called internally.
   void _removeComponent(Component component) {
-    var compSet = _componentsByType[component.runtimeType];
-
-    if (compSet == null) {
-      throw StateError(
-          'ECS has no tracking for Component type ${component.runtimeType}');
-    }
-
-    if (!compSet.remove(component)) {
-      throw StateError("ECS doesn't contain $component");
-    } else {
+    if (_components.remove(component)) {
       component._unbind();
+
+      // remove from relevant systems
+      for (var system in _systems) {
+        if (system._accepts(component)) system._removeComponent(component);
+      }
+    } else {
+      throw StateError('ECS does not contain $component');
     }
   }
 
   void _updateSortedSystems() {
-    _sortedSystems = _systemsByType.values.toList(growable: false)
+    _sortedSystems = _systems.toList(growable: false)
       ..sort((a, b) => a.priority.compareTo(b.priority));
   }
 }
@@ -337,6 +330,8 @@ abstract class Component with EcsBindable {
 /// a set of [Component]s of type [T]. Note that the ECS respects the type
 /// hierarchy when processing systems.
 abstract class System<T extends Component> with EcsBindable {
+  final _components = <T>{};
+
   /// The type of [Component] that this [System] operates on
   Type get componentType => T;
 
@@ -347,31 +342,49 @@ abstract class System<T extends Component> with EcsBindable {
   /// priorities.
   int get priority => 0;
 
-  /// Update the given [components]. This is generally called once per frame.
+  /// The set of [Component]s of type [T] (or descendants) that the [System]
+  /// operates on.
+  Set<T> get components => _components;
+
+  /// Update the [System]; usually this entails performing some operation on the
+  /// [System]'s set of [components]. This is generally called once per frame.
   /// The provided [ds] value is the number of (fractional) seconds since the
   /// last call to [update].
-  ///
-  /// Note that the ECS respects the [Component] type hierarchy when processing
-  /// [System]s. Consider the hierarchy Component -> Foo -> Bar. A System\<Foo\>
-  /// will process both Foo and Bar components.
-  void update(double ds, List<T> components);
+  void update(double ds);
 
-  /// Filters the given [components] down to only those
-  List<T> _filterComponents(List<Component> components) {
-    return components
-        .where((c) => _tryCast(c) != null)
-        .toList(growable: false)
-        .cast<T>();
+  @override
+  bool operator ==(Object other) {
+    if (other is System) return componentType == other.componentType;
+    return false;
   }
 
-  /// Attempts to cast the [component] to the [System]'s component type. Returns
-  /// null if the cast does not succeed.
-  T? _tryCast(Component component) {
+  @override
+  int get hashCode => componentType.hashCode;
+
+  @override
+  String toString() => 'System($componentType)';
+
+  @override
+  void _unbind() {
+    super._unbind();
+    _components.clear();
+  }
+
+  /// Add the given [component] to the system's component list
+  void _addComponent(T component) => _components.add(component);
+
+  /// Remove the given [component] from the system's component list
+  void _removeComponent(T component) => _components.remove(component);
+
+  /// Returns true if the system can process the given [component]. I.e., if the
+  /// [component] is of type [T] or a descendant.
+  bool _accepts(Component component) {
     try {
-      var typeComp = component as T;
-      return typeComp;
+      // ignore: unused_local_variable
+      var typeCast = component as T;
+      return true;
     } catch (_) {
-      return null;
+      return false;
     }
   }
 }

@@ -154,6 +154,8 @@ class Minigame extends GameLayer<Input> {
     hero.dirty();
     dialogPosition = Vec2.zero;
 
+    level.monsters.forEach(add);
+
     game.log.msg('You enter level ${game.dungeonLevel}; the staircase crumbles '
         'behind you');
 
@@ -168,7 +170,8 @@ class Minigame extends GameLayer<Input> {
   }
 
   void _renderMap(Terminal t) {
-    for (var pos in clippingRect.getPoints()) {
+    var clipRect = clippingRect;
+    for (var pos in clipRect.getPoints()) {
       Char c;
       if (pos == game.level!.endPosition) {
         c = Char(CharCode.blackDownPointingTriangle, Color.yellow);
@@ -178,7 +181,7 @@ class Minigame extends GameLayer<Input> {
         c = Char(CharCode.fullBlock, background[pos]);
       }
 
-      t.drawChar(pos.x - clippingRect.x, pos.y - clippingRect.y, c);
+      t.drawChar(pos.x - clipRect.x, pos.y - clipRect.y, c);
     }
   }
 

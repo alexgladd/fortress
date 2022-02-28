@@ -21,7 +21,7 @@ class CharRenderingSystem extends System<CharRenderer> {
   int get priority => 1000;
 
   @override
-  void update(double ds, List<CharRenderer> components) {
+  void update(double ds) {
     _renderList.clear();
 
     for (var c in components) {

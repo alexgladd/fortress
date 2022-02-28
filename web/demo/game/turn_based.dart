@@ -4,16 +4,16 @@ import 'action.dart';
 
 /// Base controller component for a turn-based entity
 abstract class TurnController extends Component {
-  int _initiative;
-
   /// Amount of initiative required to take an action during a turn
-  int get initiativeRequired => 100;
+  static const initiativeForAction = 100;
+
+  int _initiative;
 
   /// Amount of initiative gained per idle turn
   int get initiativePerTurn => 10;
 
   /// True if there is enough accumulated initiative to take a turn
-  bool get canTakeTurn => _initiative >= initiativeRequired;
+  bool get canTakeAction => _initiative >= initiativeForAction;
 
   /// Create a turn controller with the given starting [initiative]
   TurnController([int initiative = 0]) : _initiative = initiative;
@@ -26,7 +26,7 @@ abstract class TurnController extends Component {
     var action = getTurnAction();
     if (action == null) return null;
 
-    _initiative -= initiativeRequired;
+    _initiative -= initiativeForAction;
     return action;
   }
 
@@ -42,12 +42,12 @@ abstract class TurnBasedObject extends GameObject {
   /// The number of turns it takes for this object to be able to take an action
   /// (lower is better)
   double get turnsPerAction =>
-      turnController.initiativeRequired / turnController.initiativePerTurn;
+      TurnController.initiativeForAction / turnController.initiativePerTurn;
 
   /// The number of actions per turn (generally between 0.0 and 1.0). This can
   /// be used to show a normalized "speed" value.
   double get actionsPerTurn =>
-      turnController.initiativePerTurn / turnController.initiativeRequired;
+      turnController.initiativePerTurn / TurnController.initiativeForAction;
 
   TurnBasedObject(this.turnController) {
     add(turnController);
@@ -74,15 +74,17 @@ class TurnBasedSystem extends System<TurnController> {
       : _controlledActor = controlledActor;
 
   @override
-  void update(double ds, List<TurnController> components) {
+  void update(double ds) {
+    var compList = components.toList(growable: false);
+
     // let the AI process their turns
-    while (!_controlledActor.turnController.canTakeTurn) {
-      _runTurn(components);
+    while (!_controlledActor.turnController.canTakeAction) {
+      _runTurn(compList);
     }
 
     // only proceed if human-controlled actor is ready
     if (_controlledActor.turnController.getTurnAction() != null) {
-      _runTurn(components);
+      _runTurn(compList);
     }
   }
 
@@ -97,7 +99,7 @@ class TurnBasedSystem extends System<TurnController> {
   }
 
   void _processComponent(TurnController tc) {
-    if (tc.canTakeTurn) {
+    if (tc.canTakeAction) {
       var action = tc.takeTurn();
       if (action != null) action.perform(tc.gameObject);
     } else {
