@@ -16,13 +16,18 @@ class Breed {
       symbol: 'r',
       attackVerb: 'bites',
       color: Color.gray,
-      health: MinMax(5, 10));
+      health: MinMax(5, 10),
+      speed: MinMax(25, 34),
+      disposition: Disposition.defensive);
 
   final String name;
   final String symbol;
   final String attackVerb;
   final Color color;
   final MinMax health;
+  final MinMax speed;
+  final LocationAffinity affinity;
+  final Disposition disposition;
 
   const Breed({
     this.name = 'Unknown Breed',
@@ -30,10 +35,16 @@ class Breed {
     this.attackVerb = 'attacks',
     this.color = Color.white,
     this.health = const MinMax(100, 100),
+    this.speed = const MinMax(0, 100),
+    this.affinity = LocationAffinity.none,
+    this.disposition = Disposition.passive,
   });
 
   Monster create() {
     return Monster(
-        this, AiController(), rng.rangeInclusive(health.min, health.max));
+        this,
+        AiController(
+            affinity, disposition, rng.rangeInclusive(speed.min, speed.max)),
+        rng.rangeInclusive(health.min, health.max));
   }
 }
