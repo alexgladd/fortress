@@ -9,10 +9,24 @@ import 'game.dart';
 import 'turn_based.dart';
 
 class Hero extends Actor {
-  Hero() : super(HeroController()) {
+  Hero()
+      : super(HeroController(),
+            maxHealth: 100, attack: 5, accuracy: 2, dodge: 2, defense: 2) {
     add(InputHandler<Input>());
     renderer.set(char: '@', foreground: Color.gold);
   }
+
+  @override
+  String get subject => 'You';
+
+  @override
+  String get attackVerb => 'attack';
+
+  @override
+  String get missVerb => 'miss';
+
+  @override
+  String toString() => 'Hero($id)';
 }
 
 /// Input-driven turn-based controller for the [Hero]
@@ -50,12 +64,16 @@ class HeroController extends TurnController {
   }
 
   Action? _tryDirection(Direction dir) {
-    var position = gameObject.position + dir;
+    final position = gameObject.position + dir;
 
-    // TODO: check if there is something to attack or interact with
+    // check if there is something to attack
+    final monster = game.getMonsterAt(position);
+    if (monster != null) return AttackAction(monster);
+
+    // TODO: check if there is somthing to interact with
 
     // check if we can move
-    if (game.level!.map[position].isOpen) return MoveAction(dir);
+    if (game.level.map[position].isOpen) return MoveAction(dir);
 
     return null;
   }

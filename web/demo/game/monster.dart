@@ -9,4 +9,13 @@ class Monster extends Actor {
       : super(ai, maxHealth: maxHealth) {
     renderer.set(char: breed.symbol, foreground: breed.color);
   }
+
+  @override
+  String get subject => 'The ${breed.name.toLowerCase()}';
+
+  @override
+  String get attackVerb => breed.attackVerb;
+
+  @override
+  String toString() => 'Monster($id)';
 }

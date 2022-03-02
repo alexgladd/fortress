@@ -38,12 +38,12 @@ class Minigame extends GameLayer<Input> {
 
   @override
   Rect get clippingRect {
-    if (game.level == null) return ui.renderRect;
+    if (!game.hasLevel) return ui.renderRect;
 
     var clip = gameViewport.centerOn(hero.position);
 
     // ensure it's contained in the level
-    return game.level!.map.bounds.contain(clip);
+    return game.level.map.bounds.contain(clip);
   }
 
   @override
@@ -51,6 +51,7 @@ class Minigame extends GameLayer<Input> {
     super.start();
 
     game.reset();
+    game.hero = hero;
 
     addSystem(TurnBasedSystem(hero));
 
@@ -68,9 +69,9 @@ class Minigame extends GameLayer<Input> {
     if (hero.position != dialogPosition) dialogPosition = Vec2.zero;
 
     if (!dialogOpen &&
-        game.level != null &&
+        game.hasLevel &&
         hero.position != dialogPosition &&
-        hero.position == game.level!.endPosition) {
+        hero.position == game.level.endPosition) {
       dialogOpen = true;
       dialogPosition = hero.position;
       ui.push(levelChangeDialog);
@@ -90,7 +91,7 @@ class Minigame extends GameLayer<Input> {
     helpTerm.drawText(0, 0, _help, Color.gray);
 
     var viewportTerm = rTerm.childRect(gameViewport);
-    if (game.level != null) _renderMap(viewportTerm);
+    if (game.hasLevel) _renderMap(viewportTerm);
 
     super.render(viewportTerm);
   }
@@ -173,9 +174,9 @@ class Minigame extends GameLayer<Input> {
     var clipRect = clippingRect;
     for (var pos in clipRect.getPoints()) {
       Char c;
-      if (pos == game.level!.endPosition) {
+      if (pos == game.level.endPosition) {
         c = Char(CharCode.blackDownPointingTriangle, Color.yellow);
-      } else if (game.level!.map[pos].isOpen) {
+      } else if (game.level.map[pos].isOpen) {
         c = Char(CharCode.period, Color.darkGray);
       } else {
         c = Char(CharCode.fullBlock, background[pos]);

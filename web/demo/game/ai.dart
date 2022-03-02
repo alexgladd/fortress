@@ -60,7 +60,7 @@ class AiController extends TurnController {
     // TODO: process affinity
     var dir = rng.item(Direction.cardinals);
 
-    if (game.level!.map[gameObject.position + dir].isOpen) {
+    if (game.level.map[gameObject.position + dir].isOpen) {
       gameObject.dirty();
       return MoveAction(dir);
     }

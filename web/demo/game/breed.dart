@@ -5,8 +5,11 @@ import 'ai.dart';
 import 'monster.dart';
 
 class MinMax extends Tuple2<int, int> {
+  static const zero = MinMax(0, 0);
+
   int get min => first;
   int get max => second;
+  const MinMax.fixed(int value) : super(value, value);
   const MinMax(int min, int max) : super(min, max);
 }
 
@@ -26,6 +29,10 @@ class Breed {
   final Color color;
   final MinMax health;
   final MinMax speed;
+  final MinMax attack;
+  final MinMax defense;
+  final MinMax accuracy;
+  final MinMax dodge;
   final LocationAffinity affinity;
   final Disposition disposition;
 
@@ -34,8 +41,12 @@ class Breed {
     this.symbol = '?',
     this.attackVerb = 'attacks',
     this.color = Color.white,
-    this.health = const MinMax(100, 100),
-    this.speed = const MinMax(0, 100),
+    this.health = const MinMax.fixed(100),
+    this.speed = const MinMax.fixed(10),
+    this.attack = const MinMax.fixed(1),
+    this.defense = MinMax.zero,
+    this.accuracy = MinMax.zero,
+    this.dodge = MinMax.zero,
     this.affinity = LocationAffinity.none,
     this.disposition = Disposition.passive,
   });

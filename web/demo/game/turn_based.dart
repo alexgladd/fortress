@@ -21,7 +21,7 @@ abstract class TurnController extends Component {
   /// Perform no action this turn; accumulate [initiativePerTurn] initiative
   void idleTurn() => _initiative += initiativePerTurn;
 
-  /// Spends [initiativeRequired] initiative to take an [Action] this turn
+  /// Spends [initiativeForAction] initiative to take an [Action] this turn
   Action? takeTurn() {
     var action = getTurnAction();
     if (action == null) return null;
