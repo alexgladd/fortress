@@ -55,8 +55,6 @@ abstract class TurnBasedObject extends GameObject {
 }
 
 /// Process turn-based entities. Default [System.priority] is 200.
-///
-/// Component order is shuffled each turn step.
 class TurnBasedSystem extends System<TurnController> {
   final TurnBasedObject _controlledActor;
 
@@ -90,9 +88,7 @@ class TurnBasedSystem extends System<TurnController> {
 
   void _runTurn(List<TurnController> tcs) {
     _turn++;
-    // print('TURN SYS turn $turn');
 
-    tcs.shuffle();
     for (var tc in tcs) {
       _processComponent(tc);
     }
