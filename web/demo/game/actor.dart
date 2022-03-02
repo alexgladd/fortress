@@ -15,9 +15,9 @@ class Health extends Component {
 
   Health(this.current, this.max);
 
-  void heal(int amount) => current += amount;
+  void heal(int amount) => current = (current + amount).clamp(current, max);
 
-  void damage(int amount) => current -= amount;
+  void damage(int amount) => current = (current - amount).clamp(0, max);
 }
 
 /// An game object that takes turn-based actions with health
@@ -65,6 +65,36 @@ abstract class Actor extends TurnBasedObject {
     add(this.health);
   }
 
+  /// Called when the actor is dying; just before it gets removed from the ECS
+  void onDeath() {
+    if (lastAttacker != null) {
+      game.log.combat('${lastAttacker!.subject} kill ${subject.toLowerCase()}');
+    } else {
+      game.log.combat('$subject dies');
+    }
+  }
+
   @override
   String toString() => 'Actor($id)';
+}
+
+/// Collects dead [Actor]s. Default [System.priority] of 5000.
+class ActorDeathSystem extends System<Health> {
+  final _dead = <Actor>[];
+
+  @override
+  int get priority => 5000;
+
+  List<Actor> get deadActors => _dead;
+
+  @override
+  void update(double ds) {
+    _dead.clear();
+
+    for (var health in components) {
+      if (health.isDead && health.gameObject is Actor) {
+        _dead.add(health.gameObject as Actor);
+      }
+    }
+  }
 }

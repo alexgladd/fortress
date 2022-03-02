@@ -21,7 +21,8 @@ class Breed {
       color: Color.gray,
       health: MinMax(5, 10),
       speed: MinMax(25, 34),
-      disposition: Disposition.defensive);
+      disposition: Disposition.defensive,
+      intelligence: Intelligence.medium);
 
   final String name;
   final String symbol;
@@ -35,6 +36,7 @@ class Breed {
   final MinMax dodge;
   final LocationAffinity affinity;
   final Disposition disposition;
+  final Intelligence intelligence;
 
   const Breed({
     this.name = 'Unknown Breed',
@@ -49,13 +51,14 @@ class Breed {
     this.dodge = MinMax.zero,
     this.affinity = LocationAffinity.none,
     this.disposition = Disposition.passive,
+    this.intelligence = Intelligence.low,
   });
 
   Monster create() {
     return Monster(
         this,
-        AiController(
-            affinity, disposition, rng.rangeInclusive(speed.min, speed.max)),
+        AiController(affinity, disposition, intelligence,
+            rng.rangeInclusive(speed.min, speed.max)),
         rng.rangeInclusive(health.min, health.max));
   }
 }

@@ -2,6 +2,7 @@ import 'package:fortress/engine.dart';
 import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
 
+import 'game/actor.dart';
 import 'game/dialogs.dart';
 import 'game/game.dart';
 import 'game/hero.dart';
@@ -19,6 +20,7 @@ class Minigame extends GameLayer<Input> {
   static const bottomPanelHeight = 8;
 
   final hero = Hero();
+  final deadSystem = ActorDeathSystem();
   late final Array2<Color> background;
   late StatsPanel statsPanel;
   late LogPanel logPanel;
@@ -54,6 +56,7 @@ class Minigame extends GameLayer<Input> {
     game.hero = hero;
 
     addSystem(TurnBasedSystem(hero));
+    addSystem(deadSystem);
 
     add(hero);
     hero.position = Vec2(-1, -1);
@@ -76,6 +79,19 @@ class Minigame extends GameLayer<Input> {
       dialogPosition = hero.position;
       ui.push(levelChangeDialog);
     }
+
+    for (var actor in deadSystem.deadActors) {
+      actor.onDeath();
+
+      if (actor == hero) {
+        // TODO: handle game over state
+      } else {
+        ecs.remove(actor);
+        game.monsters.remove(actor);
+      }
+    }
+
+    if (deadSystem.deadActors.isNotEmpty) dirty();
   }
 
   @override

@@ -26,6 +26,15 @@ class Hero extends Actor {
   String get missVerb => 'miss';
 
   @override
+  void onDeath() {
+    if (lastAttacker != null) {
+      game.log.combat('$subject were killed by ${lastAttacker!.subject}');
+    } else {
+      game.log.combat('$subject died');
+    }
+  }
+
+  @override
   String toString() => 'Hero($id)';
 }
 
@@ -51,16 +60,12 @@ class HeroController extends TurnController {
   }
 
   Action? _handleDirections(InputHandler<Input> inputs) {
-    Action? action;
+    if (inputs.has(Input.n)) return _tryDirection(Direction.n);
+    if (inputs.has(Input.e)) return _tryDirection(Direction.e);
+    if (inputs.has(Input.s)) return _tryDirection(Direction.s);
+    if (inputs.has(Input.w)) return _tryDirection(Direction.w);
 
-    if (inputs.has(Input.n)) action = _tryDirection(Direction.n);
-    if (inputs.has(Input.e)) action = _tryDirection(Direction.e);
-    if (inputs.has(Input.s)) action = _tryDirection(Direction.s);
-    if (inputs.has(Input.w)) action = _tryDirection(Direction.w);
-
-    if (action != null) gameObject.dirty();
-
-    return action;
+    return null;
   }
 
   Action? _tryDirection(Direction dir) {

@@ -34,18 +34,28 @@ enum Disposition {
   crazed,
 }
 
+/// How an AI makes decisions
+enum Intelligence {
+  low,
+  medium,
+  high,
+}
+
 class AiController extends TurnController {
   final LocationAffinity _affinity;
   final Disposition _disposition;
+  final Intelligence _intelligence;
   final int _speed;
 
   @override
   int get initiativePerTurn => _speed;
 
-  AiController(LocationAffinity affinity, Disposition disposition, int speed,
+  AiController(LocationAffinity affinity, Disposition disposition,
+      Intelligence intelligence, int speed,
       [int? startInitiative])
       : _affinity = affinity,
         _disposition = disposition,
+        _intelligence = intelligence,
         _speed = speed,
         super(startInitiative ??
             rng.range(0, TurnController.initiativeForAction));
@@ -58,11 +68,23 @@ class AiController extends TurnController {
 
   Action? _getMove() {
     // TODO: process affinity
-    var dir = rng.item(Direction.cardinals);
 
-    if (game.level.map[gameObject.position + dir].isOpen) {
-      gameObject.dirty();
-      return MoveAction(dir);
+    var possibleDirs = Direction.cardinals.toList();
+    var attempts = 1;
+    if (_intelligence == Intelligence.medium) attempts = 2;
+    if (_intelligence == Intelligence.high) attempts = 4;
+
+    for (var i = 0; i < attempts; i++) {
+      var dir = rng.item(possibleDirs);
+      possibleDirs.remove(dir);
+
+      var testPos = gameObject.position + dir;
+
+      if (game.level.map[testPos].isOpen &&
+          game.getMonsterAt(testPos) == null &&
+          game.hero.position != testPos) {
+        return MoveAction(dir);
+      }
     }
 
     return null;

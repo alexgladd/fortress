@@ -37,6 +37,7 @@ class MoveAction extends Action {
   @override
   void perform(GameObject gameObject) {
     gameObject.position += dir;
+    gameObject.dirty();
   }
 }
 
@@ -87,7 +88,8 @@ class AttackAction extends ActorAction {
 
     target.health.damage(damage);
 
-    print('ATTACK HIT $attacker -> $target for $damage [hit: $hit, dodge: '
+    print('ATTACK HIT $attacker -> $target for $damage '
+        '(${target.health.current}hp) [hit: $hit, dodge: '
         '${dodge ?? 'none'}, atk: $atkPower, def: $defPower');
 
     game.log.combat('${attacker.subject} ${attacker.attackVerb} '
@@ -95,8 +97,8 @@ class AttackAction extends ActorAction {
   }
 
   void _attackMiss(Actor attacker, int hit, [int? dodge]) {
-    print('ATTACK MISS $attacker -> $target [hit: $hit, dodge: '
-        '${dodge ?? 'none'}]');
+    print('ATTACK MISS $attacker -> $target (${target.health.current}hp) '
+        '[hit: $hit, dodge: ${dodge ?? 'none'}]');
 
     game.log.combat('${attacker.subject} ${attacker.missVerb} '
         '${target.subject.toLowerCase()}');
