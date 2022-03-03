@@ -19,8 +19,8 @@ class Breed {
       symbol: 'r',
       attackVerb: 'bites',
       color: Color.gray,
-      health: MinMax(5, 10),
-      speed: MinMax(25, 34),
+      health: MinMax(2, 4),
+      speed: MinMax(25, 25),
       disposition: Disposition.defensive,
       intelligence: Intelligence.medium);
 

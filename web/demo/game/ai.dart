@@ -1,6 +1,7 @@
 import 'package:fortress/util.dart';
 
 import 'action.dart';
+import 'actor.dart';
 import 'game.dart';
 import 'turn_based.dart';
 
@@ -50,6 +51,9 @@ class AiController extends TurnController {
   @override
   int get initiativePerTurn => _speed;
 
+  /// AI should always be attached to an [Actor]
+  Actor get actor => gameObject as Actor;
+
   AiController(LocationAffinity affinity, Disposition disposition,
       Intelligence intelligence, int speed,
       [int? startInitiative])
@@ -59,8 +63,13 @@ class AiController extends TurnController {
         _speed = speed,
         super(startInitiative ??
             rng.range(0, TurnController.initiativeForAction));
+
+  /// Get the AI's [Action]. This should never return null.
   @override
   Action? getTurnAction() {
+    // no action if dead
+    if (actor.health.isDead) return NoAction();
+
     // TODO: process disposition
 
     return _getMove();
@@ -87,6 +96,6 @@ class AiController extends TurnController {
       }
     }
 
-    return null;
+    return NoAction();
   }
 }

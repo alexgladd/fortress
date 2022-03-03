@@ -10,6 +10,9 @@ import 'game.dart';
 abstract class Action {
   /// Perform the action on the given [gameObject]
   void perform(GameObject gameObject);
+
+  @override
+  String toString() => runtimeType.toString();
 }
 
 /// An action that expects to be [perform]ed on an [Actor]
@@ -26,6 +29,14 @@ abstract class ActorAction extends Action {
       throw StateError('ActorAction cannot perform on non-Actors: $gameObject');
     }
   }
+}
+
+/// An action that does nothing. Use when something should use their initiative
+/// but take no action (e.g., a less intelligent creature that can't decide
+/// what to do).
+class NoAction extends Action {
+  @override
+  void perform(GameObject gameObject) {}
 }
 
 /// An action that moves a [GameObject] in one [Direction]

@@ -55,7 +55,7 @@ class Minigame extends GameLayer<Input> {
     game.reset();
     game.hero = hero;
 
-    addSystem(TurnBasedSystem(hero));
+    addSystem(TurnBasedSystem());
     addSystem(deadSystem);
 
     add(hero);

@@ -170,6 +170,9 @@ class EntityComponentSystem {
 mixin EcsBindable {
   EntityComponentSystem? _ecs;
 
+  /// True if currently bound to an ECS
+  bool get isBound => _ecs != null;
+
   /// Reference to the bound [EntityComponentSystem]. Will throw a [StateError]
   /// if there is no bound ECS.
   EntityComponentSystem get ecs {

@@ -48,7 +48,7 @@ class HeroController extends TurnController {
   /// Get the attached entity as a [Hero]
   Hero get hero => gameObject as Hero;
 
-  HeroController() : super(100);
+  HeroController() : super(TurnController.initiativeForAction);
 
   @override
   Action? getTurnAction() {

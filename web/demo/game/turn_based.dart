@@ -21,8 +21,13 @@ abstract class TurnController extends Component {
   /// Perform no action this turn; accumulate [initiativePerTurn] initiative
   void idleTurn() => _initiative += initiativePerTurn;
 
-  /// Spends [initiativeForAction] initiative to take an [Action] this turn
-  Action? takeTurn() {
+  /// Spends [initiativeForAction] initiative to take an [Action] this turn if
+  /// the attached entity is ready
+  Action? takeAction() {
+    if (!canTakeAction) {
+      throw StateError('$this is not able to take an action yet');
+    }
+
     var action = getTurnAction();
     if (action == null) return null;
 
@@ -30,7 +35,9 @@ abstract class TurnController extends Component {
     return action;
   }
 
-  /// Get the [Action] to perform this turn
+  /// Get the [Action] to perform this turn. Returning null signals that the
+  /// attached [Entity] is not yet ready to perform its action this turn. Use
+  /// [NoAction] to consume initiative but effectively skip a turn.
   Action? getTurnAction();
 }
 
@@ -56,7 +63,7 @@ abstract class TurnBasedObject extends GameObject {
 
 /// Process turn-based entities. Default [System.priority] is 200.
 class TurnBasedSystem extends System<TurnController> {
-  final TurnBasedObject _controlledActor;
+  final turnPending = <TurnController>[];
 
   int _turn = 0;
 
@@ -66,40 +73,48 @@ class TurnBasedSystem extends System<TurnController> {
   @override
   int get priority => 200;
 
-  /// Create a new turn-based system that monitors the given [controlledActor],
-  /// which is usually the main human-controlled actor in the game
-  TurnBasedSystem(TurnBasedObject controlledActor)
-      : _controlledActor = controlledActor;
-
   @override
   void update(double ds) {
-    var compList = components.toList(growable: false);
+    // shortcut: nothing to do if there are no components in the ECS
+    if (components.isEmpty) return;
 
-    // let the AI process their turns
-    while (!_controlledActor.turnController.canTakeAction) {
-      _runTurn(compList);
+    // check if we've finished a turn
+    if (turnPending.isEmpty) {
+      _turn++;
+      // print('TURN SYS starting turn $turn');
+      turnPending.addAll(components);
     }
 
-    // only proceed if human-controlled actor is ready
-    if (_controlledActor.turnController.getTurnAction() != null) {
-      _runTurn(compList);
+    var finished = <TurnController>[];
+
+    for (var tc in turnPending) {
+      if (_processComponent(tc)) {
+        finished.add(tc);
+      } else {
+        break;
+      }
     }
+
+    finished.forEach(turnPending.remove);
   }
 
-  void _runTurn(List<TurnController> tcs) {
-    _turn++;
+  /// Returns true if the controller successfully processed the turn
+  bool _processComponent(TurnController tc) {
+    // safety check since we're caching turn controller components
+    if (!tc.isBound) return true;
 
-    for (var tc in tcs) {
-      _processComponent(tc);
-    }
-  }
-
-  void _processComponent(TurnController tc) {
     if (tc.canTakeAction) {
-      var action = tc.takeTurn();
-      if (action != null) action.perform(tc.gameObject);
+      var action = tc.takeAction();
+      if (action != null) {
+        // print('TURN SYS ${tc.gameObject} performing $action');
+        action.perform(tc.gameObject);
+        return true;
+      } else {
+        return false;
+      }
     } else {
       tc.idleTurn();
+      return true;
     }
   }
 }
