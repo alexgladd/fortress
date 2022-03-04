@@ -2,6 +2,7 @@ import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
 
 import 'ai.dart';
+import 'combat.dart';
 import 'monster.dart';
 
 class MinMax extends Tuple2<int, int> {
@@ -9,20 +10,36 @@ class MinMax extends Tuple2<int, int> {
 
   int get min => first;
   int get max => second;
+  int get value => rng.rangeInclusive(min, max);
+
   const MinMax.fixed(int value) : super(value, value);
   const MinMax(int min, int max) : super(min, max);
 }
 
 class Breed {
   static const rat = Breed(
-      name: 'Rat',
-      symbol: 'r',
-      attackVerb: 'bites',
-      color: Color.gray,
-      health: MinMax(2, 4),
-      speed: MinMax(25, 25),
-      disposition: Disposition.defensive,
-      intelligence: Intelligence.medium);
+    name: 'Rat',
+    symbol: 'r',
+    attackVerb: 'bites',
+    color: Color.gray,
+    health: MinMax(2, 4),
+    speed: MinMax(25, 34),
+    dodge: MinMax(-4, -2),
+    disposition: Disposition.defensive,
+    intelligence: Intelligence.medium,
+  );
+
+  static const zombie = Breed(
+    name: 'Zombie',
+    symbol: 'z',
+    attackVerb: 'bites',
+    color: Color.green,
+    health: MinMax(4, 6),
+    speed: MinMax.fixed(10),
+    dodge: MinMax(-10, -8),
+    disposition: Disposition.aggressive,
+    intelligence: Intelligence.low,
+  );
 
   final String name;
   final String symbol;
@@ -57,8 +74,12 @@ class Breed {
   Monster create() {
     return Monster(
         this,
-        AiController(affinity, disposition, intelligence,
-            rng.rangeInclusive(speed.min, speed.max)),
-        rng.rangeInclusive(health.min, health.max));
+        AiController(affinity, disposition, intelligence, speed.value),
+        health.value,
+        CombatStats(
+            attack: attack.value,
+            defense: defense.value,
+            accuracy: accuracy.value,
+            dodge: dodge.value));
   }
 }

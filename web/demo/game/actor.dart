@@ -52,15 +52,9 @@ abstract class Actor extends TurnBasedObject {
   String get missVerb => 'misses';
 
   Actor(TurnController turnController,
-      {int? health,
-      int maxHealth = 100,
-      int? attack,
-      int? defense,
-      int? dodge,
-      int? accuracy})
+      {int maxHealth = 100, int? health, CombatStats? stats})
       : health = Health(health ?? maxHealth, maxHealth),
-        stats = CombatStats(
-            attack: attack, accuracy: accuracy, dodge: dodge, defense: defense),
+        stats = stats ?? CombatStats(),
         super(turnController) {
     add(this.health);
   }

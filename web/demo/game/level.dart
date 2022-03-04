@@ -2,19 +2,22 @@ import 'package:fortress/map.dart';
 import 'package:fortress/util.dart';
 
 import 'breed.dart';
+import 'level_gen.dart';
 import 'monster.dart';
 
 class Level {
+  final LevelGenData _lvlData;
+
+  final int level;
+  final Vec2 size;
+  final monsters = <Monster>[];
+
   bool _built = false;
   TileMap<LevelTile>? _map;
   Vec2 _startPosition = Vec2.zero;
   Vec2 _endPosition = Vec2.zero;
   Room _startRoom = Room(Rect.nill);
   Room _endRoom = Room(Rect.nill);
-
-  final int level;
-  final Vec2 size;
-  final monsters = <Monster>[];
 
   /// True if the level has finished building
   bool get isBuilt => _built;
@@ -39,7 +42,9 @@ class Level {
     throw StateError('Level has not been built');
   }
 
-  Level(int width, int height, this.level) : size = Vec2(width, height);
+  Level(int width, int height, this.level)
+      : _lvlData = LevelGeneration.getLevelData(level),
+        size = Vec2(width, height);
 
   /// Build the level
   Iterable<String> build() sync* {
@@ -111,11 +116,18 @@ class Level {
     for (var room in rooms) {
       if (room == startRoom) continue;
 
-      var pos = rng.item(room.bounds.getPoints());
-      var monster = Breed.rat.create();
-      monster.position = pos;
+      var roomPositions = room.bounds.getPoints();
 
-      monsters.add(monster);
+      for (var breed in _lvlData.roomMonsters.keys) {
+        if (rng.percent(_lvlData.roomMonsters[breed]!)) {
+          var pos = rng.item(roomPositions);
+          roomPositions.remove(pos);
+
+          var monster = breed.create();
+          monster.position = pos;
+          monsters.add(monster);
+        }
+      }
     }
   }
 }

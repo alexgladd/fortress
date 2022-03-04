@@ -5,13 +5,19 @@ import 'package:fortress/web.dart';
 import '../input.dart';
 import 'action.dart';
 import 'actor.dart';
+import 'combat.dart';
 import 'game.dart';
 import 'turn_based.dart';
 
+final _defaultHeroStats = CombatStats(
+  attack: 5,
+  accuracy: 2,
+  defense: 2,
+  dodge: 2,
+);
+
 class Hero extends Actor {
-  Hero()
-      : super(HeroController(),
-            maxHealth: 100, attack: 5, accuracy: 2, dodge: 2, defense: 2) {
+  Hero() : super(HeroController(), maxHealth: 100, stats: _defaultHeroStats) {
     add(InputHandler<Input>());
     renderer.set(char: '@', foreground: Color.gold);
   }
