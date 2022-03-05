@@ -113,4 +113,7 @@ class Vec2 extends VectorBase {
   static const identity = Vec2(1, 1);
 
   const Vec2(int x, int y) : super(x, y);
+
+  /// Returns the same vector using the absolute value of [x] and [y]
+  Vec2 abs() => Vec2(x.abs(), y.abs());
 }
