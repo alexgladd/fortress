@@ -4,6 +4,7 @@ import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
 
 import 'demo_anim.dart';
+import 'demo_draw.dart';
 import 'demo_game.dart';
 import 'demo_maps.dart';
 import 'demo_modals.dart';
@@ -65,7 +66,8 @@ const _menuItems = [
   'Map generation',
   'UI Panels',
   'UI Modals',
-  'Animation'
+  'Animation',
+  'Drawing',
 ];
 
 const _help = '[↑↓]: Move   [enter]: Select';
@@ -170,6 +172,8 @@ class MainMenu extends Layer<Input> {
       ui.push(Modals());
     } else if (demoIdx == 4) {
       ui.push(AnimParticles());
+    } else if (demoIdx == 5) {
+      ui.push(Drawing());
     } else {
       ui.push(Placeholder());
     }
