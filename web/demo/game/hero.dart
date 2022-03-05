@@ -84,7 +84,7 @@ class HeroController extends TurnController {
     // TODO: check if there is somthing to interact with
 
     // check if we can move
-    if (game.level.map[position].isOpen) return MoveAction(dir);
+    if (game.level.isWalkable(position)) return MoveAction(dir);
 
     return null;
   }

@@ -1,7 +1,6 @@
 import 'package:fortress/map.dart';
 import 'package:fortress/util.dart';
 
-import 'breed.dart';
 import 'level_gen.dart';
 import 'monster.dart';
 

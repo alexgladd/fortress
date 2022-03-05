@@ -164,6 +164,8 @@ class Minigame extends GameLayer<Input> {
   }
 
   void _loadLevel(Level level) {
+    _unloadCurrentLevel();
+
     game.level = level;
     _fillBackground();
 
@@ -184,6 +186,12 @@ class Minigame extends GameLayer<Input> {
 
     print('GAME built $level');
     print('LEVEL start ${level.startPosition}');
+  }
+
+  void _unloadCurrentLevel() {
+    if (!game.hasLevel) return;
+
+    game.level.monsters.forEach(remove);
   }
 
   void _renderMap(Terminal t) {

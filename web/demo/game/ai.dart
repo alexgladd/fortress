@@ -89,7 +89,7 @@ class AiController extends TurnController {
 
       var testPos = gameObject.position + dir;
 
-      if (game.level.map[testPos].isOpen &&
+      if (game.level.isWalkable(testPos) &&
           game.getMonsterAt(testPos) == null &&
           game.hero.position != testPos) {
         return MoveAction(dir);
