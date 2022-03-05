@@ -18,13 +18,13 @@ abstract class Action {
 /// An action that expects to be [perform]ed on an [Actor]
 abstract class ActorAction extends Action {
   /// Perform the action on the given [actor]
-  void performActor(Actor actor);
+  void performOnActor(Actor actor);
 
   @override
   void perform(GameObject gameObject) {
     try {
       var actor = gameObject as Actor;
-      performActor(actor);
+      performOnActor(actor);
     } catch (_) {
       throw StateError('ActorAction cannot perform on non-Actors: $gameObject');
     }
@@ -59,7 +59,7 @@ class AttackAction extends ActorAction {
   AttackAction(this.target);
 
   @override
-  void performActor(Actor attacker) {
+  void performOnActor(Actor attacker) {
     target.lastAttacker = attacker;
 
     final hit = attacker.hitChance;
