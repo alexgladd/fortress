@@ -84,6 +84,16 @@ class Level {
   /// True if the given [position] is walkable in the [map]
   bool isWalkable(Vec2 position) => map[position].isOpen;
 
+  /// True if an actor at [from] has line-of-sight to an actor at [to],
+  /// considering the [map] layout.
+  bool hasLos(Vec2 from, Vec2 to) {
+    var losLine = Line(from, to);
+    for (var pos in losLine) {
+      if (!isWalkable(pos)) return false;
+    }
+    return true;
+  }
+
   @override
   String toString() =>
       'Level(width: ${size.x}, height: ${size.y}, built: $_built)';

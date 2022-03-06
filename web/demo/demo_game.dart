@@ -132,6 +132,7 @@ class Minigame extends GameLayer<Input> {
     super.onInput(input);
 
     if (input == Input.cancel) {
+      _unloadCurrentLevel();
       ui.pop();
       return true;
     }

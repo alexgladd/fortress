@@ -44,6 +44,9 @@ class Game {
   /// Resets all game state to default values (erases all progress).
   void reset() {
     log.clear();
+    if (_level != null) _level!.monsters.clear();
+    _level = null;
+    _hero = null;
   }
 
   /// Get the [Monster] at the given [position], if there is one

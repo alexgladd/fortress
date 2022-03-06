@@ -70,13 +70,79 @@ class AiController extends TurnController {
     // no action if dead
     if (actor.health.isDead) return NoAction();
 
-    // TODO: process disposition
+    Action? aiAction;
 
-    return _getMove();
+    aiAction = _getAttackAction();
+    if (aiAction != null) return aiAction;
+
+    aiAction = _getMoveAction();
+    if (aiAction != null) return aiAction;
+
+    return NoAction();
   }
 
-  Action? _getMove() {
-    // TODO: process affinity
+  Action? _getAttackAction() {
+    // TODO: process all dispositions
+    if (_disposition == Disposition.passive && actor.lastAttacker != null) {
+      return _tryRunFromAttacker();
+    }
+
+    return null;
+  }
+
+  Action? _tryRunFromAttacker() {
+    if (actor.lastAttacker == null) return null;
+
+    if (!game.level.hasLos(gameObject.position, actor.lastAttacker!.position)) {
+      // TODO: maybe make this depend on intelligence?
+      actor.lastAttacker = null;
+      return null;
+    }
+
+    var line = Line(actor.lastAttacker!.position, gameObject.position, true);
+
+    // run directly away from attacker
+    Vec2 nextPos = Vec2.zero;
+    var iter = line.iterator;
+    while (iter.moveNext()) {
+      if (iter.current == gameObject.position) {
+        iter.moveNext();
+        nextPos = iter.current;
+        break;
+      }
+    }
+
+    if (_isOpenMove(nextPos)) {
+      // direct route is open
+      var delta = nextPos - gameObject.position;
+      return MoveAction(delta.toDirection());
+    } else {
+      // try to move adjacent to the direct route
+      var possibleDirs = Direction.cardinals.toList();
+      var attempts = 1;
+      if (_intelligence == Intelligence.medium) attempts = 2;
+      if (_intelligence == Intelligence.high) attempts = 4;
+
+      for (var i = 0; i < attempts; i++) {
+        var dir = rng.item(possibleDirs);
+        possibleDirs.remove(dir);
+
+        var testPos = nextPos + dir;
+        if (testPos == gameObject.position) continue;
+
+        var moveDir = (testPos - gameObject.position).toDirection();
+        var nextNextPos = gameObject.position + moveDir;
+        if (_isOpenMove(nextNextPos)) {
+          return MoveAction(moveDir);
+        }
+      }
+    }
+
+    return null;
+  }
+
+  Action? _getMoveAction() {
+    // TODO: process all affinities
 
     var possibleDirs = Direction.cardinals.toList();
     var attempts = 1;
@@ -89,13 +155,16 @@ class AiController extends TurnController {
 
       var testPos = gameObject.position + dir;
 
-      if (game.level.isWalkable(testPos) &&
-          game.getMonsterAt(testPos) == null &&
-          game.hero.position != testPos) {
+      if (_isOpenMove(testPos)) {
         return MoveAction(dir);
       }
     }
 
-    return NoAction();
+    return null;
   }
+
+  bool _isOpenMove(Vec2 position) =>
+      game.level.isWalkable(position) &&
+      game.hero.position != position &&
+      game.getMonsterAt(position) == null;
 }

@@ -1,5 +1,10 @@
 import 'dart:math' as math;
 
+import 'package:fortress/util.dart';
+
+import 'direction.dart';
+import 'line.dart';
+
 /// Base class of an immutable 2D vector or direction
 abstract class VectorBase {
   final int x;
@@ -116,4 +121,12 @@ class Vec2 extends VectorBase {
 
   /// Returns the same vector using the absolute value of [x] and [y]
   Vec2 abs() => Vec2(x.abs(), y.abs());
+
+  /// Returns the vector as a [Direction] "unit" vector
+  Direction toDirection() {
+    var line = Line(Vec2.zero, this);
+    var iter = line.iterator..moveNext();
+    var next = iter.current;
+    return Direction(next.x, next.y);
+  }
 }
