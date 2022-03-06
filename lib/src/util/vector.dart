@@ -124,9 +124,7 @@ class Vec2 extends VectorBase {
 
   /// Returns the vector as a [Direction] "unit" vector
   Direction toDirection() {
-    var line = Line(Vec2.zero, this);
-    var iter = line.iterator..moveNext();
-    var next = iter.current;
+    var next = Line(Vec2.zero, this).first;
     return Direction(next.x, next.y);
   }
 }

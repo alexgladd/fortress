@@ -82,12 +82,50 @@ class AiController extends TurnController {
   }
 
   Action? _getAttackAction() {
-    // TODO: process all dispositions
     if (_disposition == Disposition.passive && actor.lastAttacker != null) {
       return _tryRunFromAttacker();
     }
 
+    if (_disposition == Disposition.defensive && actor.lastAttacker != null) {
+      return _tryAttack(actor.lastAttacker!);
+    }
+
+    if (_disposition == Disposition.aggressive) {
+      if (actor.lastAttacker != null) return _tryAttack(actor.lastAttacker!);
+      return _tryAttack(game.hero);
+    }
+
+    // TODO: crazed disposition
+
     return null;
+  }
+
+  Action? _tryAttack(Actor target) {
+    // target in view?
+    if (!game.level.hasLos(gameObject.position, target.position)) {
+      // TODO: maybe make this based on intelligence?
+      if (target == actor.lastAttacker) actor.lastAttacker = null;
+      return null;
+    }
+
+    // attack if close enough
+    for (var dir in Direction.cardinals) {
+      var pos = gameObject.position + dir;
+      if (target.position == pos) {
+        return AttackAction(target);
+      }
+    }
+
+    // move towards
+    var line = Line(gameObject.position, target.position);
+    var nextPos = line.first;
+
+    if (_isOpenMove(nextPos)) {
+      return MoveAction((nextPos - gameObject.position).toDirection());
+    }
+
+    // else just move anywhere
+    return _getMoveAction();
   }
 
   Action? _tryRunFromAttacker() {
@@ -116,29 +154,30 @@ class AiController extends TurnController {
       // direct route is open
       var delta = nextPos - gameObject.position;
       return MoveAction(delta.toDirection());
-    } else {
-      // try to move adjacent to the direct route
-      var possibleDirs = Direction.cardinals.toList();
-      var attempts = 1;
-      if (_intelligence == Intelligence.medium) attempts = 2;
-      if (_intelligence == Intelligence.high) attempts = 4;
+    } // else {
+    // try to move adjacent to the direct route
+    // var possibleDirs = Direction.cardinals.toList();
+    // var attempts = 1;
+    // if (_intelligence == Intelligence.medium) attempts = 2;
+    // if (_intelligence == Intelligence.high) attempts = 4;
 
-      for (var i = 0; i < attempts; i++) {
-        var dir = rng.item(possibleDirs);
-        possibleDirs.remove(dir);
+    // for (var i = 0; i < attempts; i++) {
+    //   var dir = rng.item(possibleDirs);
+    //   possibleDirs.remove(dir);
 
-        var testPos = nextPos + dir;
-        if (testPos == gameObject.position) continue;
+    //   var testPos = nextPos + dir;
+    //   if (testPos == gameObject.position) continue;
 
-        var moveDir = (testPos - gameObject.position).toDirection();
-        var nextNextPos = gameObject.position + moveDir;
-        if (_isOpenMove(nextNextPos)) {
-          return MoveAction(moveDir);
-        }
-      }
-    }
+    //   var moveDir = (testPos - gameObject.position).toDirection();
+    //   var nextNextPos = gameObject.position + moveDir;
+    //   if (_isOpenMove(nextNextPos)) {
+    //     return MoveAction(moveDir);
+    //   }
+    // }
+    //}
 
-    return null;
+    // else just try to move anywhere
+    return _getMoveAction();
   }
 
   Action? _getMoveAction() {
