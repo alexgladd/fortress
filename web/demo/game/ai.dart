@@ -154,27 +154,7 @@ class AiController extends TurnController {
       // direct route is open
       var delta = nextPos - gameObject.position;
       return MoveAction(delta.toDirection());
-    } // else {
-    // try to move adjacent to the direct route
-    // var possibleDirs = Direction.cardinals.toList();
-    // var attempts = 1;
-    // if (_intelligence == Intelligence.medium) attempts = 2;
-    // if (_intelligence == Intelligence.high) attempts = 4;
-
-    // for (var i = 0; i < attempts; i++) {
-    //   var dir = rng.item(possibleDirs);
-    //   possibleDirs.remove(dir);
-
-    //   var testPos = nextPos + dir;
-    //   if (testPos == gameObject.position) continue;
-
-    //   var moveDir = (testPos - gameObject.position).toDirection();
-    //   var nextNextPos = gameObject.position + moveDir;
-    //   if (_isOpenMove(nextNextPos)) {
-    //     return MoveAction(moveDir);
-    //   }
-    // }
-    //}
+    }
 
     // else just try to move anywhere
     return _getMoveAction();
