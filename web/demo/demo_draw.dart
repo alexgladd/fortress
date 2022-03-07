@@ -6,16 +6,20 @@ import 'input.dart';
 enum _Drawing {
   rectangles,
   lines,
+  circlesFilled,
+  circlesEdges,
 }
 
 class Drawing extends Layer<Input> {
   static const _help =
-      '[r] Rectangles  [l] Lines  [enter] Start/end  [c] Clear  [esc] Quit';
+      '[r/l/c] Rectangles/Lines/Circles  [enter] Start/end  [x] Clear  '
+      '[esc] Quit';
 
   final cursorChar = Char(CharCode.fullBlock, Color.lightGreen);
   final markChar = Char(CharCode.fullBlock, Color.green);
   final rects = <Rect>[];
   final lines = <Line>[];
+  final circles = <Circle>[];
 
   Vec2? first;
   Vec2? second;
@@ -44,6 +48,13 @@ class Drawing extends Layer<Input> {
     for (var line in lines) {
       for (var p in line) {
         terminal.drawChar(p.x, p.y, Char(CharCode.fullBlock, Color.aqua));
+      }
+    }
+
+    for (var circle in circles) {
+      for (var p in circle) {
+        if (!ui.renderRect.contains(p)) continue;
+        terminal.drawChar(p.x, p.y, Char(CharCode.fullBlock, Color.purple));
       }
     }
 
@@ -107,8 +118,18 @@ class Drawing extends Layer<Input> {
         break;
 
       case KeyCode.keyC:
+        if (drawing == _Drawing.circlesFilled) {
+          drawing = _Drawing.circlesEdges;
+        } else {
+          drawing = _Drawing.circlesFilled;
+        }
+        dirty();
+        break;
+
+      case KeyCode.keyX:
         rects.clear();
         lines.clear();
+        circles.clear();
         dirty();
         break;
     }
@@ -135,6 +156,12 @@ class Drawing extends Layer<Input> {
       case _Drawing.lines:
         _drawLine();
         break;
+      case _Drawing.circlesFilled:
+        _drawCircle(true);
+        break;
+      case _Drawing.circlesEdges:
+        _drawCircle(false);
+        break;
     }
 
     first = second = null;
@@ -149,5 +176,16 @@ class Drawing extends Layer<Input> {
   void _drawLine() {
     final line = Line(first!, second!);
     lines.add(line);
+  }
+
+  void _drawCircle(bool filled) {
+    var radius = (second! - first!).length.toInt();
+    Circle circle;
+    if (filled) {
+      circle = Circle.filled(first!, radius);
+    } else {
+      circle = Circle.edge(first!, radius);
+    }
+    circles.add(circle);
   }
 }
