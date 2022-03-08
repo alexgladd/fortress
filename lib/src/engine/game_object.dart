@@ -42,6 +42,15 @@ class GameObject extends Entity {
   /// Signal that the [GameObject] needs to be re-rendered
   void dirty() => _dirtySignal.dirty();
 
+  /// The distance to the [other] game object. By default, [round]s to an
+  /// integer result.
+  num distanceTo(GameObject other, [bool round = true]) {
+    var delta = other.position - position;
+    var distance = delta.length;
+    if (round) return distance.round();
+    return distance;
+  }
+
   @override
   String toString() => 'GameObject($id)';
 }

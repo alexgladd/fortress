@@ -47,6 +47,7 @@ class AiController extends TurnController {
   final Disposition _disposition;
   final Intelligence _intelligence;
   final int _speed;
+  final int _vision;
 
   @override
   int get initiativePerTurn => _speed;
@@ -55,12 +56,13 @@ class AiController extends TurnController {
   Actor get actor => gameObject as Actor;
 
   AiController(LocationAffinity affinity, Disposition disposition,
-      Intelligence intelligence, int speed,
+      Intelligence intelligence, int speed, int vision,
       [int? startInitiative])
       : _affinity = affinity,
         _disposition = disposition,
         _intelligence = intelligence,
         _speed = speed,
+        _vision = vision,
         super(startInitiative ??
             rng.range(0, TurnController.initiativeForAction));
 
@@ -95,12 +97,50 @@ class AiController extends TurnController {
       return _tryAttack(game.hero);
     }
 
-    // TODO: crazed disposition
+    if (_disposition == Disposition.crazed) {
+      return _tryAttackAnything();
+    }
+
+    return null;
+  }
+
+  Action? _tryAttackAnything() {
+    var fov = Circle.filled(gameObject.position, _vision);
+
+    Actor? target;
+    int targetDistance = 1000000000;
+    for (var pos in fov) {
+      if (game.hero.position == pos) {
+        var distance = gameObject.distanceTo(game.hero);
+        if (distance < targetDistance) {
+          target = game.hero;
+          targetDistance = distance.toInt();
+        }
+      }
+
+      var monster = game.getMonsterAt(pos);
+      if (monster == actor) continue;
+      if (monster != null) {
+        var distance = gameObject.distanceTo(monster);
+        if (distance < targetDistance) {
+          target = monster;
+          targetDistance = distance.toInt();
+        }
+      }
+    }
+
+    if (target != null) return _tryAttack(target);
 
     return null;
   }
 
   Action? _tryAttack(Actor target) {
+    // target in vision range?
+    if (gameObject.distanceTo(target) > _vision) {
+      if (target == actor.lastAttacker) actor.lastAttacker = null;
+      return null;
+    }
+
     // target in view?
     if (!game.level.hasLos(gameObject.position, target.position)) {
       // TODO: maybe make this based on intelligence?

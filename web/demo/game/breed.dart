@@ -27,6 +27,7 @@ class Breed {
     attack: MinMax(2, 4),
     accuracy: MinMax(0, 4),
     dodge: MinMax(-4, -2),
+    vision: MinMax.fixed(10),
     disposition: Disposition.defensive,
     intelligence: Intelligence.medium,
   );
@@ -41,6 +42,7 @@ class Breed {
     attack: MinMax(3, 6),
     accuracy: MinMax(-4, 0),
     dodge: MinMax(-10, -8),
+    vision: MinMax.fixed(6),
     disposition: Disposition.aggressive,
     intelligence: Intelligence.low,
   );
@@ -55,6 +57,7 @@ class Breed {
   final MinMax defense;
   final MinMax accuracy;
   final MinMax dodge;
+  final MinMax vision;
   final LocationAffinity affinity;
   final Disposition disposition;
   final Intelligence intelligence;
@@ -70,6 +73,7 @@ class Breed {
     this.defense = MinMax.zero,
     this.accuracy = MinMax.zero,
     this.dodge = MinMax.zero,
+    this.vision = MinMax.zero,
     this.affinity = LocationAffinity.none,
     this.disposition = Disposition.passive,
     this.intelligence = Intelligence.low,
@@ -78,7 +82,8 @@ class Breed {
   Monster create() {
     return Monster(
         this,
-        AiController(affinity, disposition, intelligence, speed.value),
+        AiController(
+            affinity, disposition, intelligence, speed.value, vision.value),
         health.value,
         CombatStats(
             attack: attack.value,
