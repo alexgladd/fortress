@@ -82,7 +82,7 @@ class Level {
   }
 
   /// True if the given [position] is walkable in the [map]
-  bool isWalkable(Vec2 position) => map[position].isOpen;
+  bool isWalkable(Vec2 position) => map.isOpen(position.x, position.y);
 
   /// True if an actor at [from] has line-of-sight to an actor at [to],
   /// considering the [map] layout.

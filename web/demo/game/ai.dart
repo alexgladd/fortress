@@ -1,3 +1,4 @@
+import 'package:fortress/map.dart';
 import 'package:fortress/util.dart';
 
 import 'action.dart';
@@ -107,9 +108,11 @@ class AiController extends TurnController {
   Action? _tryAttackAnything() {
     var fov = Circle.filled(gameObject.position, _vision);
 
+    // look for the closest other actor within FOV
     Actor? target;
     int targetDistance = 1000000000;
     for (var pos in fov) {
+      // check hero
       if (game.hero.position == pos) {
         var distance = gameObject.distanceTo(game.hero);
         if (distance < targetDistance) {
@@ -118,6 +121,7 @@ class AiController extends TurnController {
         }
       }
 
+      // check other monsters
       var monster = game.getMonsterAt(pos);
       if (monster == actor) continue;
       if (monster != null) {
@@ -129,6 +133,7 @@ class AiController extends TurnController {
       }
     }
 
+    // try to attack it if we found anything
     if (target != null) return _tryAttack(target);
 
     return null;
@@ -165,7 +170,7 @@ class AiController extends TurnController {
     }
 
     // else just move anywhere
-    return _getMoveAction();
+    return _tryMoveAnywhere();
   }
 
   Action? _tryRunFromAttacker() {
@@ -197,12 +202,57 @@ class AiController extends TurnController {
     }
 
     // else just try to move anywhere
-    return _getMoveAction();
+    return _tryMoveAnywhere();
   }
 
   Action? _getMoveAction() {
-    // TODO: process all affinities
+    // TODO: special case for 'position' affinity
 
+    // try moving nearby first
+    Action? move = _tryMoveAnywhere(true);
+    if (move != null) return move;
+
+    // else look for desired affinity within vision and head that direction
+    move = _tryFindAffinityLocation();
+    if (move != null) return move;
+
+    // else try to move anywhere disregarding affinity
+    return _tryMoveAnywhere();
+  }
+
+  Action? _tryFindAffinityLocation() {
+    var fov = Circle.filled(gameObject.position, _vision);
+
+    // look for closest desire affinity within FOV
+    Vec2? target;
+    int targetDistance = 1000000000;
+    for (var pos in fov) {
+      if (pos == gameObject.position) continue;
+      if (_isAffinityLocation(pos) &&
+          game.level.hasLos(gameObject.position, pos)) {
+        var distance = (pos - gameObject.position).length.round();
+        if (distance < targetDistance) {
+          target = pos;
+          targetDistance = distance;
+        }
+      }
+    }
+
+    // nothing found
+    if (target == null) return null;
+
+    // move towards
+    var line = Line(gameObject.position, target);
+    var nextPos = line.first;
+
+    if (_isOpenMove(nextPos)) {
+      return MoveAction((nextPos - gameObject.position).toDirection());
+    }
+
+    return null;
+  }
+
+  Action? _tryMoveAnywhere([bool withAffinity = false]) {
     var possibleDirs = Direction.cardinals.toList();
     var attempts = 1;
     if (_intelligence == Intelligence.medium) attempts = 2;
@@ -214,12 +264,32 @@ class AiController extends TurnController {
 
       var testPos = gameObject.position + dir;
 
+      if (withAffinity && !_isAffinityLocation(testPos)) continue;
+
       if (_isOpenMove(testPos)) {
         return MoveAction(dir);
       }
     }
 
     return null;
+  }
+
+  bool _isAffinityLocation(Vec2 position) {
+    if (!game.level.isWalkable(position)) return false;
+    if (_affinity == LocationAffinity.none) return true;
+
+    var locType = game.level.map[position];
+
+    if (_affinity == LocationAffinity.room && locType == LevelTile.room) {
+      return true;
+    }
+
+    if (_affinity == LocationAffinity.corridor &&
+        locType == LevelTile.corridor) {
+      return true;
+    }
+
+    return false;
   }
 
   bool _isOpenMove(Vec2 position) =>

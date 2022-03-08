@@ -28,6 +28,7 @@ class Breed {
     accuracy: MinMax(0, 4),
     dodge: MinMax(-4, -2),
     vision: MinMax.fixed(10),
+    affinity: LocationAffinity.corridor,
     disposition: Disposition.defensive,
     intelligence: Intelligence.medium,
   );
