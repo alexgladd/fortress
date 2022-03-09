@@ -52,6 +52,22 @@ class MoveAction extends Action {
   }
 }
 
+/// An action that consumes a turn to heal the [Actor]
+class RestAction extends ActorAction {
+  @override
+  void performOnActor(Actor actor) {
+    var preHealth = actor.health.current;
+
+    actor.health.heal(1);
+
+    if (actor == game.hero &&
+        actor.health.current == actor.health.max &&
+        preHealth < actor.health.max) {
+      game.log.msg('${actor.subject} feel fully rested');
+    }
+  }
+}
+
 /// An action that attacks a [target]
 class AttackAction extends ActorAction {
   final Actor target;

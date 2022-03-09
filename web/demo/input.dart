@@ -13,5 +13,7 @@ class Input extends InputBase {
   static const ok = Input('ok');
   static const cancel = Input('cancel');
 
+  static const rest = Input('rest');
+
   const Input(String name) : super(name);
 }

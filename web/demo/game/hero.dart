@@ -48,6 +48,10 @@ class Hero extends Actor {
 class HeroController extends TurnController {
   static const directions = {Input.n, Input.e, Input.s, Input.w};
 
+  InputHandler<Input>? _inputs;
+
+  InputHandler<Input> get inputs => _inputs!;
+
   @override
   int get initiativePerTurn => 50;
 
@@ -58,9 +62,13 @@ class HeroController extends TurnController {
 
   @override
   Action? getTurnAction() {
-    var inputs = gameObject.get<InputHandler<Input>>()!;
+    _inputs ??= gameObject.get<InputHandler<Input>>()!;
 
+    // movement / attack / interact
     if (inputs.hasAny(directions)) return _handleDirections(inputs);
+
+    // rest
+    if (inputs.has(Input.rest)) return RestAction();
 
     return null;
   }

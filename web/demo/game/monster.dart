@@ -18,5 +18,5 @@ class Monster extends Actor {
   String get attackVerb => breed.attackVerb;
 
   @override
-  String toString() => 'Monster($id)';
+  String toString() => '${breed.name.replaceAll(' ', '')}($id)';
 }

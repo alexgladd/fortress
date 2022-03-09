@@ -27,6 +27,7 @@ void main() async {
   _ui.keyBinds.bind(Input.w, KeyCode.arrowLeft);
   _ui.keyBinds.bind(Input.ok, KeyCode.enter);
   _ui.keyBinds.bind(Input.cancel, KeyCode.escape);
+  _ui.keyBinds.bind(Input.rest, KeyCode.keyR);
   _ui.push(MainMenu());
   _ui.running = true;
 

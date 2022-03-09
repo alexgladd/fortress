@@ -33,9 +33,9 @@ class Breed {
     intelligence: Intelligence.medium,
   );
 
-  static const zombie = Breed(
-    name: 'Zombie',
-    symbol: 'z',
+  static const ghoul = Breed(
+    name: 'Ghoul',
+    symbol: 'g',
     attackVerb: 'bites',
     color: Color.green,
     health: MinMax(4, 6),
@@ -46,6 +46,35 @@ class Breed {
     vision: MinMax.fixed(6),
     disposition: Disposition.aggressive,
     intelligence: Intelligence.low,
+  );
+
+  static const imp = Breed(
+    name: 'Imp',
+    symbol: 'i',
+    attackVerb: 'claws',
+    color: Color.lightPurple,
+    health: MinMax(6, 8),
+    speed: MinMax.fixed(34),
+    attack: MinMax(3, 6),
+    accuracy: MinMax(0, 3),
+    dodge: MinMax(-2, 0),
+    vision: MinMax.fixed(10),
+    disposition: Disposition.defensive,
+    intelligence: Intelligence.medium,
+  );
+
+  static const lesserDemon = Breed(
+    name: 'Lesser Demon',
+    symbol: 'd',
+    attackVerb: 'slashes',
+    color: Color.lightRed,
+    health: MinMax(10, 12),
+    speed: MinMax(30, 40),
+    attack: MinMax(5, 8),
+    accuracy: MinMax(1, 4),
+    vision: MinMax.fixed(10),
+    disposition: Disposition.aggressive,
+    intelligence: Intelligence.medium,
   );
 
   final String name;
