@@ -48,7 +48,6 @@ class AiController extends TurnController {
   final Disposition _disposition;
   final Intelligence _intelligence;
   final int _speed;
-  final int _vision;
 
   @override
   int get initiativePerTurn => _speed;
@@ -57,13 +56,12 @@ class AiController extends TurnController {
   Actor get actor => gameObject as Actor;
 
   AiController(LocationAffinity affinity, Disposition disposition,
-      Intelligence intelligence, int speed, int vision,
+      Intelligence intelligence, int speed,
       [int? startInitiative])
       : _affinity = affinity,
         _disposition = disposition,
         _intelligence = intelligence,
         _speed = speed,
-        _vision = vision,
         super(startInitiative ??
             rng.range(0, TurnController.initiativeForAction));
 
@@ -106,7 +104,7 @@ class AiController extends TurnController {
   }
 
   Action? _tryAttackAnything() {
-    var fov = Circle.filled(gameObject.position, _vision);
+    var fov = Circle.filled(gameObject.position, actor.stats.vision);
 
     // look for the closest other actor within FOV
     Actor? target;
@@ -141,7 +139,7 @@ class AiController extends TurnController {
 
   Action? _tryAttack(Actor target) {
     // target in vision range?
-    if (gameObject.distanceTo(target) > _vision) {
+    if (gameObject.distanceTo(target) > actor.stats.vision) {
       if (target == actor.lastAttacker) actor.lastAttacker = null;
       return null;
     }
@@ -221,7 +219,7 @@ class AiController extends TurnController {
   }
 
   Action? _tryFindAffinityLocation() {
-    var fov = Circle.filled(gameObject.position, _vision);
+    var fov = Circle.filled(gameObject.position, actor.stats.vision);
 
     // look for closest desire affinity within FOV
     Vec2? target;

@@ -18,6 +18,18 @@ class Health extends Component {
   void heal(int amount) => current = (current + amount).clamp(current, max);
 
   void damage(int amount) => current = (current - amount).clamp(0, max);
+
+  void buff(int amount) {
+    max += amount;
+    if (max < 0) max = 0;
+  }
+
+  void nerf(int amount) {
+    max -= amount;
+    if (max < 0) max = 0;
+
+    if (current > max) current = max;
+  }
 }
 
 /// An game object that takes turn-based actions with health

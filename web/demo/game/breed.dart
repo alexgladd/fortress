@@ -112,13 +112,13 @@ class Breed {
   Monster create() {
     return Monster(
         this,
-        AiController(
-            affinity, disposition, intelligence, speed.value, vision.value),
+        AiController(affinity, disposition, intelligence, speed.value),
         health.value,
         CombatStats(
             attack: attack.value,
             defense: defense.value,
             accuracy: accuracy.value,
-            dodge: dodge.value));
+            dodge: dodge.value,
+            vision: vision.value));
   }
 }
