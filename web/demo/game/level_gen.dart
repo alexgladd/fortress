@@ -1,10 +1,31 @@
 // level generation stuff: monster breed densities, placed monsters, items, etc.
 
 import 'breed.dart';
+import 'item.dart';
+
+enum LevelPlacement {
+  startRoom,
+  endRoom,
+  emptyRoom,
+}
+
+class MonsterPlacement {
+  final LevelPlacement placement;
+  final Breed breed;
+  MonsterPlacement(this.breed, this.placement);
+}
+
+class ItemPlacement {
+  final LevelPlacement placement;
+  final Item item;
+  ItemPlacement(this.item, this.placement);
+}
 
 class LevelGenData {
   final roomMonsters = <Breed, int>{};
   final corridorMonsters = <Breed, int>{};
+  final placedMonsters = <MonsterPlacement>[];
+  final placedItems = <ItemPlacement>[];
 }
 
 class LevelGeneration {
@@ -15,6 +36,17 @@ class LevelGeneration {
     Breed.lesserDemon: [10, 10, 15, 15, 20, 20, 25, 25, 20, 20],
   };
 
+  // static final roomItems = {};
+
+  // static final placedMonster = [];
+
+  static final placedItems = [
+    // lvl 0
+    [
+      ItemPlacement(Item.dagger, LevelPlacement.startRoom),
+    ],
+  ];
+
   static LevelGenData getLevelData(int level) {
     var lvl = level - 1;
     var levelData = LevelGenData();
@@ -24,6 +56,10 @@ class LevelGeneration {
       if (breedChances != null && breedChances.length > lvl) {
         levelData.roomMonsters[breed] = breedChances[lvl];
       }
+    }
+
+    if (placedItems.length > lvl) {
+      levelData.placedItems.addAll(placedItems[lvl]);
     }
 
     return levelData;

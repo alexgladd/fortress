@@ -2,6 +2,8 @@ import 'actor.dart';
 
 /// An effect that can be applied to to an [Actor]
 abstract class Effect {
+  const Effect();
+
   /// Apply the effect to the [actor]
   void doEffect(Actor actor);
 
@@ -9,11 +11,23 @@ abstract class Effect {
   void undoEffect(Actor actor);
 }
 
+class HealEffect extends Effect {
+  final int healAmount;
+
+  const HealEffect(this.healAmount);
+
+  @override
+  void doEffect(Actor actor) => actor.health.heal(healAmount);
+
+  @override
+  void undoEffect(Actor actor) {}
+}
+
 class HealthEffect extends Effect {
   final int maxHealthMod;
   final bool restoreHealth;
 
-  HealthEffect(this.maxHealthMod, {this.restoreHealth = false});
+  const HealthEffect(this.maxHealthMod, {this.restoreHealth = false});
 
   @override
   void doEffect(Actor actor) {
@@ -30,7 +44,8 @@ class HealthEffect extends Effect {
 /// Set the actor's base attack (e.g., from a weapon)
 class BaseAttackEffect extends Effect {
   final int attack;
-  BaseAttackEffect(this.attack);
+
+  const BaseAttackEffect(this.attack);
 
   @override
   void doEffect(Actor actor) => actor.stats.setAttack(attack);
@@ -42,7 +57,8 @@ class BaseAttackEffect extends Effect {
 /// Set the actor's base defense (e.g., from armor)
 class BaseDefenseEffect extends Effect {
   final int defense;
-  BaseDefenseEffect(this.defense);
+
+  const BaseDefenseEffect(this.defense);
 
   @override
   void doEffect(Actor actor) => actor.stats.setDefense(defense);
@@ -59,12 +75,13 @@ class BuffEffect extends Effect {
   final int dodge;
   final int vision;
 
-  BuffEffect(
-      {this.attack = 0,
-      this.defense = 0,
-      this.accuracy = 0,
-      this.dodge = 0,
-      this.vision = 0});
+  const BuffEffect({
+    this.attack = 0,
+    this.defense = 0,
+    this.accuracy = 0,
+    this.dodge = 0,
+    this.vision = 0,
+  });
 
   @override
   void doEffect(Actor actor) {
@@ -93,12 +110,13 @@ class NerfEffect extends Effect {
   final int dodge;
   final int vision;
 
-  NerfEffect(
-      {this.attack = 0,
-      this.defense = 0,
-      this.accuracy = 0,
-      this.dodge = 0,
-      this.vision = 0});
+  const NerfEffect({
+    this.attack = 0,
+    this.defense = 0,
+    this.accuracy = 0,
+    this.dodge = 0,
+    this.vision = 0,
+  });
 
   @override
   void doEffect(Actor actor) {
