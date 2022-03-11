@@ -1,6 +1,7 @@
 import 'package:fortress/engine.dart';
 
 import 'combat.dart';
+import 'effect.dart';
 import 'game.dart';
 import 'turn_based.dart';
 
@@ -70,6 +71,12 @@ abstract class Actor extends TurnBasedObject {
         super(turnController) {
     add(this.health);
   }
+
+  /// Apply the given [effect]
+  void apply(Effect effect) => effect.doEffect(this);
+
+  /// Remove the given [effect]
+  void undo(Effect effect) => effect.undoEffect(this);
 
   /// Called when the actor is dying; just before it gets removed from the ECS
   void onDeath() {

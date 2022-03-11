@@ -11,9 +11,10 @@ import 'game/loading.dart';
 import 'game/log_panel.dart';
 import 'game/stats_panel.dart';
 import 'game/turn_based.dart';
+import 'game/weapon.dart';
 import 'input.dart';
 
-const _help = '[↑↓←→]: Move   [esc]: Quit';
+const _help = '[↑↓←→]: Move/Attack/Interact   [esc]: Quit';
 
 class Minigame extends GameLayer<Input> {
   static const rightPanelWidth = 24;
@@ -60,6 +61,7 @@ class Minigame extends GameLayer<Input> {
 
     add(hero);
     hero.position = Vec2(-1, -1);
+    hero.equip(Weapon.dagger);
 
     ui.push(LoadingScreen(1));
 
@@ -175,6 +177,7 @@ class Minigame extends GameLayer<Input> {
     dialogPosition = Vec2.zero;
 
     level.monsters.forEach(add);
+    level.items.forEach(add);
 
     game.log.msg('You enter level ${game.dungeonLevel}; the staircase crumbles '
         'behind you');
@@ -193,6 +196,7 @@ class Minigame extends GameLayer<Input> {
     if (!game.hasLevel) return;
 
     game.level.monsters.forEach(remove);
+    game.level.items.forEach(remove);
   }
 
   void _renderMap(Terminal t) {

@@ -2,11 +2,11 @@
 
 import 'breed.dart';
 import 'item.dart';
+import 'weapon.dart';
 
 enum LevelPlacement {
   startRoom,
   endRoom,
-  emptyRoom,
 }
 
 class MonsterPlacement {
@@ -43,7 +43,7 @@ class LevelGeneration {
   static final placedItems = [
     // lvl 0
     [
-      ItemPlacement(Item.dagger, LevelPlacement.startRoom),
+      ItemPlacement(Weapon.dagger, LevelPlacement.startRoom),
     ],
   ];
 

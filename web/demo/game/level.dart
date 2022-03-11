@@ -1,6 +1,7 @@
 import 'package:fortress/map.dart';
 import 'package:fortress/util.dart';
 
+import 'item.dart';
 import 'level_gen.dart';
 import 'monster.dart';
 
@@ -10,6 +11,7 @@ class Level {
   final int level;
   final Vec2 size;
   final monsters = <Monster>[];
+  final items = <GameItem>[];
 
   bool _built = false;
   TileMap<LevelTile>? _map;
@@ -72,7 +74,9 @@ class Level {
     yield 'Spawning monsters...';
     _placeMonsters(rooms);
 
-    // items
+    // place items
+    yield 'Placing items...';
+    _placeItems(rooms);
 
     // etc.
 
@@ -137,6 +141,27 @@ class Level {
           monsters.add(monster);
         }
       }
+    }
+  }
+
+  void _placeItems(List<Room> rooms) {
+    for (var placedItem in _lvlData.placedItems) {
+      List<Vec2> positions;
+
+      switch (placedItem.placement) {
+        case LevelPlacement.startRoom:
+          positions = startRoom.bounds.getPoints()..remove(startPosition);
+          break;
+        case LevelPlacement.endRoom:
+          positions = endRoom.bounds.getPoints()..remove(endPosition);
+          break;
+      }
+
+      var pos = rng.item(positions);
+      var gItem = placedItem.item.create();
+
+      gItem.position = pos;
+      items.add(gItem);
     }
   }
 }

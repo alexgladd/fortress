@@ -4,11 +4,6 @@ import 'package:fortress/web.dart';
 import 'effect.dart';
 
 class Item {
-  static const dagger = Item(
-    name: 'Dagger',
-    onEquip: [BaseAttackEffect(5)],
-  );
-
   final String name;
   final String symbol;
   final Color color;

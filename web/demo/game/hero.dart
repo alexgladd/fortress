@@ -7,16 +7,24 @@ import 'action.dart';
 import 'actor.dart';
 import 'combat.dart';
 import 'game.dart';
+import 'item.dart';
 import 'turn_based.dart';
+import 'weapon.dart';
 
 final _defaultHeroStats = CombatStats(
-  attack: 5,
+  attack: 2,
   accuracy: 2,
   defense: 2,
   dodge: 2,
 );
 
 class Hero extends Actor {
+  static const inventorySize = 10;
+
+  final inventory = <Item>[];
+
+  Weapon? weapon;
+
   Hero() : super(HeroController(), maxHealth: 100, stats: _defaultHeroStats) {
     add(InputHandler<Input>());
     renderer.set(char: '@', foreground: Color.gold);
@@ -26,10 +34,24 @@ class Hero extends Actor {
   String get subject => 'You';
 
   @override
-  String get attackVerb => 'attack';
+  String get attackVerb => weapon == null ? 'punch' : weapon!.attackVerb;
 
   @override
   String get missVerb => 'miss';
+
+  Item? equip(Item item) {
+    Item? oldItem;
+
+    if (item is Weapon) {
+      oldItem = weapon;
+      if (oldItem != null) oldItem.onEquip.forEach(undo);
+
+      weapon = item;
+      item.onEquip.forEach(apply);
+    }
+
+    return oldItem;
+  }
 
   @override
   void onDeath() {
