@@ -5,6 +5,8 @@ import 'package:fortress/util.dart';
 
 import 'actor.dart';
 import 'game.dart';
+import 'hero.dart';
+import 'item.dart';
 
 /// An action that can be [perform]ed on a [GameObject]
 abstract class Action {
@@ -27,6 +29,22 @@ abstract class ActorAction extends Action {
       performOnActor(actor);
     } catch (_) {
       throw StateError('ActorAction cannot perform on non-Actors: $gameObject');
+    }
+  }
+}
+
+/// An action that expects to be [perform]ed on a [Hero]
+abstract class HeroAction extends Action {
+  /// Perform the action on the given [hero]
+  void performOnHero(Hero hero);
+
+  @override
+  void perform(GameObject gameObject) {
+    try {
+      var hero = gameObject as Hero;
+      performOnHero(hero);
+    } catch (_) {
+      throw StateError('HeroAction cannot perform on non-Heros: $gameObject');
     }
   }
 }
@@ -64,6 +82,28 @@ class RestAction extends ActorAction {
         actor.health.current == actor.health.max &&
         preHealth < actor.health.max) {
       game.log.msg('${actor.subject} feel fully rested');
+    }
+  }
+}
+
+/// An action that equips the [item] on the [Hero]
+class EquipAction extends HeroAction {
+  final GameItem item;
+
+  EquipAction(this.item);
+
+  @override
+  void performOnHero(Hero hero) {
+    Item? oldItem = hero.equip(item.item);
+    hero.ecs.remove(item);
+    game.level.items.remove(item);
+
+    if (oldItem != null) {
+      // TODO: put in inventory if there is space
+      final drop = oldItem.create();
+      drop.position = hero.position;
+      game.level.items.add(drop);
+      hero.ecs.add(drop);
     }
   }
 }

@@ -59,4 +59,12 @@ class CombatStats {
   void modAccuracy(int amount) => _accuracy += amount;
 
   void modVision(int amount) => _vision += amount;
+
+  CombatStats cloneBase() => CombatStats(
+        attack: attackBase,
+        defense: defenseBase,
+        accuracy: accuracy,
+        dodge: dodge,
+        vision: vision,
+      );
 }

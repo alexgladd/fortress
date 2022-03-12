@@ -6,6 +6,7 @@ import 'game/actor.dart';
 import 'game/dialogs.dart';
 import 'game/game.dart';
 import 'game/hero.dart';
+import 'game/item.dart';
 import 'game/level.dart';
 import 'game/loading.dart';
 import 'game/log_panel.dart';
@@ -14,7 +15,8 @@ import 'game/turn_based.dart';
 import 'game/weapon.dart';
 import 'input.dart';
 
-const _help = '[↑↓←→]: Move/Attack/Interact   [esc]: Quit';
+const _help =
+    '[↑↓←→]: Move/Attack  [e]: Equip  [p]: Pickup  [v]: Inspect  [esc]: Quit';
 
 class Minigame extends GameLayer<Input> {
   static const rightPanelWidth = 24;
@@ -28,6 +30,7 @@ class Minigame extends GameLayer<Input> {
 
   bool dialogOpen = false;
   Vec2 dialogPosition = Vec2.zero;
+  Vec2 itemPosition = Vec2.zero;
   Vec2 maxLayoutSize = Vec2(
       Game.levelSize.x + rightPanelWidth, Game.levelSize.y + bottomPanelHeight);
   Rect layoutBounds = Rect.nill;
@@ -61,7 +64,6 @@ class Minigame extends GameLayer<Input> {
 
     add(hero);
     hero.position = Vec2(-1, -1);
-    hero.equip(Weapon.dagger);
 
     ui.push(LoadingScreen(1));
 
@@ -72,6 +74,18 @@ class Minigame extends GameLayer<Input> {
   @override
   void postUpdate(double ds) {
     if (hero.position != dialogPosition) dialogPosition = Vec2.zero;
+    if (hero.position != itemPosition) itemPosition = Vec2.zero;
+
+    // check for item
+    if (game.hasLevel && hero.position != itemPosition) {
+      GameItem? item = game.getItemAt(hero.position);
+      if (item != null) {
+        itemPosition = hero.position;
+        var type = 'an item';
+        if (item.type == Weapon) type = 'a weapon';
+        game.log.msg('${hero.subject} see $type: ${item.name}');
+      }
+    }
 
     // check on end position level change
     if (!dialogOpen &&

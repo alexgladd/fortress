@@ -26,6 +26,9 @@ class Item {
 class GameItem extends GameObject {
   final Item item;
 
+  Type get type => item.runtimeType;
+  String get name => item.name;
+
   GameItem(this.item) : super() {
     renderer.set(char: item.symbol, foreground: item.color, order: 0);
   }

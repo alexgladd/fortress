@@ -2,6 +2,9 @@ import 'actor.dart';
 
 /// An effect that can be applied to to an [Actor]
 abstract class Effect {
+  /// The description of the effect
+  String get description;
+
   const Effect();
 
   /// Apply the effect to the [actor]
@@ -9,10 +12,16 @@ abstract class Effect {
 
   /// Reverse the effect on the [actor]
   void undoEffect(Actor actor);
+
+  @override
+  String toString() => description;
 }
 
 class HealEffect extends Effect {
   final int healAmount;
+
+  @override
+  String get description => 'Heals $healAmount HP';
 
   const HealEffect(this.healAmount);
 
@@ -26,6 +35,18 @@ class HealEffect extends Effect {
 class HealthEffect extends Effect {
   final int maxHealthMod;
   final bool restoreHealth;
+
+  @override
+  String get description {
+    var result = '';
+    if (maxHealthMod > 0) result += '+';
+
+    result += '$maxHealthMod max HP';
+
+    if (restoreHealth) result += ' (full heal)';
+
+    return result;
+  }
 
   const HealthEffect(this.maxHealthMod, {this.restoreHealth = false});
 
@@ -45,6 +66,9 @@ class HealthEffect extends Effect {
 class BaseAttackEffect extends Effect {
   final int attack;
 
+  @override
+  String get description => '${attack}d attack';
+
   const BaseAttackEffect(this.attack);
 
   @override
@@ -57,6 +81,9 @@ class BaseAttackEffect extends Effect {
 /// Set the actor's base defense (e.g., from armor)
 class BaseDefenseEffect extends Effect {
   final int defense;
+
+  @override
+  String get description => '${defense}d defense';
 
   const BaseDefenseEffect(this.defense);
 
@@ -74,6 +101,17 @@ class BuffEffect extends Effect {
   final int accuracy;
   final int dodge;
   final int vision;
+
+  @override
+  String get description {
+    var desc = '';
+    if (attack != 0) desc += '+$attack attack\n';
+    if (defense != 0) desc += '+$defense defense\n';
+    if (accuracy != 0) desc += '+$accuracy accuracy\n';
+    if (dodge != 0) desc += '+$dodge dodge\n';
+    if (vision != 0) desc += '+$vision vision\n';
+    return desc.trim();
+  }
 
   const BuffEffect({
     this.attack = 0,
@@ -109,6 +147,17 @@ class NerfEffect extends Effect {
   final int accuracy;
   final int dodge;
   final int vision;
+
+  @override
+  String get description {
+    var desc = '';
+    if (attack != 0) desc += '-$attack attack\n';
+    if (defense != 0) desc += '-$defense defense\n';
+    if (accuracy != 0) desc += '-$accuracy accuracy\n';
+    if (dodge != 0) desc += '-$dodge dodge\n';
+    if (vision != 0) desc += '-$vision vision\n';
+    return desc.trim();
+  }
 
   const NerfEffect({
     this.attack = 0,

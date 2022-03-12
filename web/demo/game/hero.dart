@@ -25,7 +25,12 @@ class Hero extends Actor {
 
   Weapon? weapon;
 
-  Hero() : super(HeroController(), maxHealth: 100, stats: _defaultHeroStats) {
+  Hero()
+      : super(
+          HeroController(),
+          maxHealth: 100,
+          stats: _defaultHeroStats.cloneBase(),
+        ) {
     add(InputHandler<Input>());
     renderer.set(char: '@', foreground: Color.gold, order: 2);
   }
@@ -44,10 +49,14 @@ class Hero extends Actor {
 
     if (item is Weapon) {
       oldItem = weapon;
-      if (oldItem != null) oldItem.onEquip.forEach(undo);
+      if (oldItem != null) {
+        oldItem.onEquip.forEach(undo);
+        game.log.msg('$subject unequip the ${item.name}');
+      }
 
       weapon = item;
       item.onEquip.forEach(apply);
+      game.log.msg('$subject equip the ${item.name}');
     }
 
     return oldItem;
@@ -68,7 +77,8 @@ class Hero extends Actor {
 
 /// Input-driven turn-based controller for the [Hero]
 class HeroController extends TurnController {
-  static const directions = {Input.n, Input.e, Input.s, Input.w};
+  static const directionInputs = {Input.n, Input.e, Input.s, Input.w};
+  static const itemInputs = {Input.equip, Input.pickup};
 
   InputHandler<Input>? _inputs;
 
@@ -87,7 +97,10 @@ class HeroController extends TurnController {
     _inputs ??= gameObject.get<InputHandler<Input>>()!;
 
     // movement / attack / interact
-    if (inputs.hasAny(directions)) return _handleDirections(inputs);
+    if (inputs.hasAny(directionInputs)) return _handleDirections();
+
+    // equip
+    if (inputs.hasAny(itemInputs)) return _handleItemInputs();
 
     // rest
     if (inputs.has(Input.rest)) return RestAction();
@@ -95,7 +108,7 @@ class HeroController extends TurnController {
     return null;
   }
 
-  Action? _handleDirections(InputHandler<Input> inputs) {
+  Action? _handleDirections() {
     if (inputs.has(Input.n)) return _tryDirection(Direction.n);
     if (inputs.has(Input.e)) return _tryDirection(Direction.e);
     if (inputs.has(Input.s)) return _tryDirection(Direction.s);
@@ -115,6 +128,19 @@ class HeroController extends TurnController {
 
     // check if we can move
     if (game.level.isWalkable(position)) return MoveAction(dir);
+
+    return null;
+  }
+
+  Action? _handleItemInputs() {
+    final item = game.getItemAt(gameObject.position);
+    if (item == null) return null;
+
+    if (inputs.has(Input.equip)) {
+      return EquipAction(item);
+    } else if (inputs.has(Input.pickup)) {
+      // TODO: pickup action
+    }
 
     return null;
   }
