@@ -8,7 +8,7 @@ class Monster extends Actor {
 
   Monster(this.breed, AiController ai, int maxHealth, CombatStats stats)
       : super(ai, maxHealth: maxHealth, stats: stats) {
-    renderer.set(char: breed.symbol, foreground: breed.color);
+    renderer.set(char: breed.symbol, foreground: breed.color, order: 1);
   }
 
   @override

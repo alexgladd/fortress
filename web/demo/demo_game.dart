@@ -73,6 +73,7 @@ class Minigame extends GameLayer<Input> {
   void postUpdate(double ds) {
     if (hero.position != dialogPosition) dialogPosition = Vec2.zero;
 
+    // check on end position level change
     if (!dialogOpen &&
         game.hasLevel &&
         hero.position != dialogPosition &&
@@ -82,6 +83,7 @@ class Minigame extends GameLayer<Input> {
       ui.push(levelChangeDialog);
     }
 
+    // cull dead actors
     for (var actor in deadSystem.deadActors) {
       actor.onDeath();
 

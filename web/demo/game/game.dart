@@ -1,6 +1,7 @@
 import 'package:fortress/util.dart';
 
 import 'hero.dart';
+import 'item.dart';
 import 'level.dart';
 import 'log.dart';
 import 'monster.dart';
@@ -39,6 +40,8 @@ class Game {
 
   List<Monster> get monsters => level.monsters;
 
+  List<GameItem> get items => level.items;
+
   Game();
 
   /// Resets all game state to default values (erases all progress).
@@ -53,6 +56,14 @@ class Game {
   Monster? getMonsterAt(Vec2 position) {
     for (var monster in monsters) {
       if (monster.position == position) return monster;
+    }
+
+    return null;
+  }
+
+  GameItem? getItemAt(Vec2 position) {
+    for (var item in items) {
+      if (item.position == position) return item;
     }
 
     return null;

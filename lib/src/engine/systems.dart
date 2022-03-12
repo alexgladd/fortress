@@ -8,11 +8,19 @@ import '../web/terminal.dart';
 /// Handles the rendering of [CharRenderer] components onto a [Terminal].
 /// Default [System.priority] is 1000.
 class CharRenderingSystem extends System<CharRenderer> {
+  var sortedComponents = <CharRenderer>[];
+
   @override
   int get priority => 1000;
 
   @override
   void update(double ds) {}
+
+  @override
+  void onComponentsUpdated() {
+    sortedComponents = components.toList(growable: false)
+      ..sort(((a, b) => a.order.compareTo(b.order)));
+  }
 
   /// Render the current render list to the given [terminal], optionally using
   /// the given [clipBounds] to clip [Char]s that would render outside of the
@@ -30,7 +38,7 @@ class CharRenderingSystem extends System<CharRenderer> {
           Rect(clipBounds.position, Vec2(terminal.width, terminal.height));
     }
 
-    for (var c in components) {
+    for (var c in sortedComponents) {
       var xform = c.entity.get<Transform>();
       if (xform == null) continue;
 

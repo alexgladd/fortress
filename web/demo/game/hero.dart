@@ -27,7 +27,7 @@ class Hero extends Actor {
 
   Hero() : super(HeroController(), maxHealth: 100, stats: _defaultHeroStats) {
     add(InputHandler<Input>());
-    renderer.set(char: '@', foreground: Color.gold);
+    renderer.set(char: '@', foreground: Color.gold, order: 2);
   }
 
   @override

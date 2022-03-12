@@ -40,20 +40,26 @@ class CharRenderer extends Component {
   /// The current background color to render
   Color backgroundColor;
 
+  /// The desired render order for the component (higher [order]s rendered after
+  /// lower [order]s)
+  int order;
+
   /// The [Char] that should be rendered based on the component's current state
   Char get char => Char(charCode, foregroundColor, backgroundColor);
 
   /// Create a new [CharRenderer] component, optionally providing a starting
   /// [charCode], [foregroundColor], and [backgroundColor]
-  CharRenderer(
-      [this.charCode = CharCode.space,
-      this.foregroundColor = Color.white,
-      this.backgroundColor = Color.black]);
+  CharRenderer([
+    this.charCode = CharCode.space,
+    this.foregroundColor = Color.white,
+    this.backgroundColor = Color.black,
+    this.order = 0,
+  ]);
 
   /// Update the configuration of the [Char] that will be rendered, where
   /// [char] is an [int] character code (see [CharCode]) or a non-empty
   /// [String] (only the first character is used).
-  void set({Object? char, Color? foreground, Color? background}) {
+  void set({Object? char, Color? foreground, Color? background, int? order}) {
     if (char != null) {
       if (char is int) charCode = char;
       if (char is String && char.isNotEmpty) charCode = char.codeUnits[0];
@@ -61,5 +67,7 @@ class CharRenderer extends Component {
 
     if (foreground != null) foregroundColor = foreground;
     if (background != null) backgroundColor = background;
+
+    if (order != null) this.order = order;
   }
 }

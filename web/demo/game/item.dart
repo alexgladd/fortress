@@ -27,6 +27,6 @@ class GameItem extends GameObject {
   final Item item;
 
   GameItem(this.item) : super() {
-    renderer.set(char: item.symbol, foreground: item.color);
+    renderer.set(char: item.symbol, foreground: item.color, order: 0);
   }
 }

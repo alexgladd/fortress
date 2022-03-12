@@ -355,6 +355,17 @@ abstract class System<T extends Component> with EcsBindable {
   /// last call to [update].
   void update(double ds);
 
+  /// Called whenever the [System]'s set of [components] changes
+  void onComponentsUpdated() {}
+
+  /// Called after the given [component] was added to the [System]'s set of
+  /// [components]
+  void onComponentAdded(T component) {}
+
+  /// Called after the given [component] was removed from the [System]'s set of
+  /// [components]
+  void onComponentRemoved(T component) {}
+
   @override
   bool operator ==(Object other) {
     if (other is System) return componentType == other.componentType;
@@ -370,14 +381,24 @@ abstract class System<T extends Component> with EcsBindable {
   @override
   void _unbind() {
     super._unbind();
+    _components.forEach(onComponentRemoved);
     _components.clear();
+    onComponentsUpdated();
   }
 
   /// Add the given [component] to the system's component list
-  void _addComponent(T component) => _components.add(component);
+  void _addComponent(T component) {
+    _components.add(component);
+    onComponentAdded(component);
+    onComponentsUpdated();
+  }
 
   /// Remove the given [component] from the system's component list
-  void _removeComponent(T component) => _components.remove(component);
+  void _removeComponent(T component) {
+    _components.remove(component);
+    onComponentRemoved(component);
+    onComponentsUpdated();
+  }
 
   /// Returns true if the system can process the given [component]. I.e., if the
   /// [component] is of type [T] or a descendant.
