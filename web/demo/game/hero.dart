@@ -136,7 +136,7 @@ class HeroController extends TurnController {
     final item = game.getItemAt(gameObject.position);
     if (item == null) return null;
 
-    if (inputs.has(Input.equip)) {
+    if (inputs.has(Input.equip) && (item.type == Weapon)) {
       return EquipAction(item);
     } else if (inputs.has(Input.pickup)) {
       // TODO: pickup action
