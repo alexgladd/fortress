@@ -99,11 +99,32 @@ class EquipAction extends HeroAction {
     game.level.items.remove(item);
 
     if (oldItem != null) {
-      // TODO: put in inventory if there is space
-      final drop = oldItem.create();
-      drop.position = hero.position;
-      game.level.items.add(drop);
-      hero.ecs.add(drop);
+      if (hero.hasInventorySpace) {
+        // put back into inventory
+        hero.inventory.add(oldItem);
+      } else {
+        // drop
+        final drop = oldItem.create();
+        drop.position = hero.position;
+        game.level.items.add(drop);
+        hero.ecs.add(drop);
+      }
+    }
+  }
+}
+
+class PickupAction extends HeroAction {
+  final GameItem item;
+
+  PickupAction(this.item);
+
+  @override
+  void performOnHero(Hero hero) {
+    if (hero.pickup(item.item)) {
+      hero.ecs.remove(item);
+      game.level.items.remove(item);
+    } else {
+      game.log.msg('${hero.subject} are unable to carry more items');
     }
   }
 }

@@ -25,15 +25,8 @@ class Hero extends Actor {
 
   Weapon? weapon;
 
-  Hero()
-      : super(
-          HeroController(),
-          maxHealth: 100,
-          stats: _defaultHeroStats.cloneBase(),
-        ) {
-    add(InputHandler<Input>());
-    renderer.set(char: '@', foreground: Color.gold, order: 2);
-  }
+  bool get hasInventorySpace => inventory.length < inventorySize;
+  bool get isInventoryFull => !hasInventorySpace;
 
   @override
   String get subject => 'You';
@@ -44,6 +37,16 @@ class Hero extends Actor {
   @override
   String get missVerb => 'miss';
 
+  Hero()
+      : super(
+          HeroController(),
+          maxHealth: 100,
+          stats: _defaultHeroStats.cloneBase(),
+        ) {
+    add(InputHandler<Input>());
+    renderer.set(char: '@', foreground: Color.gold, order: 2);
+  }
+
   Item? equip(Item item) {
     Item? oldItem;
 
@@ -51,7 +54,7 @@ class Hero extends Actor {
       oldItem = weapon;
       if (oldItem != null) {
         oldItem.onEquip.forEach(undo);
-        game.log.msg('$subject unequip the ${item.name}');
+        game.log.msg('$subject unequip the ${oldItem.name}');
       }
 
       weapon = item;
@@ -60,6 +63,17 @@ class Hero extends Actor {
     }
 
     return oldItem;
+  }
+
+  bool pickup(Item item) {
+    if (hasInventorySpace) {
+      inventory.add(item);
+      item.onPickup.forEach(apply);
+      game.log.msg('$subject pick up the ${item.name}');
+      return true;
+    }
+
+    return false;
   }
 
   @override
@@ -138,8 +152,8 @@ class HeroController extends TurnController {
 
     if (inputs.has(Input.equip) && (item.type == Weapon)) {
       return EquipAction(item);
-    } else if (inputs.has(Input.pickup)) {
-      // TODO: pickup action
+    } else if (inputs.has(Input.pickup) && hero.hasInventorySpace) {
+      return PickupAction(item);
     }
 
     return null;

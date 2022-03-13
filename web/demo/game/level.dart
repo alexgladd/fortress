@@ -145,15 +145,18 @@ class Level {
   }
 
   void _placeItems(List<Room> rooms) {
+    final startRoomPoints = startRoom.bounds.getPoints()..remove(startPosition);
+    final endRoomPoints = endRoom.bounds.getPoints()..remove(endPosition);
+
     for (var placedItem in _lvlData.placedItems) {
       List<Vec2> positions;
 
       switch (placedItem.placement) {
         case LevelPlacement.startRoom:
-          positions = startRoom.bounds.getPoints()..remove(startPosition);
+          positions = startRoomPoints;
           break;
         case LevelPlacement.endRoom:
-          positions = endRoom.bounds.getPoints()..remove(endPosition);
+          positions = endRoomPoints;
           break;
       }
 
@@ -162,6 +165,7 @@ class Level {
 
       gItem.position = pos;
       items.add(gItem);
+      positions.remove(pos);
     }
   }
 }
