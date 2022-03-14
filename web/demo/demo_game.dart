@@ -161,6 +161,10 @@ class Minigame extends GameLayer<Input> {
       return true;
     }
 
+    if (input == Input.inspect && game.getItemAt(hero.position) != null) {
+      ui.push(InspectModal(game.getItemAt(hero.position)!.item));
+    }
+
     return false;
   }
 

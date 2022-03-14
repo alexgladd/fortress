@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
 
@@ -66,6 +68,10 @@ class InventoryModal extends Modal<Input> {
         _equipSelectedItem();
         break;
 
+      case Input.inspect:
+        _inspectSelectedItem();
+        break;
+
       case Input.cancel:
         ui.pop();
         return true;
@@ -82,9 +88,85 @@ class InventoryModal extends Modal<Input> {
     }
   }
 
+  void _inspectSelectedItem() {
+    var item = items[selectedItem];
+    ui.push(InspectModal(item));
+  }
+
   void _changeItem(int amount) {
     if (items.isEmpty) return;
     selectedItem += amount;
     selectedItem = selectedItem.clamp(0, items.length - 1);
+  }
+}
+
+class InspectModal extends Modal<Input> {
+  static const options = '[enter] OK';
+  final List<Tuple2<String, Color?>> lines;
+
+  factory InspectModal(Item item) {
+    final lines = <Tuple2<String, Color?>>[];
+    final effectColor = Color.lightGray;
+    final maxWidth = math.max<int>(item.name.length + 2, 20);
+
+    if (item is Weapon) {
+      lines.add(Tuple2('Equipable', null));
+      lines.add(Tuple2(' ', null));
+    }
+
+    if (item.onPickup.isNotEmpty) {
+      lines.add(Tuple2('On pickup', null));
+      for (var e in item.onPickup) {
+        final splitE = e.toString().split('\n');
+        lines.addAll(splitE.map((e) => Tuple2(' $e', effectColor)));
+      }
+      lines.add(Tuple2(' ', null));
+    }
+
+    if (item.onEquip.isNotEmpty) {
+      lines.add(Tuple2('On equip', null));
+      for (var e in item.onEquip) {
+        final splitE = e.toString().split('\n');
+        lines.addAll(splitE.map((e) => Tuple2(' $e', effectColor)));
+      }
+      lines.add(Tuple2(' ', null));
+    }
+
+    if (item.onUse.isNotEmpty) {
+      lines.add(Tuple2('On use', null));
+      for (var e in item.onUse) {
+        final splitE = e.toString().split('\n');
+        lines.addAll(splitE.map((e) => Tuple2(' $e', effectColor)));
+      }
+      lines.add(Tuple2(' ', null));
+    }
+
+    final panel = Frame.forContent(maxWidth, lines.length + 1, item.name,
+        titleColor: item.color, borderColor: Color.gold, padding: 1);
+
+    return InspectModal._(lines, panel);
+  }
+
+  InspectModal._(this.lines, Panel panel) : super(panel) {
+    panel.contentRenderer = renderContent;
+  }
+
+  void renderContent(Terminal terminal) {
+    for (var i = 0; i < lines.length; i++) {
+      final line = lines[i];
+      terminal.drawText(0, i, line.first, line.second);
+    }
+
+    terminal.drawTextCenter(terminal.height - 1, options, Color.gray);
+  }
+
+  @override
+  bool onInput(Input input) {
+    if (input == Input.ok) {
+      ui.pop();
+      return true;
+    }
+
+    return false;
   }
 }
