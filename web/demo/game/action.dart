@@ -86,17 +86,26 @@ class RestAction extends ActorAction {
   }
 }
 
-/// An action that equips the [item] on the [Hero]
+/// An action that equips an [Item] or [GameItem] on the [Hero]
 class EquipAction extends HeroAction {
-  final GameItem item;
+  final GameItem? _gameItem;
+  final Item? _item;
 
-  EquipAction(this.item);
+  EquipAction(Object item)
+      : _gameItem = item is GameItem ? item : null,
+        _item = item is Item ? item : null;
 
   @override
   void performOnHero(Hero hero) {
-    Item? oldItem = hero.equip(item.item);
-    hero.ecs.remove(item);
-    game.level.items.remove(item);
+    if (_gameItem != null) _equipGameItem(hero, _gameItem!);
+    if (_item != null) _equipItem(hero, _item!);
+  }
+
+  void _equipGameItem(Hero hero, GameItem gameItem) {
+    // assume this was a pickup from the map
+    final oldItem = hero.equip(gameItem.item);
+    hero.ecs.remove(gameItem);
+    game.level.items.remove(gameItem);
 
     if (oldItem != null) {
       if (hero.hasInventorySpace) {
@@ -109,6 +118,16 @@ class EquipAction extends HeroAction {
         game.level.items.add(drop);
         hero.ecs.add(drop);
       }
+    }
+  }
+
+  void _equipItem(Hero hero, Item item) {
+    // assume this was equipped from inventory
+    hero.inventory.remove(item);
+
+    final oldItem = hero.equip(item);
+    if (oldItem != null) {
+      hero.inventory.add(oldItem);
     }
   }
 }

@@ -106,7 +106,6 @@ class TurnBasedSystem extends System<TurnController> {
     if (tc.canTakeAction) {
       var action = tc.takeAction();
       if (action != null) {
-        // print('TURN SYS ${tc.gameObject} performing $action');
         action.perform(tc.gameObject);
         return true;
       } else {

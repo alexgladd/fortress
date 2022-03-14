@@ -44,6 +44,7 @@ class LevelGeneration {
     // lvl 0
     [
       ItemPlacement(Weapon.dagger, LevelPlacement.startRoom),
+      ItemPlacement(Weapon.shortSword, LevelPlacement.startRoom),
     ],
   ];
 

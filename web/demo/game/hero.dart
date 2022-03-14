@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:fortress/engine.dart';
 import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
@@ -24,6 +26,8 @@ class Hero extends Actor {
   final inventory = <Item>[];
 
   Weapon? weapon;
+
+  HeroController get controller => turnController as HeroController;
 
   bool get hasInventorySpace => inventory.length < inventorySize;
   bool get isInventoryFull => !hasInventorySpace;
@@ -76,6 +80,8 @@ class Hero extends Actor {
     return false;
   }
 
+  void queueAction(Action action) => controller.queueAction(action);
+
   @override
   void onDeath() {
     if (lastAttacker != null) {
@@ -94,6 +100,8 @@ class HeroController extends TurnController {
   static const directionInputs = {Input.n, Input.e, Input.s, Input.w};
   static const itemInputs = {Input.equip, Input.pickup};
 
+  final actionQueue = Queue<Action>();
+
   InputHandler<Input>? _inputs;
 
   InputHandler<Input> get inputs => _inputs!;
@@ -106,9 +114,14 @@ class HeroController extends TurnController {
 
   HeroController() : super(TurnController.initiativeForAction);
 
+  void queueAction(Action action) => actionQueue.add(action);
+
   @override
   Action? getTurnAction() {
     _inputs ??= gameObject.get<InputHandler<Input>>()!;
+
+    // check action queue
+    if (actionQueue.isNotEmpty) return actionQueue.removeFirst();
 
     // movement / attack / interact
     if (inputs.hasAny(directionInputs)) return _handleDirections();

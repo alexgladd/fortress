@@ -33,8 +33,11 @@ class Panel {
   /// The width of the panel
   int get width => bounds.width;
 
-  // The height of the panel
+  /// The height of the panel
   int get height => bounds.height;
+
+  /// The size of the panel
+  Vec2 get size => bounds.size;
 
   /// Update the panel bounds; automatically updates the [contentBounds]
   set bounds(Rect newBounds) {
@@ -205,6 +208,30 @@ class Frame extends BorderPanel {
 
   /// Optional title color; defaults to [Terminal.foreground]
   Color? titleColor;
+
+  /// Create a [BorderPanel] that is sized for the given content [width] and
+  /// [height], taking the given [padding] into consideration. The resulting
+  /// panel will be positioned at (0, 0), so use a child [Terminal] to render it
+  /// at the desired location.
+  ///
+  /// See [Terminal.childRect]
+  factory Frame.forContent(
+    int width,
+    int height,
+    String title, {
+    Color? titleColor,
+    Color? borderColor,
+    Color? background,
+    int padding = 0,
+  }) {
+    var bounds = Rect(Vec2(0, 0),
+        Vec2(width + (padding * 2) + 2, height + (padding * 2) + 2));
+    return Frame(bounds, title,
+        titleColor: titleColor,
+        borderColor: borderColor,
+        background: background,
+        padding: padding);
+  }
 
   Frame(Rect bounds, this._title,
       {this.titleColor, Color? borderColor, Color? background, int padding = 0})

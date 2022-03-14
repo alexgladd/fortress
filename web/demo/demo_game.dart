@@ -10,6 +10,7 @@ import 'game/item.dart';
 import 'game/level.dart';
 import 'game/loading.dart';
 import 'game/log_panel.dart';
+import 'game/popups.dart';
 import 'game/stats_panel.dart';
 import 'game/turn_based.dart';
 import 'game/weapon.dart';
@@ -152,6 +153,11 @@ class Minigame extends GameLayer<Input> {
     if (input == Input.cancel) {
       _unloadCurrentLevel();
       ui.pop();
+      return true;
+    }
+
+    if (input == Input.inventory) {
+      ui.push(InventoryModal());
       return true;
     }
 
