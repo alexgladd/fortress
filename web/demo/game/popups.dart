@@ -85,9 +85,22 @@ class InventoryModal extends Modal<Input> {
 
   void _equipSelectedItem() {
     var item = items[selectedItem];
-    if (item is Weapon) {
+    if (item.isEquipable) {
       game.hero.queueAction(EquipAction(item));
       ui.pop();
+    } else {
+      game.log.msg('${game.hero.subject} cannot equip the ${item.name}');
+      dirty();
+    }
+  }
+
+  void _useSelectedItem() {
+    var item = items[selectedItem];
+    if (item.isUsable) {
+      // TODO: queue use action and pop
+    } else {
+      game.log.msg('${game.hero.subject} cannot use the ${item.name}');
+      dirty();
     }
   }
 
@@ -97,7 +110,7 @@ class InventoryModal extends Modal<Input> {
       game.hero.queueAction(DropAction(item));
       ui.pop();
     } else {
-      game.log.msg('There is already an item here');
+      game.log.msg('${game.hero.subject} cannot drop an item here');
       dirty();
     }
   }
@@ -124,8 +137,13 @@ class InspectModal extends Modal<Input> {
     final effectColor = Color.lightGray;
     final maxWidth = math.max<int>(item.name.length + 2, 20);
 
-    if (item is Weapon) {
+    if (item.isEquipable) {
       lines.add(Tuple2('Equipable', null));
+      lines.add(Tuple2(' ', null));
+    }
+
+    if (item.isUsable) {
+      lines.add(Tuple2('Usable', null));
       lines.add(Tuple2(' ', null));
     }
 

@@ -11,6 +11,12 @@ class Item {
   final List<Effect> onEquip;
   final List<Effect> onUse;
 
+  // consider the item usable if it has use effects
+  bool get isUsable => onUse.isNotEmpty;
+
+  // consider the item equipable if it has equip effects
+  bool get isEquipable => onEquip.isNotEmpty;
+
   const Item({
     this.name = 'Unknown Item',
     this.symbol = '!',

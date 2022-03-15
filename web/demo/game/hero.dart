@@ -183,8 +183,9 @@ class HeroController extends TurnController {
     final item = game.getItemAt(gameObject.position);
     if (item == null) return null;
 
-    if (inputs.has(Input.equip) && (item.type == Weapon)) {
-      return EquipAction(item);
+    if (inputs.has(Input.equip)) {
+      if (item.item.isEquipable) return EquipAction(item);
+      game.log.msg('${hero.subject} you cannot equip the ${item.name}');
     } else if (inputs.has(Input.pickup)) {
       if (hero.hasInventorySpace) return PickupAction(item);
       game.log.msg('${hero.subject} are unable to carry more items');
