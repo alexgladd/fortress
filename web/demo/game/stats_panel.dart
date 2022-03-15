@@ -36,12 +36,13 @@ class StatsPanel extends Frame {
 
     terminal.drawText(0, 6, 'ACC: ${_bonus(_hero.stats.accuracy)}');
     terminal.drawText(0, 7, 'DGE: ${_bonus(_hero.stats.dodge)}');
+    terminal.drawText(0, 8, 'VIS:  ${_hero.stats.vision}');
 
-    terminal.drawText(0, 9, 'Weapon: ${_hero.weapon?.name ?? '-'}');
-    terminal.drawText(0, 10, 'Armor:  -');
+    terminal.drawText(0, 10, 'Weapon: ${_hero.weapon?.name ?? '-'}');
+    terminal.drawText(0, 11, 'Armor:  -');
 
     terminal.drawText(
-        0, 12, 'Inventory: ${_hero.inventory.length} / ${Hero.inventorySize}');
+        0, 13, 'Inventory: ${_hero.inventory.length} / ${Hero.inventorySize}');
   }
 
   String _bonus(int value) => value >= 0 ? '+$value' : value.toString();

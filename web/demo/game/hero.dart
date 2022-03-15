@@ -18,6 +18,7 @@ final _defaultHeroStats = CombatStats(
   accuracy: 2,
   defense: 2,
   dodge: 2,
+  vision: 10,
 );
 
 class Hero extends Actor {
