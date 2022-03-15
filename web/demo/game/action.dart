@@ -113,10 +113,7 @@ class EquipAction extends HeroAction {
         hero.inventory.add(oldItem);
       } else {
         // drop
-        final drop = oldItem.create();
-        drop.position = hero.position;
-        game.level.items.add(drop);
-        hero.ecs.add(drop);
+        game.dropItem(oldItem, hero.position);
       }
     }
   }
@@ -145,6 +142,17 @@ class PickupAction extends HeroAction {
     } else {
       game.log.msg('${hero.subject} are unable to carry more items');
     }
+  }
+}
+
+class DropAction extends HeroAction {
+  final Item item;
+
+  DropAction(this.item);
+
+  @override
+  void performOnHero(Hero hero) {
+    if (hero.drop(item)) game.dropItem(item, hero.position);
   }
 }
 

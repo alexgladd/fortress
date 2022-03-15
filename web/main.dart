@@ -32,6 +32,7 @@ void main() async {
   _ui.keyBinds.bind(Input.pickup, KeyCode.keyP);
   _ui.keyBinds.bind(Input.inspect, KeyCode.keyV);
   _ui.keyBinds.bind(Input.inventory, KeyCode.keyI);
+  _ui.keyBinds.bind(Input.drop, KeyCode.keyD);
   _ui.push(MainMenu());
   _ui.running = true;
 

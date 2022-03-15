@@ -17,6 +17,7 @@ class Input extends InputBase {
   static const equip = Input('equip');
   static const pickup = Input('pickup');
   static const inspect = Input('inspect');
+  static const drop = Input('drop');
   static const inventory = Input('inventory');
 
   const Input(String name) : super(name);

@@ -10,7 +10,8 @@ import 'item.dart';
 import 'weapon.dart';
 
 class InventoryModal extends Modal<Input> {
-  static const options = '[↑↓] Select  [e] Equip  [v] Inspect  [esc] Back';
+  static const options =
+      '[↑↓] Select  [e] Equip  [v] Inspect  [d] Drop  [esc] Back';
   final List<Item> items;
 
   int selectedItem = 0;
@@ -56,12 +57,10 @@ class InventoryModal extends Modal<Input> {
     switch (input) {
       case Input.n:
         _changeItem(-1);
-        dirty();
         return true;
 
       case Input.s:
         _changeItem(1);
-        dirty();
         return true;
 
       case Input.equip:
@@ -70,6 +69,10 @@ class InventoryModal extends Modal<Input> {
 
       case Input.inspect:
         _inspectSelectedItem();
+        break;
+
+      case Input.drop:
+        _dropSelectedItem();
         break;
 
       case Input.cancel:
@@ -88,6 +91,17 @@ class InventoryModal extends Modal<Input> {
     }
   }
 
+  void _dropSelectedItem() {
+    var item = items[selectedItem];
+    if (game.getItemAt(game.hero.position) == null) {
+      game.hero.queueAction(DropAction(item));
+      ui.pop();
+    } else {
+      game.log.msg('There is already an item here');
+      dirty();
+    }
+  }
+
   void _inspectSelectedItem() {
     var item = items[selectedItem];
     ui.push(InspectModal(item));
@@ -97,6 +111,7 @@ class InventoryModal extends Modal<Input> {
     if (items.isEmpty) return;
     selectedItem += amount;
     selectedItem = selectedItem.clamp(0, items.length - 1);
+    dirty();
   }
 }
 

@@ -57,23 +57,43 @@ class Hero extends Actor {
     if (item is Weapon) {
       oldItem = weapon;
       if (oldItem != null) {
-        oldItem.onEquip.forEach(undo);
         game.log.msg('$subject unequip the ${oldItem.name}');
+        oldItem.onEquip.forEach(undo);
       }
 
       weapon = item;
-      item.onEquip.forEach(apply);
       game.log.msg('$subject equip the ${item.name}');
+      item.onEquip.forEach(apply);
     }
 
     return oldItem;
   }
 
+  bool use(Item item) {
+    if (inventory.remove(item)) {
+      game.log.msg('$subject use the ${item.name}');
+      item.onUse.forEach(apply);
+      return true;
+    }
+
+    return false;
+  }
+
   bool pickup(Item item) {
     if (hasInventorySpace) {
       inventory.add(item);
-      item.onPickup.forEach(apply);
       game.log.msg('$subject pick up the ${item.name}');
+      item.onPickup.forEach(apply);
+      return true;
+    }
+
+    return false;
+  }
+
+  bool drop(Item item) {
+    if (inventory.remove(item)) {
+      game.log.msg('$subject drop the ${item.name}');
+      item.onPickup.forEach(undo);
       return true;
     }
 
@@ -165,8 +185,9 @@ class HeroController extends TurnController {
 
     if (inputs.has(Input.equip) && (item.type == Weapon)) {
       return EquipAction(item);
-    } else if (inputs.has(Input.pickup) && hero.hasInventorySpace) {
-      return PickupAction(item);
+    } else if (inputs.has(Input.pickup)) {
+      if (hero.hasInventorySpace) return PickupAction(item);
+      game.log.msg('${hero.subject} are unable to carry more items');
     }
 
     return null;

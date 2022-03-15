@@ -1,3 +1,4 @@
+import 'package:fortress/engine.dart';
 import 'package:fortress/util.dart';
 
 import 'hero.dart';
@@ -33,6 +34,9 @@ class Game {
   /// The game [Hero]
   Hero get hero => _hero!;
 
+  /// The game [EntityComponentSystem] (attached to the [Hero])
+  EntityComponentSystem get ecs => hero.ecs;
+
   /// Set the game [Hero]
   set hero(Hero hero) => _hero = hero;
 
@@ -67,5 +71,16 @@ class Game {
     }
 
     return null;
+  }
+
+  bool dropItem(Item item, Vec2 position) {
+    if (getItemAt(position) != null) return false;
+
+    final drop = item.create();
+    drop.position = position;
+    items.add(drop);
+    ecs.add(drop);
+
+    return true;
   }
 }
