@@ -127,13 +127,10 @@ class HeroController extends TurnController {
 
   InputHandler<Input> get inputs => _inputs!;
 
-  @override
-  int get initiativePerTurn => 50;
-
   /// Get the attached entity as a [Hero]
   Hero get hero => gameObject as Hero;
 
-  HeroController() : super(TurnController.initiativeForAction);
+  HeroController() : super(TurnController.initiativeForAction, 50);
 
   void queueAction(Action action) => actionQueue.add(action);
 

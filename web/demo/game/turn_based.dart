@@ -8,15 +8,26 @@ abstract class TurnController extends Component {
   static const initiativeForAction = 100;
 
   int _initiative;
+  int _initiativePerTurn;
 
-  /// Amount of initiative gained per idle turn
-  int get initiativePerTurn => 10;
+  /// Amount of initiative gained per idle turn (0 - [initiativeForAction])
+  int get initiativePerTurn => _initiativePerTurn;
+
+  /// Set the amount of initiative gained per idle turn
+  set initiativePerTurn(int value) =>
+      _initiativePerTurn = value.clamp(0, initiativeForAction);
 
   /// True if there is enough accumulated initiative to take a turn
   bool get canTakeAction => _initiative >= initiativeForAction;
 
   /// Create a turn controller with the given starting [initiative]
-  TurnController([int initiative = 0]) : _initiative = initiative;
+  TurnController([int initiative = 0, int initiativePerTurn = 10])
+      : _initiative = initiative,
+        _initiativePerTurn = initiativePerTurn;
+
+  /// Modify [initiativePerTurn] by the given [amount]
+  void modInitiativePerTurn(int amount) =>
+      initiativePerTurn = initiativePerTurn + amount;
 
   /// Perform no action this turn; accumulate [initiativePerTurn] initiative
   void idleTurn() => _initiative += initiativePerTurn;
@@ -59,6 +70,10 @@ abstract class TurnBasedObject extends GameObject {
   TurnBasedObject(this.turnController) {
     add(turnController);
   }
+
+  /// Modify the actor's speed (initiative per turn) by [amount]
+  void modifyInitiative(int amount) =>
+      turnController.modInitiativePerTurn(amount);
 }
 
 /// Process turn-based entities. Default [System.priority] is 200.

@@ -62,6 +62,21 @@ class HealthEffect extends Effect {
   }
 }
 
+class SpeedEffect extends Effect {
+  final int speedMod;
+
+  @override
+  String get description => '${speedMod > 0 ? '+' : ''}$speedMod speed';
+
+  SpeedEffect(this.speedMod);
+
+  @override
+  void doEffect(Actor actor) => actor.modifyInitiative(speedMod);
+
+  @override
+  void undoEffect(Actor actor) => actor.modifyInitiative(-speedMod);
+}
+
 /// Set the actor's base attack (e.g., from a weapon)
 class BaseAttackEffect extends Effect {
   final int attack;

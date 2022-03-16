@@ -14,7 +14,11 @@ class Weapon extends Item {
     name: 'Short Sword of Agility',
     attackVerb: 'slash',
     color: Color.lightGreen,
-    onEquip: [BaseAttackEffect(8), BuffEffect(accuracy: 2, vision: 2)],
+    onEquip: [
+      BaseAttackEffect(8),
+      BuffEffect(accuracy: 2, vision: 2),
+      SpeedEffect(10),
+    ],
   );
 
   final String attackVerb;
