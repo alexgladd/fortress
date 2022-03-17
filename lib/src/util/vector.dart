@@ -1,7 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:fortress/util.dart';
-
 import 'direction.dart';
 import 'line.dart';
 

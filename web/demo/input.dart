@@ -14,7 +14,7 @@ class Input extends InputBase {
   static const cancel = Input('cancel');
 
   static const rest = Input('rest');
-  static const equip = Input('equip');
+  static const equipUse = Input('equip-use');
   static const pickup = Input('pickup');
   static const inspect = Input('inspect');
   static const drop = Input('drop');

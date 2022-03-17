@@ -23,7 +23,7 @@ class ItemPlacement {
 
 class LevelGenData {
   final roomMonsters = <Breed, int>{};
-  final corridorMonsters = <Breed, int>{};
+  final roomItems = <Item, int>{};
   final placedMonsters = <MonsterPlacement>[];
   final placedItems = <ItemPlacement>[];
 }
@@ -36,15 +36,18 @@ class LevelGeneration {
     Breed.lesserDemon: [10, 10, 15, 15, 20, 20, 25, 25, 20, 20],
   };
 
-  // static final roomItems = {};
+  static final roomItems = {
+    Item.elixerHealth: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+  };
 
-  // static final placedMonster = [];
+  // static final placedMonsters = [];
 
   static final placedItems = [
     // lvl 0
     [
       ItemPlacement(Weapon.dagger, LevelPlacement.startRoom),
       ItemPlacement(Weapon.shortSword, LevelPlacement.startRoom),
+      ItemPlacement(Item.elixerHealWounds, LevelPlacement.startRoom),
     ],
   ];
 
@@ -53,9 +56,16 @@ class LevelGeneration {
     var levelData = LevelGenData();
 
     for (var breed in roomMonsters.keys) {
-      var breedChances = roomMonsters[breed];
-      if (breedChances != null && breedChances.length > lvl) {
+      var breedChances = roomMonsters[breed]!;
+      if (breedChances.length > lvl) {
         levelData.roomMonsters[breed] = breedChances[lvl];
+      }
+    }
+
+    for (var item in roomItems.keys) {
+      var itemChances = roomItems[item]!;
+      if (itemChances.length > lvl) {
+        levelData.roomItems[item] = itemChances[lvl];
       }
     }
 

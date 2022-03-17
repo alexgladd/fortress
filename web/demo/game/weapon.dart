@@ -13,11 +13,11 @@ class Weapon extends Item {
   static final shortSword = Weapon(
     name: 'Short Sword of Agility',
     attackVerb: 'slash',
-    color: Color.lightGreen,
+    color: Item.rarityUncommon,
     onEquip: [
       BaseAttackEffect(8),
       BuffEffect(accuracy: 2, vision: 2),
-      SpeedEffect(10),
+      SpeedEffect(15),
     ],
   );
 

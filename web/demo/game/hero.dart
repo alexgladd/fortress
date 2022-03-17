@@ -70,14 +70,9 @@ class Hero extends Actor {
     return oldItem;
   }
 
-  bool use(Item item) {
-    if (inventory.remove(item)) {
-      game.log.msg('$subject use the ${item.name}');
-      item.onUse.forEach(apply);
-      return true;
-    }
-
-    return false;
+  void use(Item item) {
+    game.log.msg('$subject use the ${item.name}');
+    item.onUse.forEach(apply);
   }
 
   bool pickup(Item item) {
@@ -119,7 +114,7 @@ class Hero extends Actor {
 /// Input-driven turn-based controller for the [Hero]
 class HeroController extends TurnController {
   static const directionInputs = {Input.n, Input.e, Input.s, Input.w};
-  static const itemInputs = {Input.equip, Input.pickup};
+  static const itemInputs = {Input.equipUse, Input.pickup};
 
   final actionQueue = Queue<Action>();
 
@@ -181,9 +176,10 @@ class HeroController extends TurnController {
     final item = game.getItemAt(gameObject.position);
     if (item == null) return null;
 
-    if (inputs.has(Input.equip)) {
+    if (inputs.has(Input.equipUse)) {
       if (item.item.isEquipable) return EquipAction(item);
-      game.log.msg('${hero.subject} you cannot equip the ${item.name}');
+      if (item.item.isUsable) return UseAction(item);
+      game.log.msg('${hero.subject} you cannot equip or use the ${item.name}');
     } else if (inputs.has(Input.pickup)) {
       if (hero.hasInventorySpace) return PickupAction(item);
       game.log.msg('${hero.subject} are unable to carry more items');

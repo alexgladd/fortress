@@ -28,7 +28,7 @@ void main() async {
   _ui.keyBinds.bind(Input.ok, KeyCode.enter);
   _ui.keyBinds.bind(Input.cancel, KeyCode.escape);
   _ui.keyBinds.bind(Input.rest, KeyCode.keyR);
-  _ui.keyBinds.bind(Input.equip, KeyCode.keyE);
+  _ui.keyBinds.bind(Input.equipUse, KeyCode.keyE);
   _ui.keyBinds.bind(Input.pickup, KeyCode.keyP);
   _ui.keyBinds.bind(Input.inspect, KeyCode.keyV);
   _ui.keyBinds.bind(Input.inventory, KeyCode.keyI);

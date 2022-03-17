@@ -15,6 +15,7 @@ class LogPanel extends Frame {
     var logs = game.log.getLogs(lines);
 
     for (var i = 0; i < logs.length; i++) {
+      // TODO: word-wrap log panel text
       terminal.drawText(0, i, logs[i].msg, _textColor(logs[i].type));
     }
   }

@@ -104,7 +104,7 @@ class EquipAction extends HeroAction {
   void _equipGameItem(Hero hero, GameItem gameItem) {
     // assume this was a pickup from the map
     final oldItem = hero.equip(gameItem.item);
-    hero.ecs.remove(gameItem);
+    game.ecs.remove(gameItem);
     game.level.items.remove(gameItem);
 
     if (oldItem != null) {
@@ -120,12 +120,40 @@ class EquipAction extends HeroAction {
 
   void _equipItem(Hero hero, Item item) {
     // assume this was equipped from inventory
-    hero.inventory.remove(item);
+    if (!hero.inventory.remove(item)) return;
 
     final oldItem = hero.equip(item);
     if (oldItem != null) {
       hero.inventory.add(oldItem);
     }
+  }
+}
+
+class UseAction extends HeroAction {
+  final GameItem? _gameItem;
+  final Item? _item;
+
+  UseAction(Object item)
+      : _gameItem = item is GameItem ? item : null,
+        _item = item is Item ? item : null;
+
+  @override
+  void performOnHero(Hero hero) {
+    if (_gameItem != null) _useGameItem(hero, _gameItem!);
+    if (_item != null) _useItem(hero, _item!);
+  }
+
+  void _useGameItem(Hero hero, GameItem gameItem) {
+    // assume this was used directly from the map
+    hero.use(gameItem.item);
+    game.ecs.remove(gameItem);
+    game.level.items.remove(gameItem);
+  }
+
+  void _useItem(Hero hero, Item item) {
+    // assume this was used from inventory
+    if (!hero.inventory.remove(item)) return;
+    hero.use(item);
   }
 }
 
@@ -137,7 +165,7 @@ class PickupAction extends HeroAction {
   @override
   void performOnHero(Hero hero) {
     if (hero.pickup(item.item)) {
-      hero.ecs.remove(item);
+      game.ecs.remove(item);
       game.level.items.remove(item);
     } else {
       game.log.msg('${hero.subject} are unable to carry more items');

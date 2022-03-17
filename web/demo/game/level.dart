@@ -126,6 +126,7 @@ class Level {
   }
 
   void _placeMonsters(List<Room> rooms) {
+    // randomly-placed monsters
     for (var room in rooms) {
       if (room == startRoom) continue;
 
@@ -136,18 +137,44 @@ class Level {
           var pos = rng.item(roomPositions);
           roomPositions.remove(pos);
 
-          var monster = breed.create();
+          final monster = breed.create();
           monster.position = pos;
           monsters.add(monster);
         }
       }
     }
+
+    // TODO: placed monsters
   }
 
   void _placeItems(List<Room> rooms) {
     final startRoomPoints = startRoom.bounds.getPoints()..remove(startPosition);
     final endRoomPoints = endRoom.bounds.getPoints()..remove(endPosition);
 
+    // randomly-placed items
+    for (var room in rooms) {
+      List<Vec2> roomPositions;
+      if (room == startRoom) {
+        roomPositions = startRoomPoints;
+      } else if (room == endRoom) {
+        roomPositions = endRoomPoints;
+      } else {
+        roomPositions = room.bounds.getPoints();
+      }
+
+      for (var item in _lvlData.roomItems.keys) {
+        if (rng.percent(_lvlData.roomItems[item]!)) {
+          var pos = rng.item(roomPositions);
+          roomPositions.remove(pos);
+
+          final gameItem = item.create();
+          gameItem.position = pos;
+          items.add(gameItem);
+        }
+      }
+    }
+
+    // placed items
     for (var placedItem in _lvlData.placedItems) {
       List<Vec2> positions;
 

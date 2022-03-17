@@ -4,6 +4,22 @@ import 'package:fortress/web.dart';
 import 'effect.dart';
 
 class Item {
+  static const rarityNormal = Color.white;
+  static const rarityUncommon = Color.lightGreen;
+  static const rarityRare = Color.lightPurple;
+  static const rarityUnique = Color.orange;
+
+  static const elixerHealth = Item(
+    name: 'Elixer of Health',
+    onUse: [HealEffect(10)],
+  );
+
+  static const elixerHealWounds = Item(
+    name: 'Elixer of Heal Wounds',
+    color: rarityUncommon,
+    onUse: [HealthEffect(0, restoreHealth: true)],
+  );
+
   final String name;
   final String symbol;
   final Color color;
@@ -19,8 +35,8 @@ class Item {
 
   const Item({
     this.name = 'Unknown Item',
-    this.symbol = '!',
-    this.color = Color.white,
+    this.symbol = '*',
+    this.color = rarityNormal,
     this.onPickup = const [],
     this.onEquip = const [],
     this.onUse = const [],

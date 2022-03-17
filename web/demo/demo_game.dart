@@ -17,7 +17,7 @@ import 'game/weapon.dart';
 import 'input.dart';
 
 const _help =
-    '[↑↓←→]: Move/Attack  [e]: Equip  [p]: Pickup  [v]: Inspect  [esc]: Quit';
+    '[↑↓←→]: Move/Attack  [e]: Equip/Use  [p]: Pickup  [v]: Inspect  [esc]: Quit';
 
 class Minigame extends GameLayer<Input> {
   static const rightPanelWidth = 24;

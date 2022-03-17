@@ -15,12 +15,12 @@ class StatsPanel extends Frame {
   void renderContent(Terminal terminal) {
     terminal.drawText(0, 0, 'Health:');
     terminal.drawText(8, 0, '${_hero.health.current} / ${_hero.health.max}',
-        Color.lightGreen);
+        _valueToColor(_hero.health.current, _hero.health.max));
 
     var speedPct = _hero.actionsPerTurn.clamp(0.0, 1.0) * 100.0;
     terminal.drawText(0, 2, 'Speed:');
-    terminal.drawText(
-        8, 2, '${speedPct.toStringAsPrecision(3)}%', Color.yellow);
+    terminal.drawText(8, 2, '${speedPct.toStringAsPrecision(3)}%',
+        _valueToColor(speedPct, 100));
 
     terminal.drawText(
         0,
@@ -46,4 +46,17 @@ class StatsPanel extends Frame {
   }
 
   String _bonus(int value) => value >= 0 ? '+$value' : value.toString();
+
+  Color _valueToColor(
+    num value,
+    num max, {
+    Color low = Color.red,
+    Color medium = Color.yellow,
+    Color high = Color.lightGreen,
+  }) {
+    var oneThird = max / 3.0;
+    if (value <= oneThird) return low;
+    if (value <= oneThird * 2) return medium;
+    return high;
+  }
 }

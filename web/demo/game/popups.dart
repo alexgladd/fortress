@@ -7,11 +7,10 @@ import '../input.dart';
 import 'action.dart';
 import 'game.dart';
 import 'item.dart';
-import 'weapon.dart';
 
 class InventoryModal extends Modal<Input> {
   static const options =
-      '[↑↓] Select  [e] Equip  [v] Inspect  [d] Drop  [esc] Back';
+      '[↑↓] Select  [e] Equip/Use  [v] Inspect  [d] Drop  [esc] Back';
   final List<Item> items;
 
   int selectedItem = 0;
@@ -63,8 +62,8 @@ class InventoryModal extends Modal<Input> {
         _changeItem(1);
         return true;
 
-      case Input.equip:
-        _equipSelectedItem();
+      case Input.equipUse:
+        _equipUseSelectedItem();
         break;
 
       case Input.inspect:
@@ -83,23 +82,16 @@ class InventoryModal extends Modal<Input> {
     return false;
   }
 
-  void _equipSelectedItem() {
+  void _equipUseSelectedItem() {
     var item = items[selectedItem];
     if (item.isEquipable) {
       game.hero.queueAction(EquipAction(item));
       ui.pop();
+    } else if (item.isUsable) {
+      game.hero.queueAction(UseAction(item));
+      ui.pop();
     } else {
-      game.log.msg('${game.hero.subject} cannot equip the ${item.name}');
-      dirty();
-    }
-  }
-
-  void _useSelectedItem() {
-    var item = items[selectedItem];
-    if (item.isUsable) {
-      // TODO: queue use action and pop
-    } else {
-      game.log.msg('${game.hero.subject} cannot use the ${item.name}');
+      game.log.msg('${game.hero.subject} cannot equip or use the ${item.name}');
       dirty();
     }
   }
