@@ -40,7 +40,12 @@ class LevelGeneration {
     Item.elixerHealth: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
   };
 
-  // static final placedMonsters = [];
+  static final placedMonsters = [
+    // lvl 0
+    [
+      MonsterPlacement(Breed.lesserDemon, LevelPlacement.endRoom),
+    ],
+  ];
 
   static final placedItems = [
     // lvl 0
