@@ -10,6 +10,7 @@ import 'actor.dart';
 import 'combat.dart';
 import 'game.dart';
 import 'item.dart';
+import 'monster.dart';
 import 'turn_based.dart';
 import 'weapon.dart';
 
@@ -32,6 +33,20 @@ class Hero extends Actor {
 
   bool get hasInventorySpace => inventory.length < inventorySize;
   bool get isInventoryFull => !hasInventorySpace;
+
+  List<Monster> get visibleMonsters {
+    final list = <Monster>[];
+    final fov = Circle.filled(position, stats.vision);
+
+    for (var pos in fov) {
+      final monster = game.getMonsterAt(pos);
+      if (monster != null && game.level.hasLos(position, monster.position)) {
+        list.add(monster);
+      }
+    }
+
+    return list;
+  }
 
   @override
   String get subject => 'You';
@@ -113,7 +128,16 @@ class Hero extends Actor {
 
 /// Input-driven turn-based controller for the [Hero]
 class HeroController extends TurnController {
-  static const directionInputs = {Input.n, Input.e, Input.s, Input.w};
+  static const directionInputs = {
+    Input.n,
+    Input.runN,
+    Input.e,
+    Input.runE,
+    Input.s,
+    Input.runS,
+    Input.w,
+    Input.runW
+  };
   static const itemInputs = {Input.equipUse, Input.pickup};
 
   final actionQueue = Queue<Action>();
@@ -154,6 +178,11 @@ class HeroController extends TurnController {
     if (inputs.has(Input.s)) return _tryDirection(Direction.s);
     if (inputs.has(Input.w)) return _tryDirection(Direction.w);
 
+    if (inputs.has(Input.runN)) return _tryRun(Direction.n);
+    if (inputs.has(Input.runE)) return _tryRun(Direction.e);
+    if (inputs.has(Input.runS)) return _tryRun(Direction.s);
+    if (inputs.has(Input.runW)) return _tryRun(Direction.w);
+
     return null;
   }
 
@@ -172,6 +201,18 @@ class HeroController extends TurnController {
     return null;
   }
 
+  Action? _tryRun(Direction dir) {
+    if (hero.visibleMonsters.isNotEmpty) {
+      game.log.msg('${hero.subject} cannot run with monsters nearby');
+      gameObject.dirty();
+      return null;
+    }
+
+    if (game.level.isWalkable(gameObject.position + dir)) return RunAction(dir);
+
+    return null;
+  }
+
   Action? _handleItemInputs() {
     final item = game.getItemAt(gameObject.position);
     if (item == null) return null;
@@ -179,10 +220,12 @@ class HeroController extends TurnController {
     if (inputs.has(Input.equipUse)) {
       if (item.item.isEquipable) return EquipAction(item);
       if (item.item.isUsable) return UseAction(item);
-      game.log.msg('${hero.subject} you cannot equip or use the ${item.name}');
+      game.log.msg('${hero.subject} cannot equip or use the ${item.name}');
+      gameObject.dirty();
     } else if (inputs.has(Input.pickup)) {
       if (hero.hasInventorySpace) return PickupAction(item);
       game.log.msg('${hero.subject} are unable to carry more items');
+      gameObject.dirty();
     }
 
     return null;

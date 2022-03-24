@@ -10,6 +10,15 @@ class Input extends InputBase {
   static const w = Input('southwest');
   static const nw = Input('northwest');
 
+  static const runN = Input('run-north');
+  static const runNE = Input('run-northeast');
+  static const runE = Input('run-east');
+  static const runSE = Input('run-southeast');
+  static const runS = Input('run-south');
+  static const runSW = Input('run-southwest');
+  static const runW = Input('run-west');
+  static const runNW = Input('run-northwest');
+
   static const ok = Input('ok');
   static const cancel = Input('cancel');
 

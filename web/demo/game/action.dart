@@ -86,6 +86,35 @@ class RestAction extends ActorAction {
   }
 }
 
+/// An action that continues to move the [Hero] in the given direction until
+/// either hitting unwalkable terrain or seeing a monster
+class RunAction extends HeroAction {
+  final Direction dir;
+
+  RunAction(this.dir);
+
+  @override
+  void performOnHero(Hero hero) {
+    // move
+    hero.position += dir;
+    hero.dirty();
+
+    // check surroundings for visible monsters
+    final monsters = hero.visibleMonsters;
+    if (monsters.isNotEmpty) {
+      // a monster has come into view; stop running
+      game.log.msg('${hero.subject} stop running after seeing '
+          '${monsters[0].subject.toLowerCase()}');
+      return;
+    }
+
+    // queue next run
+    if (game.level.isWalkable(hero.position + dir)) {
+      hero.controller.queueAction(RunAction(dir));
+    }
+  }
+}
+
 /// An action that equips an [Item] or [GameItem] on the [Hero]
 class EquipAction extends HeroAction {
   final GameItem? _gameItem;
