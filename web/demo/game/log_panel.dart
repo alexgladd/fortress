@@ -11,12 +11,23 @@ class LogPanel extends Frame {
 
   @override
   void renderContent(Terminal terminal) {
-    var lines = terminal.height;
-    var logs = game.log.getLogs(lines);
+    final lines = terminal.height;
+    final logs = game.log.getLogs(lines);
+    var line = 0;
 
     for (var i = 0; i < logs.length; i++) {
-      // TODO: word-wrap log panel text
-      terminal.drawText(0, i, logs[i].msg, _textColor(logs[i].type));
+      final msgLines = wordWrap(logs[i].msg, terminal.width - 2);
+      final color = _textColor(logs[i].type);
+
+      for (var n = 0; n < msgLines.length; n++) {
+        if (line < lines) {
+          terminal.drawText(
+              0, line, n == 0 ? '» ${msgLines[n]}' : '  ${msgLines[n]}', color);
+          line++;
+        }
+      }
+
+      if (line >= lines) break;
     }
   }
 

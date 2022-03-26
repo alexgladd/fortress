@@ -9,4 +9,5 @@ export 'src/util/rect.dart';
 export 'src/util/rng.dart';
 export 'src/util/roll.dart';
 export 'src/util/tuple.dart';
+export 'src/util/utilities.dart';
 export 'src/util/vector.dart';

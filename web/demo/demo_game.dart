@@ -21,7 +21,7 @@ const _help =
 
 class Minigame extends GameLayer<Input> {
   static const rightPanelWidth = 24;
-  static const bottomPanelHeight = 8;
+  static const bottomPanelHeight = 9;
 
   final hero = Hero();
   final deadSystem = ActorDeathSystem();

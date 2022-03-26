@@ -74,6 +74,10 @@ class LevelGeneration {
       }
     }
 
+    if (placedMonsters.length > lvl) {
+      levelData.placedMonsters.addAll(placedMonsters[lvl]);
+    }
+
     if (placedItems.length > lvl) {
       levelData.placedItems.addAll(placedItems[lvl]);
     }
