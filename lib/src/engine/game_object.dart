@@ -51,6 +51,14 @@ class GameObject extends Entity {
     return distance;
   }
 
+  /// The squared distance to the [other] game object. Useful for doing distance
+  /// comparisons where the true distance is not relevant. More performant than
+  /// [distanceTo].
+  int sqDistanceTo(GameObject other) {
+    final delta = other.position - position;
+    return delta.lengthSquared;
+  }
+
   @override
   String toString() => 'GameObject($id)';
 }

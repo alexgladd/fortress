@@ -10,6 +10,7 @@ import 'game/item.dart';
 import 'game/level.dart';
 import 'game/loading.dart';
 import 'game/log_panel.dart';
+import 'game/monster_panel.dart';
 import 'game/popups.dart';
 import 'game/stats_panel.dart';
 import 'game/turn_based.dart';
@@ -28,6 +29,7 @@ class Minigame extends GameLayer<Input> {
   late final Array2<Color> background;
   late StatsPanel statsPanel;
   late LogPanel logPanel;
+  late MonsterPanel monsterPanel;
 
   bool dialogOpen = false;
   Vec2 dialogPosition = Vec2.zero;
@@ -119,6 +121,7 @@ class Minigame extends GameLayer<Input> {
         terminal.childCenter(layoutBounds.width, layoutBounds.height);
 
     statsPanel.render(rTerm);
+    monsterPanel.render(rTerm);
     logPanel.render(rTerm);
 
     var helpTerm = rTerm.child(
@@ -179,17 +182,39 @@ class Minigame extends GameLayer<Input> {
     }
 
     gameViewport = Rect(
-        Vec2.zero,
-        Vec2(layoutBounds.width - rightPanelWidth,
-            layoutBounds.height - bottomPanelHeight));
+      Vec2.zero,
+      Vec2(
+        layoutBounds.width - rightPanelWidth,
+        layoutBounds.height - bottomPanelHeight,
+      ),
+    );
 
     statsPanel = StatsPanel(
-        Rect(Vec2(layoutBounds.right - rightPanelWidth, 0),
-            Vec2(rightPanelWidth, layoutBounds.height - 1)),
-        hero);
+      Rect(
+        Vec2(layoutBounds.right - rightPanelWidth, 0),
+        Vec2(rightPanelWidth, StatsPanel.minHeight),
+      ),
+      hero,
+    );
 
-    logPanel = LogPanel(Rect.sides(layoutBounds.bottom - bottomPanelHeight,
-        layoutBounds.right - rightPanelWidth, layoutBounds.bottom - 1, 0));
+    monsterPanel = MonsterPanel(
+      Rect.sides(
+        statsPanel.bounds.bottom,
+        layoutBounds.right,
+        layoutBounds.bottom,
+        statsPanel.bounds.left,
+      ),
+      hero,
+    );
+
+    logPanel = LogPanel(
+      Rect.sides(
+        layoutBounds.bottom - bottomPanelHeight,
+        layoutBounds.right - rightPanelWidth,
+        layoutBounds.bottom - 1,
+        0,
+      ),
+    );
   }
 
   void _loadLevel(Level level) {

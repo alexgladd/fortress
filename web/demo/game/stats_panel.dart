@@ -4,6 +4,7 @@ import 'package:fortress/web.dart';
 import 'hero.dart';
 
 class StatsPanel extends Frame {
+  static const minHeight = 14 + 4;
   final Hero _hero;
 
   StatsPanel(Rect bounds, Hero hero)
@@ -23,16 +24,18 @@ class StatsPanel extends Frame {
         _valueToColor(speedPct, 100));
 
     terminal.drawText(
-        0,
-        4,
-        'ATK:  ${_hero.stats.attack} (d${_hero.stats.attackBase} '
-        '${_bonus(_hero.stats.attackBonus)})');
+      0,
+      4,
+      'ATK:  ${_hero.stats.attack} (d${_hero.stats.attackBase} '
+      '${_bonus(_hero.stats.attackBonus)})',
+    );
 
     terminal.drawText(
-        0,
-        5,
-        'DEF:  ${_hero.stats.defense} (d${_hero.stats.defenseBase} '
-        '${_bonus(_hero.stats.defenseBonus)})');
+      0,
+      5,
+      'DEF:  ${_hero.stats.defense} (d${_hero.stats.defenseBase} '
+      '${_bonus(_hero.stats.defenseBonus)})',
+    );
 
     terminal.drawText(0, 6, 'ACC: ${_bonus(_hero.stats.accuracy)}');
     terminal.drawText(0, 7, 'DGE: ${_bonus(_hero.stats.dodge)}');
