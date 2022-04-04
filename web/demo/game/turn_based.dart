@@ -96,7 +96,6 @@ class TurnBasedSystem extends System<TurnController> {
     // check if we've finished a turn
     if (turnPending.isEmpty) {
       _turn++;
-      // print('TURN SYS starting turn $turn');
       turnPending.addAll(components);
     }
 

@@ -6,6 +6,7 @@ import 'canvas_terminal.dart';
 import 'char.dart';
 import 'color.dart';
 import 'unicode_map.dart';
+import '../core/fortress.dart';
 import '../util/char_code.dart';
 import '../util/vector.dart';
 
@@ -13,6 +14,8 @@ import '../util/vector.dart';
 /// must be supplied with a mapping between supported characters and the glyphs.
 /// This renderer works best when supplied with an appropriate pixel density scale.
 class GlyphRenderer extends CanvasRenderer {
+  static final log = Fortress.logger('GlyphRenderer');
+
   /// Default set of glyphs covering the code page 437 content.
   ///
   /// Copyright (c) 2014 Robert Nystrom.
@@ -75,7 +78,7 @@ class GlyphRenderer extends CanvasRenderer {
     // start loading the image
     _glyphs.src = glyphSrc;
 
-    print('CHAR width ${_charSize.x}, height ${_charSize.y}');
+    log.debug('Char width ${_charSize.x}, height ${_charSize.y}');
   }
 
   @override

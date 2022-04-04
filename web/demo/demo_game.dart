@@ -1,3 +1,4 @@
+import 'package:fortress/core.dart';
 import 'package:fortress/engine.dart';
 import 'package:fortress/util.dart';
 import 'package:fortress/web.dart';
@@ -23,6 +24,8 @@ const _help =
 class Minigame extends GameLayer<Input> {
   static const rightPanelWidth = 24;
   static const bottomPanelHeight = 9;
+
+  static final log = Fortress.logger('DemoGame');
 
   final hero = Hero();
   final deadSystem = ActorDeathSystem();
@@ -124,9 +127,7 @@ class Minigame extends GameLayer<Input> {
     monsterPanel.render(rTerm);
     logPanel.render(rTerm);
 
-    var helpTerm = rTerm.child(
-        (rTerm.width - _help.length) ~/ 2, rTerm.height - 1, _help.length, 1);
-    helpTerm.drawText(0, 0, _help, Color.gray);
+    rTerm.drawTextCenter(rTerm.height - 1, _help, Color.gray);
 
     var viewportTerm = rTerm.childRect(gameViewport);
     if (game.hasLevel) _renderMap(viewportTerm);
@@ -139,7 +140,7 @@ class Minigame extends GameLayer<Input> {
     if (popped is LoadingScreen) {
       _loadLevel(result! as Level);
     } else if (popped == levelChangeDialog) {
-      print('LEVEL CHANGE result $result');
+      log.debug('Level change result $result');
       dialogOpen = false;
 
       bool isReady = result! as bool;
@@ -201,7 +202,7 @@ class Minigame extends GameLayer<Input> {
       Rect.sides(
         statsPanel.bounds.bottom,
         layoutBounds.right,
-        layoutBounds.bottom,
+        layoutBounds.bottom - 1,
         statsPanel.bounds.left,
       ),
       hero,
@@ -239,8 +240,8 @@ class Minigame extends GameLayer<Input> {
               'darkness...');
     }
 
-    print('GAME built $level');
-    print('LEVEL start ${level.startPosition}');
+    log.debug('Built $level');
+    log.debug('Level start ${level.startPosition}');
   }
 
   void _unloadCurrentLevel() {

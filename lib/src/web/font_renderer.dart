@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'canvas_renderer.dart';
 import 'canvas_terminal.dart';
 import 'char.dart';
+import '../core/fortress.dart';
 import '../util/vector.dart';
 
 /// Renders characters to a [CanvasTerminal] using normal fonts and text
@@ -16,6 +17,8 @@ class FontRenderer extends CanvasRenderer {
 
   /// Default font string for high pixel density scale
   static const cssFont2x = 'normal 24px "Menlo", "Courier", monospace';
+
+  static final log = Fortress.logger('FontRenderer');
 
   /// Measure the size of the given [text] (or a single character by default) in
   /// pixels using the given 2D [context] and the given CSS [font] string.
@@ -36,9 +39,9 @@ class FontRenderer extends CanvasRenderer {
     int descent = metrics.actualBoundingBoxDescent?.round() ?? 0;
     int height = ascent.abs() + descent.abs();
 
-    print(
-        'MEASURE: left $left, right $right, ascent $ascent, descent $descent');
-    print('CHAR width $width, height $height');
+    log.debug(
+        'Measure: left $left, right $right, ascent $ascent, descent $descent');
+    log.debug('Char width $width, height $height');
 
     return Vec2(width, height);
   }

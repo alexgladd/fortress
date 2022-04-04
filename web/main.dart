@@ -1,20 +1,29 @@
 import 'dart:html' as html;
 
+import 'package:fortress/core.dart';
 import 'package:fortress/web.dart';
 
 import 'demo/input.dart';
 import 'demo/main_menu.dart';
 
+final log = Fortress.logger('Main');
 final renderType = CanvasRendererType.glyph;
 late final UserInterface<Input> _ui;
 
 void main() async {
-  var terminal = _makeTerminal();
+  // set debug if running locally
+  final location = html.window.location;
+  if (location.hostname == 'localhost' || location.hostname == '127.0.0.1') {
+    Fortress.enableDebugMode();
+    log.debug('Detected localhost; Fortress debug mode enabled');
+  }
+
+  final terminal = _makeTerminal();
 
   // ensure all renderer assets are loaded
   await terminal.loaded;
 
-  print('TERM cols ${terminal.width}, rows ${terminal.height}');
+  log.debug('Terminal cols ${terminal.width}, rows ${terminal.height}');
 
   _ui = UserInterface<Input>(terminal);
 
@@ -58,7 +67,7 @@ void main() async {
   // terminal.canvas.onClick.listen((event) {
   //   // we must offset the mouse position here because of how the canvas renders pixels
   //   var pixels = Vec2((event.offset.x - 0.5).toInt(), (event.offset.y - 0.5).toInt());
-  //   print('CLICK x ${pixels.x}, y ${pixels.y}');
+  //   log.debug('CLICK x ${pixels.x}, y ${pixels.y}');
   //   var pos = terminal.pixelsToPosition(pixels);
 
   //   terminal.drawChar(pos.x, pos.y, Char.create(CharCode.fullBlock, Color.brown));
@@ -75,7 +84,8 @@ CanvasTerminal _makeTerminal() {
   var scale = html.window.devicePixelRatio.toInt();
   var gameDiv = html.querySelector('#game')!;
 
-  print('GAME width ${gameDiv.clientWidth}, height ${gameDiv.clientHeight}');
+  log.debug(
+      'Game width ${gameDiv.clientWidth}, height ${gameDiv.clientHeight}');
 
   switch (renderType) {
     case CanvasRendererType.font:

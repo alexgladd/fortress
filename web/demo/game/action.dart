@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:fortress/core.dart';
 import 'package:fortress/engine.dart';
 import 'package:fortress/util.dart';
 
@@ -215,6 +216,8 @@ class DropAction extends HeroAction {
 
 /// An action that attacks a [target]
 class AttackAction extends ActorAction {
+  static final log = Fortress.logger('AttackAction');
+
   final Actor target;
 
   AttackAction(this.target);
@@ -260,7 +263,7 @@ class AttackAction extends ActorAction {
 
     target.health.damage(damage);
 
-    print('ATTACK HIT $attacker -> $target for $damage '
+    log.debug('ATTACK HIT $attacker -> $target for $damage '
         '(${target.health.current}hp) [hit: $hit, dodge: '
         '${dodge ?? 'none'}, atk: $atkPower, def: $defPower');
 
@@ -269,7 +272,7 @@ class AttackAction extends ActorAction {
   }
 
   void _attackMiss(Actor attacker, int hit, [int? dodge]) {
-    print('ATTACK MISS $attacker -> $target (${target.health.current}hp) '
+    log.debug('ATTACK MISS $attacker -> $target (${target.health.current}hp) '
         '[hit: $hit, dodge: ${dodge ?? 'none'}]');
 
     game.log.combat('${attacker.subject} ${attacker.missVerb} '
